@@ -1,6 +1,0 @@
-#No access to sprites, sounds, or backgrounds
-#Options +FollowSymLinks
-#RewriteEngine On
-#RewriteRule ^sprites(.*) /errors/403.php
-#RewriteRule ^sounds(.*) /errors/403.php
-#RewriteRule ^backgrounds(.*) /errors/403.php
