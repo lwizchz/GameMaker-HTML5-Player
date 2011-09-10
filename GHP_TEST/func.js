@@ -8,7 +8,7 @@
 //  -remain unobfuscated except specific sprites, sounds, backgrounds
 //    paths, GML scripts, fonts, time lines, objects, or rooms
 //  -give credit to the correct programmers
-//We will soon have a repository to post updated and improved code.
+//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 //Have fun.
 
 ///////////////////
