@@ -232,7 +232,7 @@ function eventMouseMove(e)
 {
   if (e != undefined)
   {
-	mouseX = e.pageX-maincan.offsetLeft;
-	mouseY = e.pageY-maincan.offsetTop;
+	mouseX = e.pageX-canvas.offsetLeft;
+	mouseY = e.pageY-canvas.offsetTop;
   }
 }
