@@ -19,16 +19,9 @@ function eventGameEnd()
 {
   eventRoomEnd(); 
 }
-function eventRoomStart()
+function eventRoomStart(i)
 {
-  instanceCreate(objControl, 0, 0);
-  instanceCreate(objPlayer, 100, 250);
-  instanceCreate(objFloor, 100, 350);
-  instanceCreate(objFloor, 132, 350);
-  instanceCreate(objFloor, 164, 350);
-  instanceCreate(objFloor, 196, 350);
-  instanceCreate(objFloor, 228, 350);
-  instanceCreate(objFloor, 260, 318);
+  roomOpen(i);
 }
 function eventRoomChange()
 {
@@ -239,8 +232,7 @@ function eventMouseMove(e)
 {
   if (e != undefined)
   {
-    mouseX = e.pageX;
-	mouseY = e.pageY;
-	click = "#33CC33";
+	mouseX = e.pageX-maincan.offsetLeft;
+	mouseY = e.pageY-maincan.offsetTop;
   }
 }

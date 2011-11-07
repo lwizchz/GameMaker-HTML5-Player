@@ -99,6 +99,22 @@ function drawSprite(sprite, x, y)
 {
   context.drawImage(sprite, x, y);
 }
+function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
+{
+  context.save();
+  context.rotate(angle * (Math.PI / 180));
+  context.scale(xscale, yscale);
+  context.globalAlpha = alpha;
+  if (typeof sprite.siwidth != undefined)
+  {
+    context.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, (xscale != abs(xscale))? -(x+2*sprite.siwidth) : (x+sprite.siwidth), y, sprite.siwidth, sprite.height);
+  }
+  else
+  {
+    context.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, x+sprite.width, y, sprite.width, sprite.height);
+  }
+  context.restore();
+}
 function drawCircle(x, y, r, fill)
 {
   context.beginPath();
@@ -113,10 +129,8 @@ function clearDraw()
 {
   canvas.width = canvas.width;
 }
-function drawSetBackground(isback, back_name, fill)
+function drawSetBackground(isback, back, fill)
 {
-  var back = new Image();
-  back.src = "backgrounds/"+back_name+".png";
   if (isback == true)
   {
     drawSetColor(fill);

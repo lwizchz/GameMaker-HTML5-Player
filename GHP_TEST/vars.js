@@ -25,6 +25,11 @@ fps = 60;
 cfps = 0;
 tfps = fps;
 
+var room, room_width, room_height;
+room = 0;
+room_width = 640;
+room_height = 480;
+
 var foreground = new Array();
 var keys = new Array();
 var pkey = new Array();
@@ -113,6 +118,9 @@ sprCursor = new Image();
 sprCursor.src = "sprites/sprCursor.png";
 sprPie = new Image();
 sprPie.src = "sprites/sprPie.png";
+sprPlayer = new Image();
+sprPlayer.src = "sprites/sprPlayer.png";
+sprPlayer.siwidth = 32;
 sprFloor = new Image();
 sprFloor.src = "sprites/sprFloor.png";
 
@@ -120,6 +128,12 @@ sprFloor.src = "sprites/sprFloor.png";
 sndClick = new Audio();
 sndClick.src = "sounds/sndClick.wav";
 sndClick.load();
+
+//Backgrounds
+bckMain = new Image();
+bckMain.src = "backgrounds/bckMain.png";
+bckFore = new Image();
+bckFore.src = "backgrounds/bckFore.png";
 
 //Objects
 function instanceCreate(inst, x, y)
@@ -136,6 +150,7 @@ objControl = function()
   //Do nothing
 }
 objControl.id = new Array();
+objControl.sprite = 0;
 objControl.Create = function(i, x, y)
 {
   objControl.id[i] = new Array();
@@ -148,7 +163,7 @@ objControl.Create = function(i, x, y)
 }
 objControl.Draw = function()
 {
-  drawSetBackground(true, "bckMain", "#999999");
+  drawSetBackground(true, bckMain, "#999999");
   drawSetColor(cBlack);
   drawText("Copyright (c) 2011 Pixel Matrix Studios, by piluke, see the commented license for more information.", 0, 10);
   drawText("FPS: "+tfps, 600, 10);
@@ -164,7 +179,7 @@ objControl.Draw = function()
   drawCircle(275, 100, 50, true);
   drawSetColor(cBlue);
   drawText("Radial gradients are actually cones.\#They render differently in different browsers.", 350, 100);
-  drawSetBackground(false, "bckFore", cBlack);
+  drawSetBackground(false, bckFore, cBlack);
 }
 
 //ObjPlayer
@@ -173,6 +188,10 @@ function objPlayer(i)
   //Do nothing
 }
 objPlayer.id = new Array();
+objPlayer.sprite = sprPlayer;
+objPlayer.subimg = 0;
+objPlayer.sid = 0;
+objPlayer.imgnumb = 8;
 objPlayer.Create = function(i, x, y)
 {
   objPlayer.id[i] = new Array();
@@ -181,9 +200,9 @@ objPlayer.Create = function(i, x, y)
   objPlayer.id[i]["startx"] = x;
   objPlayer.id[i]["starty"] = y;
   objPlayer.id[i]["face"] = 1;
-  objPlayer.id[i]["sprite"] = 0;
+  objPlayer.id[i]["sprite"] = sprPlayer;
   objPlayer.id[i]["width"] = 32;
-  objPlayer.id[i]["height"] = 50;
+  objPlayer.id[i]["height"] = 32;
   objPlayer.id[i]["self"] = objPlayer.id[i];
   objPlayer.id[i]["name"] = objPlayer.name;
 }
@@ -232,18 +251,22 @@ objPlayer.Step = function()
 }
 objPlayer.Draw = function()
 {
+  objPlayer.sid = objPlayer.sid+(1000/fps);
+  objPlayer.subimg = objPlayer.sid % objPlayer.imgnumb;
   for (var i=0;i<objPlayer.id.length;i++)
   {
-	drawSetColor(cBlack);
-    drawRect(objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.id[i]["x"]+32, objPlayer.id[i]["y"]+50);
-    if (objPlayer.id[i]["face"] == 1)
-    {
-      drawRect(objPlayer.id[i]["x"]+24, objPlayer.id[i]["y"]+7, objPlayer.id[i]["x"]+27, objPlayer.id[i]["y"]+9);
-    }
-    else if (objPlayer.id[i]["face"] == -1)
-    {
-      drawRect(objPlayer.id[i]["x"]+9, objPlayer.id[i]["y"]+7, objPlayer.id[i]["x"]+12, objPlayer.id[i]["y"]+9);
-    }
+	if (keys[vkLeft])
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cWhite, 1);
+	}
+	else if (keys[vkRight])
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, 1, 1, 0, cWhite, 1);
+	}
+	else
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], 0, 1, 1, 0, cWhite, 1);
+	}
     drawText("Move and click the mouse!#Move around with the arrow keys!#Press \"R\" to reset.", 100, 250);
   }
 }
@@ -261,6 +284,7 @@ function objFloor(i)
   //Do nothing
 }
 objFloor.id = new Array();
+objFloor.sprite = 0;
 objFloor.Create = function(i, x, y)
 {
   objFloor.id[i] = new Array();
@@ -276,4 +300,63 @@ objFloor.Draw = function()
   {
     drawSprite(objFloor.id[i]["sprite"], objFloor.id[i]["x"], objFloor.id[i]["y"]);
   }
+}
+
+//Rooms
+var rooms = new Array();
+rooms[0] = rmMain;
+function roomOpen(i)
+{
+  for (var e=0;e<rooms[i].inst.length;e++)
+  {
+    instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
+  }
+  room_width = rooms[i].width;
+  room_height = rooms[i].height;
+}
+
+//rmMain
+function rmMain(i)
+{
+  //Do nothing
+}
+rmMain.inst = new Array();
+rmMain.rmCrCode = false;
+rmMain.objCrCode = false;
+rmMain.width = 640;
+rmMain.height = 480;
+rmMain.Create = function()
+{
+  rmMain.inst[0] = new Array();
+  rmMain.inst[0][0] = objControl;
+  rmMain.inst[0][1] = 0;
+  rmMain.inst[0][2] = 0;
+  rmMain.inst[1] = new Array();
+  rmMain.inst[1][0] = objPlayer;
+  rmMain.inst[1][1] = 100;
+  rmMain.inst[1][2] = 250;
+  rmMain.inst[2] = new Array();
+  rmMain.inst[2][0] = objFloor;
+  rmMain.inst[2][1] = 100;
+  rmMain.inst[2][2] = 350;
+  rmMain.inst[3] = new Array();
+  rmMain.inst[3][0] = objFloor;
+  rmMain.inst[3][1] = 132;
+  rmMain.inst[3][2] = 350;
+  rmMain.inst[4] = new Array();
+  rmMain.inst[4][0] = objFloor;
+  rmMain.inst[4][1] = 164;
+  rmMain.inst[4][2] = 350;
+  rmMain.inst[5] = new Array();
+  rmMain.inst[5][0] = objFloor;
+  rmMain.inst[5][1] = 196;
+  rmMain.inst[5][2] = 350;
+  rmMain.inst[6] = new Array();
+  rmMain.inst[6][0] = objFloor;
+  rmMain.inst[6][1] = 228;
+  rmMain.inst[6][2] = 350;
+  rmMain.inst[7] = new Array();
+  rmMain.inst[7][0] = objFloor;
+  rmMain.inst[7][1] = 260;
+  rmMain.inst[7][2] = 318;
 }

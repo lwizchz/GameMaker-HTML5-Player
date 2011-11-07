@@ -15,19 +15,26 @@ function gameStart()
 {
   preImg = new Image();
   imgUrl = new Array();
-  imgUrl[0] = "sprites/sprPie.png";
-  imgUrl[1] = "sprites/sprCursor.png";
-  imgUrl[2] = "backgrounds/bckMain.png";
-  imgUrl[3] = "backgrounds/bckFore.png";
+  imgUrl[0] = "sprites/sprCursor.png";
+  imgUrl[1] = "sprites/sprPie.png";
+  imgUrl[2] = "sprites/sprPlayer.png";
+  imgUrl[3] = "sprites/sprCursor.png";
+  imgUrl[4] = "sprites/sprFloor.png";
+  imgUrl[5] = "backgrounds/bckMain.png";
+  imgUrl[6] = "backgrounds/bckFore.png";
   for (var i=0;i<imgUrl.length;i++)
   {
     preImg.src = imgUrl[i];
+  }
+  for (var i=0;i<rooms.length;i++)
+  {
+    rooms[i].Create();
   }
   eventInstCrCode();
   eventCreate();
   eventGameStart();
   eventRoomCrCode();
-  eventRoomStart();
+  eventRoomStart(room);
   eventDraw();
 }
 function mainStep()
@@ -56,12 +63,4 @@ function mainStep()
   eventDraw();
   eventAnimationEnd();
 }
-function stepInit()
-{
-  cfps = 0;
-  for (i=0;i<fps;i++)
-  {
-    setTimeout("mainStep()", i);
-  }
-}
-setInterval("mainStep()", 1000/fps);
+setInterval("mainStep();", 1000/fps);
