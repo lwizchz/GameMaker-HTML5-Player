@@ -98,6 +98,7 @@ function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
 function drawSprite(sprite, x, y)
 {
   context.drawImage(sprite, x, y);
+}
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
 {
   context.save();
