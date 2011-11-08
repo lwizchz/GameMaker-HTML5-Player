@@ -46,37 +46,37 @@ function drawSetColor(color)
 }
 function drawText(text, x, y)
 {
-  if (text.indexOf("#") != -1)
+  if (text.indexOf("~#") != -1)
   {
-    //Needs fixing
-    if (text.indexOf("\\") != -1)
-	{
-	  if (text.indexOf("\\") == text.indexOf("#")-1)
-	  {
-	    text1 = text.substr(0, text.indexOf("\\"));
-		text2 = text.substr(0, text.indexOf("\\")+1);
-		text1.concat(text2);
-		context.fillText(text, x, y);
-	  }
-	  else
-	  {
-	    text1 = text.substr(0, text.indexOf("#"));
-	    text2 = text.substr(text.indexOf("#")+1, text.length);
-	    drawText(text1, x, y);
-	    drawText(text2, x, y+10);
-	  }
-	}
-	else
-	{
-	  text1 = text.substr(0, text.indexOf("#"));
-	  text2 = text.substr(text.indexOf("#")+1, text.length);
-	  drawText(text1, x, y);
-	  drawText(text2, x, y+10);
-	}
+    text1 = text.substr(0, text.indexOf("~#"));
+	text2 = text.substr(text.indexOf("~#")+2, text.length);
+	drawText(text1, x, y);
+	drawText(text2, x, y+stringHeight(text1)+2);
+  }
+  else if (text.indexOf("~a:") != -1) //Hyperlinks
+  {
+	link = text.substr(text.indexOf("~a:")+3, text.length).indexOf("~");
+	func = text.substr(text.indexOf("~a:")+3, link);
+	text1 = text.substr(0, text.indexOf("~a:"));
+	text2 = text.substr(text.indexOf("~a:")+func.length+4, text.substring(text.indexOf("~a:")+func.length+4, text.length).indexOf("~"));
+	drawText(text1+text2, x, y);
+	addLink(func, x+stringWidth(text1), y-stringHeight(text), stringWidth(text2), stringHeight(text));
   }
   else
   {
-    context.fillText(text, x, y);
+    if ((globalFont instanceof Font) || (globalFont == null))
+	{
+	  context.font = globalFont.font;
+	  context.fillText(text, x, y);
+	  context.strokeText(text, x, y);
+	}
+	else if (globalFont instanceof SpriteFont) //jimn346
+	{
+ 	  for(var i = 0; i <= stringLength(text) - 1; i++)
+	  {
+	    drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.width + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
+	  }
+	}
   }
 }
 function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
@@ -102,16 +102,17 @@ function drawSprite(sprite, x, y)
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
 {
   context.save();
+  context.translate((xscale != abs(xscale))? (x+sprite.siwidth) : x, y);
   context.rotate(angle * (Math.PI / 180));
   context.scale(xscale, yscale);
   context.globalAlpha = alpha;
   if (typeof sprite.siwidth != undefined)
   {
-    context.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, (xscale != abs(xscale))? -(x+2*sprite.siwidth) : (x+sprite.siwidth), y, sprite.siwidth, sprite.height);
+    context.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
   }
   else
   {
-    context.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, x+sprite.width, y, sprite.width, sprite.height);
+    context.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
   }
   context.restore();
 }
@@ -127,6 +128,7 @@ function drawCircle(x, y, r, fill)
 }
 function clearDraw()
 {
+  links.length = 0;
   canvas.width = canvas.width;
 }
 function drawSetBackground(isback, back, fill)
@@ -158,6 +160,92 @@ function drawCursor()
 {
   context.drawImage(cursor, mouseX, mouseY);
 }
+function drawSetFont(font)
+{
+  globalFont = font;
+}
+function addLink(func, x, y, width, height)
+{
+  links[0] = new Array();
+  links[0][0] = func;
+  links[0][1] = x;
+  links[0][2] = y;
+  links[0][3] = width;
+  links[0][4] = height;
+}
+function drawLinks()
+{
+  if (links.length > 0)
+  {
+	for (var i=0;i<links.length;i++)
+	{
+	  if ((mouseX >= links[i][1])&&(mouseY >= links[i][2])&&(mouseX <= links[i][1]+links[i][3])&&(mouseY <= links[i][2]+links[i][4]))
+	  {
+		drawLine(links[i][1], links[i][2]+links[i][4]+2, links[i][1]+links[i][3], links[i][2]+links[i][4]+2, false);
+	  }
+	}
+  }
+}
+//////////////////////////
+//Font functions - jimn346
+//////////////////////////
+function fontAdd(name, size, bold, italic)
+{
+  this.temp = new Font();
+  temp.font = name;
+  temp.size = size;
+  temp.style = bold + italic * 2;
+  return temp;
+}
+function fontAddSprite(sprite, first, prop, sep)
+{
+  this.temp = new SpriteFont();
+  temp.sprite = sprite;
+  temp.start = first;
+  temp.sep = sep;
+  return temp;
+}
+function fontExists(ind)
+{
+  if (ind instanceof Font || ind instanceof SpriteFont)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+function fontGetFontname(ind)
+{
+  return ind.name;
+}
+function fontDelete(ind)
+{
+  delete ind;
+}
+function fontGetBold(ind)
+{
+  if (ind instanceof Font && (ind.style == 1 || ind.style == 3))
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+function fontGetItalic(ind)
+{
+  if (ind instanceof Font && (ind.style == 2 || ind.style == 3))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 ////////////////
 //Math Functions
 ////////////////
@@ -367,6 +455,14 @@ function ord(x, y)
 function stringLength(str)
 {
   return str.length;
+}
+function stringWidth(str)
+{
+  return context.measureText(str).width;
+}
+function stringHeight(str)
+{
+  return context.measureText("m").width;
 }
 function stringLower(str)
 {

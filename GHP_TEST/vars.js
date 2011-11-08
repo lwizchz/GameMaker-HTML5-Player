@@ -30,6 +30,10 @@ room = 0;
 room_width = 640;
 room_height = 480;
 
+var globalFont, links;
+globalFont = null;
+links = new Array();
+
 var foreground = new Array();
 var keys = new Array();
 var pkey = new Array();
@@ -135,6 +139,56 @@ bckMain.src = "backgrounds/bckMain.png";
 bckFore = new Image();
 bckFore.src = "backgrounds/bckFore.png";
 
+//Fonts
+function fontAdd(name, size, bold, italic)
+{
+  this.temp = new Font();
+  temp.style = bold + italic * 2;
+  this.str = "";
+  if (temp.style == 1)
+  {
+    str = "bold ";
+  }
+  if (temp.style == 2)
+  {
+    str = "italic ";
+  }
+  if (temp.style == 3)
+  {
+    str = "italic bold ";
+  }
+  str += size + "pt " + name;
+  temp.font = str;
+  temp.name = name;
+  temp.size = size;
+  return temp;
+}
+function fontAddSprite(sprite, first, prop, sep)
+{
+  this.temp = new SpriteFont();
+  temp.sprite = sprite;
+  temp.start = first;
+  temp.sep = sep;
+  return temp;
+}
+function Font() //jimn346
+{
+  this.font = null;
+  this.name = null;
+  this.size = null;
+  this.style = null;
+}
+function SpriteFont() //jimn346
+{
+  this.sprite = null;
+  this.start = null;
+  this.sep = null;
+}
+fntMain = fontAdd("Calibri", 8, false, false);
+fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
+fntSwitch2 = fontAdd("Verdana", 16, false, true);
+fntOther = fntSwitch1;
+
 //Objects
 function instanceCreate(inst, x, y)
 {
@@ -165,6 +219,7 @@ objControl.Draw = function()
 {
   drawSetBackground(true, bckMain, "#999999");
   drawSetColor(cBlack);
+  drawSetFont(fntMain);
   drawText("Copyright (c) 2011 Pixel Matrix Studios, by piluke, see the commented license for more information.", 0, 10);
   drawText("FPS: "+tfps, 600, 10);
   drawRect(0, 0, 470, 12, false);
@@ -178,7 +233,9 @@ objControl.Draw = function()
   drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
   drawCircle(275, 100, 50, true);
   drawSetColor(cBlue);
-  drawText("Radial gradients are actually cones.\#They render differently in different browsers.", 350, 100);
+  drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
+  drawSetFont(fntOther);
+  drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
   drawSetBackground(false, bckFore, cBlack);
 }
 
@@ -267,7 +324,8 @@ objPlayer.Draw = function()
 	{
 	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], 0, 1, 1, 0, cWhite, 1);
 	}
-    drawText("Move and click the mouse!#Move around with the arrow keys!#Press \"R\" to reset.", 100, 250);
+	drawSetFont(fntMain);
+    drawText("Move and click the mouse!~#Move around with the arrow keys!~#Press \"R\" to reset.", 100, 250);
   }
 }
 objPlayer.Collision = function(obj)

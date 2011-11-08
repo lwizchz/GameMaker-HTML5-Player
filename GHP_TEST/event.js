@@ -55,6 +55,7 @@ function eventDraw()
   objPlayer.Draw();
   objFloor.Draw();
   drawForegrounds();
+  drawLinks();
   drawCursor();
 }
 function eventStepBegin()
@@ -211,7 +212,7 @@ function eventMouse(e)
 {
   if (e != undefined)
   {
-    click = "#0000FF";
+    //
   }
 }
 function eventMousePress(e)
@@ -225,14 +226,24 @@ function eventMouseRelease(e)
 {
   if (e != undefined)
   {
-    click = "#0000FF";
+    //Do links
+	if (links.length > 0)
+	{
+	  for (var i=0;i<links.length;i++)
+	  {
+	    if ((mouseX >= links[i][1])&&(mouseY >= links[i][2])&&(mouseX <= links[i][1]+links[i][3])&&(mouseY <= links[i][2]+links[i][4]))
+		{
+		  eval(links[i][0]);
+		}
+	  }
+	}
   }
 }
 function eventMouseMove(e)
 {
   if (e != undefined)
   {
-	mouseX = e.pageX-maincan.offsetLeft;
-	mouseY = e.pageY-maincan.offsetTop;
+	mouseX = e.pageX-canvas.offsetLeft;
+	mouseY = e.pageY-canvas.offsetTop;
   }
 }
