@@ -102,7 +102,11 @@ function drawSprite(sprite, x, y)
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
 {
   context.save();
+<<<<<<< HEAD
   context.translate((xscale != abs(xscale))? (x+sprite.siwidth) : x, y);
+=======
+  context.translate(x, y);
+>>>>>>> ef94b3319f91a5ec76d3467ff57d8cee6bbc6779
   context.rotate(angle * (Math.PI / 180));
   context.scale(xscale, yscale);
   context.globalAlpha = alpha;

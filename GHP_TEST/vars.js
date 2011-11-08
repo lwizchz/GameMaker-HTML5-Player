@@ -314,7 +314,7 @@ objPlayer.Draw = function()
   {
 	if (keys[vkLeft])
 	{
-	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cWhite, 1);
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cWhite, 1);
 	}
 	else if (keys[vkRight])
 	{
