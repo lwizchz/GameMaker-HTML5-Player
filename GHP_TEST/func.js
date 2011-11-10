@@ -68,7 +68,6 @@ function drawText(text, x, y)
 	{
 	  context.font = globalFont.font;
 	  context.fillText(text, x, y);
-	  context.strokeText(text, x, y);
 	}
 	else if (globalFont instanceof SpriteFont) //jimn346
 	{
