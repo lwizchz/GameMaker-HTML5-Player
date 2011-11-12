@@ -127,6 +127,9 @@ sprPlayer.src = "sprites/sprPlayer.png";
 sprPlayer.siwidth = 32;
 sprFloor = new Image();
 sprFloor.src = "sprites/sprFloor.png";
+sprBitFont = new Image();
+sprBitFont.src = "sprites/sprBitFont.png";
+sprBitFont.siwidth = 32;
 
 //Sounds
 sndClick = new Audio();
@@ -188,6 +191,7 @@ fntMain = fontAdd("Calibri", 8, false, false);
 fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
 fntSwitch2 = fontAdd("Verdana", 16, false, true);
 fntOther = fntSwitch1;
+fntBitmap = fontAddSprite(sprBitFont, 33, 0, -16);
 
 //Objects
 function instanceCreate(inst, x, y)
@@ -236,6 +240,8 @@ objControl.Draw = function()
   drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
   drawSetFont(fntOther);
   drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
+  drawSetFont(fntBitmap);
+  drawText("You can even use~#sprite fonts!", 16, 176);
   drawSetBackground(false, bckFore, cBlack);
 }
 

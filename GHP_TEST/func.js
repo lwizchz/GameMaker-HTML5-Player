@@ -71,9 +71,12 @@ function drawText(text, x, y)
 	}
 	else if (globalFont instanceof SpriteFont) //jimn346
 	{
- 	  for(var i = 0; i <= stringLength(text) - 1; i++)
+ 	  for(var i = 0; i <= text.length - 1; i++)
 	  {
-	    drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.width + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
+	    if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
+		{
+	      drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
+		}
 	  }
 	}
   }
@@ -441,7 +444,6 @@ function chr(x, y)
 }
 function ord(x, y)
 {
-  x = stringUpper(x);
   if (y == null)
   {
     return x.charCodeAt(0);
@@ -461,7 +463,15 @@ function stringWidth(str)
 }
 function stringHeight(str)
 {
-  return context.measureText("m").width;
+  if (globalFont instanceof Font)
+  {
+    context.font = globalFont.font;
+    return context.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
+  }
+  else if (globalFont instanceof SpriteFont)
+  {
+    return globalFont.sprite.height * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
+  }
 }
 function stringLower(str)
 {
