@@ -13,7 +13,13 @@
 
 var canvas = document.getElementById("maincan");
 var context = canvas.getContext("2d");
+var cursurf = canvas;
+var curcon = context;
+//These were added to handle the current surface
 var keymap = new Array();
+
+//The surface is a global variable in this example just so it was easier to code.
+var surf;
 
 //Constants and globals
 var mouseX, mouseY;
@@ -217,6 +223,13 @@ objControl.Create = function(i, x, y)
   objControl.id[i]["sprite"] = 0;
   objControl.id[i]["width"] = 0;
   objControl.id[i]["height"] = 0;
+  surf = surfaceCreate(64, 64);
+  surfaceSetTarget(surf);
+  drawSetColor(cRed);
+  drawCircle(32, 32, 16, 1);
+  drawSetColor(cBlue);
+  drawCircle(64, 64, 32, 0);
+  surfaceResetTarget();
   drawSetCursor(sprCursor);
 }
 objControl.Draw = function()
@@ -243,6 +256,10 @@ objControl.Draw = function()
   drawSetFont(fntBitmap);
   drawText("You can even use~#sprite fonts!", 16, 176);
   drawSetBackground(false, bckFore, cBlack);
+  drawSurface(surf, 12, 240);
+  drawSetFont(fntMain);
+  drawSetColor(surfaceGetpixel(surf, 32, 32));
+  drawText("Surfaces can be~#used too!", 12, 312);
 }
 
 //ObjPlayer

@@ -20,16 +20,16 @@ function drawLine(x1, y1, x2, y2)
   y1-=0.5;
   x2-=0.5;
   y2-=0.5;
-  context.beginPath();
-  context.moveTo(x1, y1);
-  context.lineTo(x2, y2);
-  context.stroke();
+  curcon.beginPath();
+  curcon.moveTo(x1, y1);
+  curcon.lineTo(x2, y2);
+  curcon.stroke();
 }
 function drawRect(x1, y1, x2, y2, fill)
 {
   if (fill == true)
   {
-	context.fillRect(x1, y1, x2-x1, y2-y1);
+	curcon.fillRect(x1, y1, x2-x1, y2-y1);
   }
   else
   {
@@ -41,8 +41,8 @@ function drawRect(x1, y1, x2, y2, fill)
 }
 function drawSetColor(color)
 {
-  context.strokeStyle = color;
-  context.fillStyle = color;
+  curcon.strokeStyle = color;
+  curcon.fillStyle = color;
 }
 function drawText(text, x, y)
 {
@@ -66,8 +66,8 @@ function drawText(text, x, y)
   {
     if ((globalFont instanceof Font) || (globalFont == null))
 	{
-	  context.font = globalFont.font;
-	  context.fillText(text, x, y);
+	  curcon.font = globalFont.font;
+	  curcon.fillText(text, x, y);
 	}
 	else if (globalFont instanceof SpriteFont) //jimn346
 	{
@@ -87,45 +87,45 @@ function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
   
   if (linear == true)
   {
-	gradient = context.createLinearGradient(x1, y1, x2, y2);
+	gradient = curcon.createLinearGradient(x1, y1, x2, y2);
   }
   else
   {
-    gradient = context.createRadialGradient(x1, y1, r1, x2, y2, r2);
+    gradient = curcon.createRadialGradient(x1, y1, r1, x2, y2, r2);
   }
   gradient.addColorStop(0, col1);
   gradient.addColorStop(1, col2);
-  context.fillStyle = gradient;
+  curcon.fillStyle = gradient;
 }
 function drawSprite(sprite, x, y)
 {
-  context.drawImage(sprite, x, y);
+  curcon.drawImage(sprite, x, y);
 }
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
 {
-  context.save();
-  context.translate(x, y);
-  context.rotate(angle * (Math.PI / 180));
-  context.scale(xscale, yscale);
-  context.globalAlpha = alpha;
+  curcon.save();
+  curcon.translate(x, y);
+  curcon.rotate(angle * (Math.PI / 180));
+  curcon.scale(xscale, yscale);
+  curcon.globalAlpha = alpha;
   if (typeof sprite.siwidth != undefined)
   {
-    context.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
+    curcon.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
   }
   else
   {
-    context.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+    curcon.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
   }
-  context.restore();
+  curcon.restore();
 }
 function drawCircle(x, y, r, fill)
 {
-  context.beginPath();
-  context.arc(x, y, r, 0, Math.PI*2, fill);
-  context.stroke();
+  curcon.beginPath();
+  curcon.arc(x, y, r, 0, Math.PI*2, fill);
+  curcon.stroke();
   if (fill == true)
   {
-    context.fill();
+    curcon.fill();
   }
 }
 function clearDraw()
@@ -139,7 +139,7 @@ function drawSetBackground(isback, back, fill)
   {
     drawSetColor(fill);
 	drawRect(0, 0, canvas.width, canvas.height, true);
-	context.drawImage(back, 0, 0);
+	curcon.drawImage(back, 0, 0);
   }
   else
   {
@@ -150,7 +150,7 @@ function drawForegrounds()
 {
   for (var i=0;i<foreground.length;i++)
   {
-    context.drawImage(foreground[i], 0, 0);
+    curcon.drawImage(foreground[i], 0, 0);
   }
   foreground.length = 0;
 }
@@ -160,7 +160,7 @@ function drawSetCursor(cur)
 }
 function drawCursor()
 {
-  context.drawImage(cursor, mouseX, mouseY);
+  curcon.drawImage(cursor, mouseX, mouseY);
 }
 function drawSetFont(font)
 {
@@ -431,6 +431,10 @@ function pointDirection(x1, y1, x2, y2)
 //////////////////
 //String Functions
 //////////////////
+function string(x)
+{
+  return "" + x;
+}
 function chr(x, y)
 {
   if (y == null)
@@ -459,14 +463,14 @@ function stringLength(str)
 }
 function stringWidth(str)
 {
-  return context.measureText(str).width;
+  return curcon.measureText(str).width;
 }
 function stringHeight(str)
 {
   if (globalFont instanceof Font)
   {
-    context.font = globalFont.font;
-    return context.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
+    curcon.font = globalFont.font;
+    return curcon.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
   }
   else if (globalFont instanceof SpriteFont)
   {
@@ -681,6 +685,140 @@ function soundPlay(snd)
   sound.load();
   sound.play();
 }
+///////////////////
+//Surface Functions
+///////////////////
+function surfaceCreate(w, h)
+{
+   this.temp = document.createElement("canvas");
+   temp.setAttribute("width", w);
+   temp.setAttribute("height", h);
+   temp.setAttribute("style", "visibility: hidden;");
+   return temp;
+}
+function surfaceFree(id)
+{
+  //This doesn't work.
+  delete id;
+}
+function surfaceExists(id)
+{
+  //This doesn't usually work.
+  if (id == null)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+function surfaceGetWidth(id)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  return id.width;
+}
+function surfaceGetHeight(id)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  return id.height;
+}
+function surfaceSetTarget(id)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  cursurf = id;
+  curcon = cursurf.getContext("2d");
+}
+function surfaceResetTarget()
+{
+  cursurf = canvas;
+  curcon = cursurf.getContext("2d");
+}
+function surfaceGetpixel(id, x, y)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  this.imgdata = id.getContext("2d").getImageData(x, y, 1, 1);
+  this.data = imgdata.data;
+  this.red = data[0];
+  this.green = data[1];
+  this.blue = data[2];
+  return "#" + parseInt(red) + parseInt(green) + parseInt(blue);
+}
+function drawSurface(id, x, y)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.drawImage(id, x, y);
+}
+function drawSurfaceStretched(id, x, y, w, h)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.drawImage(id, x, y, w, h);
+}
+function drawSurfacePart(id, left, top, w, h, x, y)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.drawImage(id, left, top, w, h, x, y, w, h);
+}
+function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.save();
+  curcon.translate(x, y);
+  curcon.rotate(angle * (Math.PI / 180));
+  curcon.scale(xscale, yscale);
+  curcon.globalAlpha = alpha;
+  curcon.drawImage(id, 0, 0);
+  curcon.restore();
+}
+function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.save();
+  curcon.translate(x, y);
+  curcon.rotate(angle * (Math.PI / 180));
+  curcon.globalAlpha = alpha;
+  curcon.drawImage(id, w, h);
+  curcon.restore();
+}
+function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, alpha)
+{
+  if (id == -1)
+  {
+    id = canvas;
+  }
+  curcon.save();
+  curcon.globalAlpha = alpha;
+  curcon.drawImage(id, left, top, w, h, x, y, w, h);
+  curcon.restore();
+}
+
 ////////////////////
 //Instance functions
 ////////////////////
