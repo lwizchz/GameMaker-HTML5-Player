@@ -18,9 +18,6 @@ var curcon = context;
 //These were added to handle the current surface
 var keymap = new Array();
 
-//The surface is a global variable in this example just so it was easier to code.
-var surf;
-
 //Constants and globals
 var mouseX, mouseY;
 mouseX = 0;
@@ -123,6 +120,10 @@ vkAdd = 107;
 vkSubtract = 109;
 vkDecimal = 110;
 
+//Invisible image (used for surfaceExists)
+var blankImage = new Image();
+blankImage.src = "invis.png";
+
 //Sprites
 sprCursor = new Image();
 sprCursor.src = "sprites/sprCursor.png";
@@ -172,12 +173,58 @@ function fontAdd(name, size, bold, italic)
   temp.size = size;
   return temp;
 }
+function surfaceCreate(w, h)
+{
+  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
+  this.temps = document.createElement("canvas");
+  temps.setAttribute("width", w);
+  temps.setAttribute("height", h);
+  temps.setAttribute("style", "visibility: hidden;");
+  return temps;
+}
 function fontAddSprite(sprite, first, prop, sep)
 {
   this.temp = new SpriteFont();
   temp.sprite = sprite;
   temp.start = first;
   temp.sep = sep;
+  temp.prop = prop;
+  if (prop == true)
+  {
+    temp.propx = new Array();
+    temp.propwidth = new Array();
+	this.minx = sprite.siwidth;
+	this.maxw = 0;
+	this.surf = surfaceCreate(sprite.width, sprite.height);
+	this.con = surf.getContext("2d");
+	con.drawImage(sprite, 0, 0);
+	this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
+	for (var i = 0; i < sprite.width / sprite.siwidth; i++)
+	{
+	  for (var x = 0; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    minx = min(minx, x);
+		  }
+	    }
+	  }
+	  temp.propx[i] = minx;
+	  for (var x = minx + 1; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    maxw = max(maxw, x - minx);
+		  }
+	    }
+	  }
+	  temp.propwidth[i] = maxw;
+	}
+  }
   return temp;
 }
 function Font() //jimn346
@@ -192,12 +239,17 @@ function SpriteFont() //jimn346
   this.sprite = null;
   this.start = null;
   this.sep = null;
+  this.prop = null;
+  
+  //These two variables are used for proportional sprite fonts.
+  this.propx = null;
+  this.propwidth = null;
 }
 fntMain = fontAdd("Calibri", 8, false, false);
 fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
 fntSwitch2 = fontAdd("Verdana", 16, false, true);
 fntOther = fntSwitch1;
-fntBitmap = fontAddSprite(sprBitFont, 33, 0, -16);
+fntBitmap = fontAddSprite(sprBitFont, 33, false, -16);
 
 //Objects
 function instanceCreate(inst, x, y)
@@ -223,8 +275,8 @@ objControl.Create = function(i, x, y)
   objControl.id[i]["sprite"] = 0;
   objControl.id[i]["width"] = 0;
   objControl.id[i]["height"] = 0;
-  surf = surfaceCreate(64, 64);
-  surfaceSetTarget(surf);
+  objControl.id[i]["surf"] = surfaceCreate(64, 64);
+  surfaceSetTarget(objControl.id[i]["surf"]);
   drawSetColor(cRed);
   drawCircle(32, 32, 16, 1);
   drawSetColor(cBlue);
@@ -256,9 +308,9 @@ objControl.Draw = function()
   drawSetFont(fntBitmap);
   drawText("You can even use~#sprite fonts!", 16, 176);
   drawSetBackground(false, bckFore, cBlack);
-  drawSurface(surf, 12, 240);
+  drawSurface(objControl.id[0]["surf"], 12, 240);
   drawSetFont(fntMain);
-  drawSetColor(surfaceGetpixel(surf, 32, 32));
+  drawSetColor(surfaceGetpixel(objControl.id[0]["surf"], 32, 32));
   drawText("Surfaces can be~#used too!", 12, 312);
 }
 

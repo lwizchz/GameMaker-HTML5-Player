@@ -71,12 +71,28 @@ function drawText(text, x, y)
 	}
 	else if (globalFont instanceof SpriteFont) //jimn346
 	{
- 	  for(var i = 0; i <= text.length - 1; i++)
+	  if (globalFont.prop == false)
 	  {
-	    if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
-		{
+ 	    for(var i = 0; i <= text.length - 1; i++)
+	    {
+	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
+		  {
 	      drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
-		}
+		  }
+	    }
+	  }
+	  else
+	  {
+	    this.curx = x;
+ 	    for(var i = 0; i <= text.length - 1; i++)
+	    {
+	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
+		  {
+		  curx -= globalFont.propx[ord(stringCharAt(text, i)) - globalFont.start];
+	      drawSpriteExt(globalFont.sprite, curx, y, ord(stringCharAt(text, i)) - globalFont.start);
+		  curx += globalFont.propwidth[ord(stringCharAt(text, i)) - globalFont.start] + globalFont.sep;
+		  }
+	    }
 	  }
 	}
   }
@@ -205,6 +221,43 @@ function fontAddSprite(sprite, first, prop, sep)
   temp.sprite = sprite;
   temp.start = first;
   temp.sep = sep;
+  temp.prop = prop;
+  if (prop == true)
+  {
+    temp.propx = new Array();
+    temp.propwidth = new Array();
+	this.minx = sprite.siwidth;
+	this.maxw = 0;
+	this.surf = surfaceCreate(sprite.width, sprite.height);
+	this.con = surf.getContext("2d");
+	con.drawImage(sprite, 0, 0);
+	this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
+	for (var i = 0; i < sprite.width / sprite.siwidth; i++)
+	{
+	  for (var x = 0; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    minx = min(minx, x);
+		  }
+	    }
+	  }
+	  temp.propx[i] = minx;
+	  for (var x = minx + 1; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    maxw = max(maxw, x - minx);
+		  }
+	    }
+	  }
+	  temp.propwidth[i] = maxw;
+	}
+  }
   return temp;
 }
 function fontExists(ind)
@@ -594,6 +647,109 @@ function stringLettersDigits(str)
 {
   return str.replace(/[^a-zA-Z 0-9]+/g, "");
 }
+
+/////////////////
+//Data Structures
+/////////////////
+function dsListCreate()
+{
+  return new Array();
+}
+function dsListDestroy(id)
+{
+  delete id;
+}
+function dsListClear(id)
+{
+  id.Clear();
+}
+function dsListCopy(id, src)
+{
+  id.Clear();
+  id.Concat(src);
+}
+function dsListSize(id)
+{
+  return id.length;
+}
+function dsListEmpty(id)
+{
+  return (id.length == 0);
+}
+function dsListAdd(id, val)
+{
+  id[id.length] = val;
+}
+function dsListInsert(id, pos, val)
+{
+  this.start = new Array();
+  this.end = new Array();
+  
+  start.Concat(id);
+  start.length = pos;
+  start.Add(val);
+  
+  end.Concat(id);
+  end.Reverse();
+  end.length = id.length - pos - 1;
+  end.Reverse();
+  
+  start.Concat(end);
+  
+  id.Clear();
+  id.Concat(start);
+  
+  delete start;
+  delete end;
+}
+function dsListReplace(id, pos, val)
+{
+  id[pos] = val;
+}
+function dsListDelete(id, pos)
+{
+  id.RemoveAt(pos);
+}
+function dsListFindIndex(id, val)
+{
+  this.exit = false;
+  this.i = 0;
+  while (exit == false)
+  {
+    if (i == id.length)
+	{
+	  exit = true;
+	  return -1;
+	}
+	else
+	{
+	  if (id[i] == val)
+	  {
+	    exit = true;
+	    return i;
+	  }
+	}
+	i += 1;
+  }
+}
+function dsListFindValue(id, pos)
+{
+  return id[pos];
+}
+//Later add support for dsListSort. Javascript sorts purely alphabetically, not alphabetically and numerically.
+function dsListShuffle(id)
+{
+  //This works by going through the array in order and switching the current value with a random one.
+  for (var i = 0; i < id.length; i++)
+  {
+    this.a = id[i];
+	this.b = parseInt(Math.random()*len);
+	id[i] = id[b];
+	id[p] = a;
+  }
+}
+//Later add support for dsListRead and dsListWrite. Javascript uses a different method than Game Maker, and we would want compatibility between executable and on games in the case of save files.
+
 ////////////////
 //Time Functions
 ////////////////
@@ -690,27 +846,30 @@ function soundPlay(snd)
 ///////////////////
 function surfaceCreate(w, h)
 {
-   this.temp = document.createElement("canvas");
-   temp.setAttribute("width", w);
-   temp.setAttribute("height", h);
-   temp.setAttribute("style", "visibility: hidden;");
-   return temp;
+  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
+  this.temps = document.createElement("canvas");
+  temps.setAttribute("width", w);
+  temps.setAttribute("height", h);
+  temps.setAttribute("style", "visibility: hidden;");
+  return temps;
 }
 function surfaceFree(id)
 {
-  //This doesn't work.
-  delete id;
+  id.remove(0);
 }
 function surfaceExists(id)
 {
-  //This doesn't usually work.
+  if (id == -1)
+  {
+    id = canvas;
+  }
   if (id == null)
   {
     return false;
   }
   else
   {
-    return true;
+    return (id.getContext);
   }
 }
 function surfaceGetWidth(id)
