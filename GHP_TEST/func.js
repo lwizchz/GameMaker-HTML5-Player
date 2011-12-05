@@ -5,8 +5,8 @@
 //  -remain Open Source
 //  -remain free
 //  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
+//  -remain unobfuscated except for the code within object events,
+//    scripts, and room creation codes
 //  -give credit to the correct programmers
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 //Have fun.
@@ -987,62 +987,29 @@ function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, al
 ////////////////////
 function placeFree(obj, x, y)
 {
-  name = obj["name"];
-  width = obj["width"]-1;
-  height = obj["height"]-1;
-  if (name != "objControl")
+  inst = glin[obj["glin"]];
+  if (inst != null)
   {
-    for (var i=0;i<objControl.id.length;i++)
+    for (var i=0;i<glin.length;i++)
     {
-      if ((x >= objControl.id[i]["x"])&&(y >= objControl.id[i]["y"])&&(x <= objControl.id[i]["x"]+objControl.id[i]["width"])&&(y <= objControl.id[i]["y"]+objControl.id[i]["height"]))
-  	  {
-	    return false;
-	  }
-      else if ((x <= objControl.id[i]["x"])&&(x+width >= objControl.id[i]["x"])&&(((y <= objControl.id[i]["y"])&&(y+height >= objControl.id[i]["y"]))||((y >= objControl.id[i]["y"])&&(y <= objControl.id[i]["y"]+objControl.id[i]["height"]))))
-      {
-        return false;
-      }
-      else if ((x >= objControl.id[i]["x"])&&(y <= objControl.id[i]["y"])&&(x <= objControl.id[i]["x"]+objControl.id[i]["width"])&&(y+height >= objControl.id[i]["y"]))
-      {
-        return false;
-      }
-    }
-  }
-  if (name != "objPlayer")
-  {
-    for (var i=0;i<objPlayer.id.length;i++)
-    {
-      if ((x >= objPlayer.id[i]["x"])&&(y >= objPlayer.id[i]["y"])&&(x <= objPlayer.id[i]["x"]+objPlayer.id[i]["width"])&&(y <= objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))
-   	  {
-	    return false;
-	  }
-      else if ((x <= objPlayer.id[i]["x"])&&(x+width >= objPlayer.id[i]["x"])&&(((y <= objPlayer.id[i]["y"])&&(y+height >= objPlayer.id[i]["y"]))||((y >= objPlayer.id[i]["y"])&&(y <= objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))))
-      {
-        return false;
-      }
-      else if ((x >= objPlayer.id[i]["x"])&&(y <= objPlayer.id[i]["y"])&&(x <= objPlayer.id[i]["x"]+objPlayer.id[i]["width"])&&(y+height >= objPlayer.id[i]["y"]))
-      {
-        return false;
-      }
-    }
-  }
-  if (name != "objFloor")
-  {
-    for (var i=0;i<objFloor.id.length;i++)
-    {
-      if ((x >= objFloor.id[i]["x"])&&(y >= objFloor.id[i]["y"])&&(x <= objFloor.id[i]["x"]+objFloor.id[i]["width"])&&(y <= objFloor.id[i]["y"]+objFloor.id[i]["height"]))
+  	  if (glin[i] != inst)
 	  {
-	    return false;
+ 	    if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
+	    {
+		  return false;
+	    }
 	  }
-      else if ((x <= objFloor.id[i]["x"])&&(x+width >= objFloor.id[i]["x"])&&(((y <= objFloor.id[i]["y"])&&(y+height >= objFloor.id[i]["y"]))||((y >= objFloor.id[i]["y"])&&(y <= objFloor.id[i]["y"]+objFloor.id[i]["height"]))))
-      {
-        return false;
-      }
-      else if ((x >= objFloor.id[i]["x"])&&(x <= objFloor.id[i]["x"]+objFloor.id[i]["width"])&&(((y <= objFloor.id[i]["y"])&&(y+height >= objFloor.id[i]["y"]))||((y >= objFloor.id[i]["y"])&&(y <= objFloor.id[i]["y"]+objFloor.id[i]["height"]))))
-      {
-        return false;
-      }
     }
+  }
+  else
+  {
+    for (var i=0;i<glin.length;i++)
+	{
+	  if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
+	  {
+		return false;
+	  }
+	}
   }
   return true;
 }

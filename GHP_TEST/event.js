@@ -5,8 +5,8 @@
 //  -remain Open Source
 //  -remain free
 //  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
+//  -remain unobfuscated except for the code within object events,
+//    scripts, and room creation codes
 //  -give credit to the correct programmers
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 //Have fun.

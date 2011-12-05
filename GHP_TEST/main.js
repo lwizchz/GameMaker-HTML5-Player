@@ -5,27 +5,14 @@
 //  -remain Open Source
 //  -remain free
 //  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
+//  -remain unobfuscated except for the code within object events,
+//    scripts, and room creation codes
 //  -give credit to the correct programmers
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 //Have fun.
 
 function gameStart()
 {
-  preImg = new Image();
-  imgUrl = new Array();
-  imgUrl[0] = "sprites/sprCursor.png";
-  imgUrl[1] = "sprites/sprPie.png";
-  imgUrl[2] = "sprites/sprPlayer.png";
-  imgUrl[3] = "sprites/sprCursor.png";
-  imgUrl[4] = "sprites/sprFloor.png";
-  imgUrl[5] = "backgrounds/bckMain.png";
-  imgUrl[6] = "backgrounds/bckFore.png";
-  for (var i=0;i<imgUrl.length;i++)
-  {
-    preImg.src = imgUrl[i];
-  }
   for (var i=0;i<rooms.length;i++)
   {
     rooms[i].Create();

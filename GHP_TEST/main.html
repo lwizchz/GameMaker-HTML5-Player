@@ -5,8 +5,8 @@ Use it however you like, but this and all later versions must:
   -remain Open Source
   -remain free
   -contain this license in all documents
-  -remain unobfuscated except specific sprites, sounds, backgrounds
-    paths, GML scripts, fonts, time lines, objects, or rooms
+  -remain unobfuscated except for the code within object events,
+    scripts, and room creation codes
   -give credit to the correct programmers
 You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 Have fun. -->
@@ -34,14 +34,35 @@ canvas {
 body {
   background: gray;
 }
+.nocan {
+  width: 640px;
+  height: 480px;
+  border: 3px solid black;
+  display: block;
+  margin: auto;
+  border-radius: 4px;
+  background: #FFFFFF;
+}
+img {
+  border: none;
+}
 </style>
 
 </head>
 
 <body onload="gameStart();" onunload="eventGameEnd();" onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
 
-<canvas id="maincan" width="640" height="480" style="cursor: url(invis.png), auto;">Sorry your browser doesn't support HTML5.</canvas>
+<canvas id="maincan" width="640" height="480" style="cursor: url(invis.png), auto;"><center class="nocan">
+<div style="margin-top:30%;">
+Sorry your browser doesn't support HTML5.
 <br>
+<a href="http://chrome.google.com/" title="Google Chrome"><img src="chrome.png"></img></a>
+<a href="http://www.mozilla.com/" title="Mozilla Firefox"><img src="firefox.png"></img></a>
+<a href="http://www.apple.com/safari" title="Apple Safari"><img src="safari.png"></img></a>
+<a href="http://www.opera.com/" title="Opera"><img src="opera.png"></img></a>
+</div>
+</center>
+</canvas>
 
 <script type="text/javascript" src="vars.js"></script>
 <script type="text/javascript" src="func.js"></script>

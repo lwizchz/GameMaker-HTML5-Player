@@ -5,8 +5,8 @@
 //  -remain Open Source
 //  -remain free
 //  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
+//  -remain unobfuscated except for the code within object events,
+//    scripts, and room creation codes
 //  -give credit to the correct programmers
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 //Have fun.
@@ -41,6 +41,8 @@ var foreground = new Array();
 var keys = new Array();
 var pkey = new Array();
 var cursor = new Image();
+
+var glin = new Array();
 
 //Colors
 var cAqua, cBlack, cBlue, cDkgray, cFuchsia, cGray, cGreen, cLime, cLtgray, cMaroon, cNavy, cOlive;
@@ -259,6 +261,28 @@ function instanceCreate(inst, x, y)
   inst.Create(i, x, y);
   return i;
 }
+function objDraw()
+{
+  objControl.Draw();
+  objPlayer.Draw();
+  objFloor.Draw();
+}
+function objStep()
+{
+  objPlayer.Step();
+}
+function objKeys(i)
+{
+  objPlayer.Keyboard(i);
+}
+function objKeyP(i)
+{
+  objPlayer.KeyboardPress(i);
+}
+function objMouseP()
+{
+  objControl.MousePress();
+}
 
 //ObjControl
 objControl = function()
@@ -270,6 +294,8 @@ objControl.sprite = 0;
 objControl.Create = function(i, x, y)
 {
   objControl.id[i] = new Array();
+  objControl.id[i]["glin"] = glin.length;
+  glin[glin.length] = objControl.id[i];
   objControl.id[i]["x"] = x;
   objControl.id[i]["y"] = y;
   objControl.id[i]["sprite"] = 0;
@@ -283,6 +309,10 @@ objControl.Create = function(i, x, y)
   drawCircle(64, 64, 32, 0);
   surfaceResetTarget();
   drawSetCursor(sprCursor);
+}
+objControl.MousePress = function()
+{
+  soundPlay(sndClick);
 }
 objControl.Draw = function()
 {
@@ -327,6 +357,8 @@ objPlayer.imgnumb = 8;
 objPlayer.Create = function(i, x, y)
 {
   objPlayer.id[i] = new Array();
+  objPlayer.id[i]["glin"] = glin.length;
+  glin[glin.length] = objPlayer.id[i];
   objPlayer.id[i]["x"] = x;
   objPlayer.id[i]["y"] = y;
   objPlayer.id[i]["startx"] = x;
@@ -342,12 +374,12 @@ objPlayer.Keyboard = function(i)
 {
   for (var e=0;e<objPlayer.id.length;e++)
   {
-	if ((keys[vkLeft] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"]) == 1))
+	if ((keys[vkLeft] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] -= 1;
       objPlayer.id[e]["face"] = -1;
     }
-    if ((keys[vkRight] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]+1, objPlayer.id[e]["y"]) == 1))
+    if ((keys[vkRight] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]+objPlayer.id[e]["width"]+1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] += 1;
   	  objPlayer.id[e]["face"] = 1;
@@ -360,7 +392,14 @@ objPlayer.KeyboardPress = function(i)
   {
     if (keys[vkUp] == 1)
     {
-	  objPlayer.id[e]["y"] -= 25;
+	  for (var a=25;a>0;a--)
+	  {
+	    if (placeFree(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
+		{
+		  objPlayer.id[e]["y"] -= a;
+		  break;
+		}
+	  }
     }
 	if (keys[ord("R")] == 1)
 	{
@@ -375,7 +414,7 @@ objPlayer.Step = function()
   for (var i=0;i<objPlayer.id.length;i++)
   {
     //Gravity
-    if (placeFree(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+1) == 1)
+    if ((placeFree(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))&&(placeFree(objPlayer.id[i], objPlayer.id[i]["x"]+objPlayer.id[i]["width"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"])))
     {
       objPlayer.id[i]["y"] += 1;
     }
@@ -421,6 +460,8 @@ objFloor.sprite = 0;
 objFloor.Create = function(i, x, y)
 {
   objFloor.id[i] = new Array();
+  objFloor.id[i]["glin"] = glin.length;
+  glin[glin.length] = objFloor.id[i];
   objFloor.id[i]["x"] = x;
   objFloor.id[i]["y"] = y;
   objFloor.id[i]["width"] = 32;
@@ -492,4 +533,8 @@ rmMain.Create = function()
   rmMain.inst[7][0] = objFloor;
   rmMain.inst[7][1] = 260;
   rmMain.inst[7][2] = 318;
+  rmMain.inst[8] = new Array();
+  rmMain.inst[8][0] = objFloor;
+  rmMain.inst[8][1] = 292;
+  rmMain.inst[8][2] = 350;
 }
