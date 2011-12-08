@@ -1,15 +1,6 @@
-//Copyright (c) 2011 Pixel Matrix Studios
-//By piluke
-//This is Open Source Copyleft code.
-//Use it however you like, but this and all later versions must:
-//  -remain Open Source
-//  -remain free
-//  -contain this license in all documents
-//  -remain unobfuscated except for the code within object events,
-//    scripts, and room creation codes
-//  -give credit to the correct programmers
+//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+//Copyright (c) 2011 jimn346
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-//Have fun.
 
 var canvas = document.getElementById("maincan");
 var context = canvas.getContext("2d");
@@ -229,14 +220,14 @@ function fontAddSprite(sprite, first, prop, sep)
   }
   return temp;
 }
-function Font() //jimn346
+function Font()
 {
   this.font = null;
   this.name = null;
   this.size = null;
   this.style = null;
 }
-function SpriteFont() //jimn346
+function SpriteFont()
 {
   this.sprite = null;
   this.start = null;

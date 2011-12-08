@@ -1,15 +1,6 @@
-//Copyright (c) 2011 Pixel Matrix Studios
-//By piluke
-//This is Open Source Copyleft code.
-//Use it however you like, but this and all later versions must:
-//  -remain Open Source
-//  -remain free
-//  -contain this license in all documents
-//  -remain unobfuscated except for the code within object events,
-//    scripts, and room creation codes
-//  -give credit to the correct programmers
+//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+//Copyright (c) 2011 jimn346
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-//Have fun.
 
 ///////////////////
 //Drawing functions
@@ -69,7 +60,7 @@ function drawText(text, x, y)
 	  curcon.font = globalFont.font;
 	  curcon.fillText(text, x, y);
 	}
-	else if (globalFont instanceof SpriteFont) //jimn346
+	else if (globalFont instanceof SpriteFont)
 	{
 	  if (globalFont.prop == false)
 	  {
@@ -117,7 +108,7 @@ function drawSprite(sprite, x, y)
 {
   curcon.drawImage(sprite, x, y);
 }
-function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha) //jimn346
+function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha)
 {
   curcon.save();
   curcon.translate(x, y);
@@ -204,9 +195,9 @@ function drawLinks()
 	}
   }
 }
-//////////////////////////
-//Font functions - jimn346
-//////////////////////////
+////////////////
+//Font functions
+////////////////
 function fontAdd(name, size, bold, italic)
 {
   this.temp = new Font();
