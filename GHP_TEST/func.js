@@ -18,13 +18,13 @@ function drawLine(x1, y1, x2, y2)
 }
 function drawRect(x1, y1, x2, y2, fill)
 {
-  if (fill == true)
+  if (fill === true)
   {
 	curcon.fillRect(x1, y1, x2-x1, y2-y1);
   }
   else
   {
-    drawLine(x1, y1, x2, y1);
+	drawLine(x1, y1, x2, y1);
 	drawLine(x1, y1, x1, y2);
 	drawLine(x2, y1, x2, y2);
 	drawLine(x1, y2, x2, y2);
@@ -32,8 +32,8 @@ function drawRect(x1, y1, x2, y2, fill)
 }
 function drawSetColor(color)
 {
-  curcon.strokeStyle = color;
-  curcon.fillStyle = color;
+	curcon.strokeStyle = color;
+	curcon.fillStyle = color;
 }
 function drawText(text, x, y)
 {
@@ -55,14 +55,14 @@ function drawText(text, x, y)
   }
   else
   {
-    if ((globalFont instanceof Font) || (globalFont == null))
+    if ((globalFont instanceof Font) || (globalFont === null))
 	{
-	  curcon.font = globalFont.font;
-	  curcon.fillText(text, x, y);
+		curcon.font = globalFont.font;
+		curcon.fillText(text, x, y);
 	}
 	else if (globalFont instanceof SpriteFont)
 	{
-	  if (globalFont.prop == false)
+	  if (globalFont.prop === false)
 	  {
  	    for(var i = 0; i <= text.length - 1; i++)
 	    {
@@ -92,7 +92,7 @@ function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
 {
   var gradient;
   
-  if (linear == true)
+  if (linear === true)
   {
 	gradient = curcon.createLinearGradient(x1, y1, x2, y2);
   }
@@ -127,13 +127,13 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 }
 function drawCircle(x, y, r, fill)
 {
-  curcon.beginPath();
-  curcon.arc(x, y, r, 0, Math.PI*2, fill);
-  curcon.stroke();
-  if (fill == true)
-  {
-    curcon.fill();
-  }
+	curcon.beginPath();
+	curcon.arc(x, y, r, 0, Math.PI*2, fill);
+	curcon.stroke();
+	if (fill === true)
+	{
+		curcon.fill();
+	}
 }
 function clearDraw()
 {
@@ -142,7 +142,7 @@ function clearDraw()
 }
 function drawSetBackground(isback, back, fill)
 {
-  if (isback == true)
+  if (isback === true)
   {
     drawSetColor(fill);
 	drawRect(0, 0, canvas.width, canvas.height, true);
@@ -213,7 +213,7 @@ function fontAddSprite(sprite, first, prop, sep)
   temp.start = first;
   temp.sep = sep;
   temp.prop = prop;
-  if (prop == true)
+  if (prop === true)
   {
     temp.propx = new Array();
     temp.propwidth = new Array();
@@ -368,9 +368,9 @@ function max(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x
 	{
 	  return a-b;
 	}
-  )
+  );
   var i = 15;
-  while(ary[i] == null)
+  while(ary[i] === null)
   {
     i--;
   }
@@ -428,7 +428,7 @@ function mean(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, 
   );
   var i = 0;
   var avg = 0;
-  while(ary[i] != null)
+  while(ary[i] !== null)
   {
     avg += ary[i];
 	i++;
@@ -481,7 +481,7 @@ function string(x)
 }
 function chr(x, y)
 {
-  if (y == null)
+  if (y === null)
   {
     return x.fromCharCode(x);
   }
@@ -492,7 +492,7 @@ function chr(x, y)
 }
 function ord(x, y)
 {
-  if (y == null)
+  if (y === null)
   {
     return x.charCodeAt(0);
   }
@@ -665,7 +665,7 @@ function dsListSize(id)
 }
 function dsListEmpty(id)
 {
-  return (id.length == 0);
+  return (id.length === 0);
 }
 function dsListAdd(id, val)
 {
@@ -705,7 +705,7 @@ function dsListFindIndex(id, val)
 {
   this.exit = false;
   this.i = 0;
-  while (exit == false)
+  while (exit === false)
   {
     if (i == id.length)
 	{
@@ -750,13 +750,13 @@ function dsListShuffle(id)
 ////////////////////////
 function variableGlobalExists(a)
 {
-  if (a == null)
+  if (a === null)
   {
-    return false
+    return false;
   }
   else
   {
-    return true
+    return true;
   }
 }
 function variableGlobalGet(a)
@@ -785,7 +785,7 @@ function variableGlobalArray2Set(a, i1, i2, val)
 }
 function variableLocalExists(a)
 {
-  if (self.a == null)
+  if (self.a === null)
   {
     return false;
   }
@@ -827,16 +827,24 @@ function setApplicationTitle(t)
 /////////////////
 function soundPlay(snd)
 {
-  var sound = new Audio();
-  sound.src = snd.src;
-  sound.load();
-  sound.play();
+	if (ie)
+	{
+	return;
+	}
+	var sound = new Audio();
+	sound.src = snd.src;
+	sound.load();
+	sound.play();
 }
 ///////////////////
 //Surface Functions
 ///////////////////
 function surfaceCreate(w, h)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
   this.temps = document.createElement("canvas");
   temps.setAttribute("width", w);
@@ -846,15 +854,23 @@ function surfaceCreate(w, h)
 }
 function surfaceFree(id)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   id.remove(0);
 }
 function surfaceExists(id)
 {
-  if (id == -1)
+  if (ie)
+  {
+	return undefined;
+  }
+  if (id === -1)
   {
     id = canvas;
   }
-  if (id == null)
+  if (id === null)
   {
     return false;
   }
@@ -865,7 +881,11 @@ function surfaceExists(id)
 }
 function surfaceGetWidth(id)
 {
-  if (id == -1)
+  if (ie)
+  {
+	return undefined;
+  }
+  if (id === -1)
   {
     id = canvas;
   }
@@ -873,7 +893,11 @@ function surfaceGetWidth(id)
 }
 function surfaceGetHeight(id)
 {
-  if (id == -1)
+  if (ie)
+  {
+	return undefined;
+  }
+  if (id === -1)
   {
     id = canvas;
   }
@@ -881,7 +905,11 @@ function surfaceGetHeight(id)
 }
 function surfaceSetTarget(id)
 {
-  if (id == -1)
+  if (ie)
+  {
+	return undefined;
+  }
+  if (id === -1)
   {
     id = canvas;
   }
@@ -890,12 +918,20 @@ function surfaceSetTarget(id)
 }
 function surfaceResetTarget()
 {
+  if (ie)
+  {
+	return undefined;
+  }
   cursurf = canvas;
   curcon = cursurf.getContext("2d");
 }
 function surfaceGetpixel(id, x, y)
 {
-  if (id == -1)
+  if (ie)
+  {
+	return undefined;
+  }
+  if (id === -1)
   {
     id = canvas;
   }
@@ -908,6 +944,10 @@ function surfaceGetpixel(id, x, y)
 }
 function drawSurface(id, x, y)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -916,6 +956,10 @@ function drawSurface(id, x, y)
 }
 function drawSurfaceStretched(id, x, y, w, h)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -924,6 +968,10 @@ function drawSurfaceStretched(id, x, y, w, h)
 }
 function drawSurfacePart(id, left, top, w, h, x, y)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -932,6 +980,10 @@ function drawSurfacePart(id, left, top, w, h, x, y)
 }
 function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -946,6 +998,10 @@ function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
 }
 function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -959,6 +1015,10 @@ function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
 }
 function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, alpha)
 {
+  if (ie)
+  {
+	return undefined;
+  }
   if (id == -1)
   {
     id = canvas;
@@ -979,11 +1039,11 @@ function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, al
 function placeFree(obj, x, y)
 {
   inst = glin[obj["glin"]];
-  if (inst != null)
+  if (inst !== null)
   {
     for (var i=0;i<glin.length;i++)
     {
-  	  if (glin[i] != inst)
+  	  if (glin[i] !== inst)
 	  {
  	    if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
 	    {

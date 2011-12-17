@@ -40,11 +40,14 @@ img {
 }
 </style>
 
+<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+
 </head>
 
 <body onload="gameStart();" onunload="eventGameEnd();" onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
 
-<canvas id="maincan" width="640" height="480" style="cursor: url(invis.png), auto;"><center class="nocan">
+<canvas id="maincan" width="640" height="480" style="cursor: url(invis.png), auto;">
+<center class="nocan">
 <div style="margin-top:30%;">
 Sorry your browser doesn't support HTML5.
 <br>

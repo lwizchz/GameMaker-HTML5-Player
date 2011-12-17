@@ -16,11 +16,11 @@ function gameStart()
 }
 function mainStep()
 {
-  if (cfps == fps)
+  if (fnd != fod)
   {
-    tfps = cfps;
+    tfps = cfps+1;
     cfps = 0;
-    return 0;
+	fod = fnd;
   }
   cfps += 1;
   eventStepBegin();
@@ -39,5 +39,14 @@ function mainStep()
   eventStepEnd();
   eventDraw();
   eventAnimationEnd();
+  fnd = new Date();
+  fnd = fnd.getSeconds();
 }
-setInterval("mainStep();", 1000/fps);
+if (ie)
+{
+	setInterval("mainStep()", 10);
+}
+else
+{
+	setInterval("mainStep();", 1000/fps);
+}

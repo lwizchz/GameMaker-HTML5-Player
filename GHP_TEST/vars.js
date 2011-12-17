@@ -2,42 +2,52 @@
 //Copyright (c) 2011 jimn346
 //You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 
-var canvas = document.getElementById("maincan");
-var context = canvas.getContext("2d");
-var cursurf = canvas;
-var curcon = context;
+canvas = document.getElementById("maincan");
+if (navigator.appName == "Microsoft Internet Explorer")
+{
+	canvas = G_vmlCanvasManager.initElement(canvas);
+	Audio = function()
+	{
+		return;
+	}
+	ie = true;
+}
+else
+{
+	ie = false;
+}
+context = canvas.getContext("2d");
+cursurf = canvas;
+curcon = context;
 //These were added to handle the current surface
-var keymap = new Array();
+keymap = new Array();
 
 //Constants and globals
-var mouseX, mouseY;
 mouseX = 0;
 mouseY = 0;
 
-var fps, cfps, tfps;
 fps = 60;
 cfps = 0;
 tfps = fps;
+fnd = new Date();
+fnd = fnd.getSeconds();
+fod = fnd;
 
-var room, room_width, room_height;
 room = 0;
 room_width = 640;
 room_height = 480;
 
-var globalFont, links;
 globalFont = null;
 links = new Array();
 
-var foreground = new Array();
-var keys = new Array();
-var pkey = new Array();
-var cursor = new Image();
+foreground = new Array();
+keys = new Array();
+pkey = new Array();
+cursor = new Image();
 
-var glin = new Array();
+glin = new Array();
 
 //Colors
-var cAqua, cBlack, cBlue, cDkgray, cFuchsia, cGray, cGreen, cLime, cLtgray, cMaroon, cNavy, cOlive;
-var cOrange, cPurple, cRed, cSilver, cTeal, cWhite, cYellow;
 cAqua = "#00FFFF";
 cBlack = "#000000";
 cBlue = "#0000FF";
@@ -59,11 +69,6 @@ cWhite = "#FFFFFF";
 cYellow = "#FFFF00";
 
 //Keys
-var vkNokey, vkAnykey, vkLeft, vkRight, vkUp, vkDown, vkEnter, vkEscape, vkSpace, vkShift;
-var vkControl, vkAlt, vkBackspace, vkTab, vkHome, vkEnd, vkDelete, vkInsert, vkPageup, vkPagedown;
-var vkPause, vkPrintscreen, vkF1, vkF2, vkF3, vkF4, vkF5, vkF6, vkF7, vkF8, vkF9, vkF10, vkF11, vkF12;
-var vkNumpad0, vkNumpad1, vkNumpad2, vkNumpad3, vkNumpad4, vkNumpad5, vkNumpad6, vkNumpad7, vkNumpad8, vkNumpad9;
-var vkMultiply, vkDivide, vkAdd, vkSubtract, vkDecimal;
 vkNokey = undefined;
 vkAnykey = 0;
 vkLeft = 37;
@@ -114,7 +119,7 @@ vkSubtract = 109;
 vkDecimal = 110;
 
 //Invisible image (used for surfaceExists)
-var blankImage = new Image();
+blankImage = new Image();
 blankImage.src = "invis.png";
 
 //Sprites
@@ -134,7 +139,10 @@ sprBitFont.siwidth = 32;
 //Sounds
 sndClick = new Audio();
 sndClick.src = "sounds/sndClick.wav";
-sndClick.load();
+if (!ie)
+{
+	sndClick.load();
+}
 
 //Backgrounds
 bckMain = new Image();
@@ -182,7 +190,7 @@ function fontAddSprite(sprite, first, prop, sep)
   temp.start = first;
   temp.sep = sep;
   temp.prop = prop;
-  if (prop == true)
+  if (prop === true)
   {
     temp.propx = new Array();
     temp.propwidth = new Array();
@@ -468,7 +476,7 @@ objFloor.Draw = function()
 }
 
 //Rooms
-var rooms = new Array();
+rooms = new Array();
 rooms[0] = rmMain;
 function roomOpen(i)
 {

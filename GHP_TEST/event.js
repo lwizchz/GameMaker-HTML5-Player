@@ -209,7 +209,7 @@ function eventMousePress(e)
 {
   if (e != undefined)
   {
-    soundPlay(sndClick);
+    objMouseP();
   }
 }
 function eventMouseRelease(e)
