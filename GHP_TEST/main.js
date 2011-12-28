@@ -39,6 +39,7 @@ function mainStep()
   eventStepEnd();
   eventDraw();
   eventAnimationEnd();
+  eventCleanup();
   fnd = new Date();
   fnd = fnd.getSeconds();
 }

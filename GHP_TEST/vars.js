@@ -25,8 +25,17 @@ keymap = new Array();
 //Constants and globals
 mouseX = 0;
 mouseY = 0;
+pi = Math.PI;
+mpd = 1000*60*60*24; //Milliseconds per day
 
-fps = 60;
+if (ie)
+{
+	fps = 10;
+}
+else
+{
+	fps = 60;
+}
 cfps = 0;
 tfps = fps;
 fnd = new Date();
@@ -34,8 +43,8 @@ fnd = fnd.getSeconds();
 fod = fnd;
 
 room = 0;
-room_width = 640;
-room_height = 480;
+roomWidth = 640;
+roomHeight = 480;
 
 globalFont = null;
 links = new Array();
@@ -268,6 +277,7 @@ function objDraw()
 }
 function objStep()
 {
+  calcVars(objPlayer);
   objPlayer.Step();
 }
 function objKeys(i)
@@ -373,12 +383,12 @@ objPlayer.Keyboard = function(i)
 {
   for (var e=0;e<objPlayer.id.length;e++)
   {
-	if ((keys[vkLeft] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"])))
+	if ((keys[vkLeft] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] -= 1;
       objPlayer.id[e]["face"] = -1;
     }
-    if ((keys[vkRight] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]+objPlayer.id[e]["width"]+1, objPlayer.id[e]["y"])))
+    if ((keys[vkRight] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]+objPlayer.id[e]["width"]+1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] += 1;
   	  objPlayer.id[e]["face"] = 1;
@@ -393,7 +403,7 @@ objPlayer.KeyboardPress = function(i)
     {
 	  for (var a=25;a>0;a--)
 	  {
-	    if (placeFree(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
+	    if (placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
 		{
 		  objPlayer.id[e]["y"] -= a;
 		  break;
@@ -413,7 +423,7 @@ objPlayer.Step = function()
   for (var i=0;i<objPlayer.id.length;i++)
   {
     //Gravity
-    if ((placeFree(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))&&(placeFree(objPlayer.id[i], objPlayer.id[i]["x"]+objPlayer.id[i]["width"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"])))
+    if ((placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))&&(placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"]+objPlayer.id[i]["width"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"])))
     {
       objPlayer.id[i]["y"] += 1;
     }
@@ -484,8 +494,8 @@ function roomOpen(i)
   {
     instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
   }
-  room_width = rooms[i].width;
-  room_height = rooms[i].height;
+  roomWidth = rooms[i].width;
+  roomHeight = rooms[i].height;
 }
 
 //rmMain

@@ -112,10 +112,10 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 {
   curcon.save();
   curcon.translate(x, y);
-  curcon.rotate(angle * (Math.PI / 180));
+  curcon.rotate(angle * (pi / 180));
   curcon.scale(xscale, yscale);
   curcon.globalAlpha = alpha;
-  if (typeof sprite.siwidth != undefined)
+  if (sprite.siwidth != undefined)
   {
     curcon.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
   }
@@ -128,7 +128,7 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 function drawCircle(x, y, r, fill)
 {
 	curcon.beginPath();
-	curcon.arc(x, y, r, 0, Math.PI*2, fill);
+	curcon.arc(x, y, r, 0, pi*2, fill);
 	curcon.stroke();
 	if (fill === true)
 	{
@@ -297,11 +297,11 @@ function fontGetItalic(ind)
 ////////////////
 function radToDeg(x)
 {
-  return x*180/Math.PI;
+  return x*180/pi;
 }
 function degToRad(x)
 {
-  return x*Math.PI/180;
+  return x*pi/180;
 }
 function sin(x)
 {
@@ -404,7 +404,7 @@ function logn(x, n)
 {
   return Math.logN(x, n);
 }
-function log(x)
+function ln(x)
 {
   return logn(x, Math.E);
 }
@@ -466,29 +466,131 @@ function sqrt(x)
 }
 function pointDistance(x1, y1, x2, y2)
 {
-  return sqrt(sqr(x1-y1)+sqr(x2-y2));
+  return sqrt(sqr(x1-x2)+sqr(y1-y2));
+}
+function pointDistance3d(x1, y1, z1, x2, y2, z2)
+{
+	return sqrt(sqr(x1-x2)+sqr(y1-y2)+sqr(z1-z2));
 }
 function pointDirection(x1, y1, x2, y2)
 {
-  return radToDeg(arctan2(y1-y2, x1-x2));
+  return radToDeg((y2-y1)/(x2-x1));
 }
+function rayPoint(obj, dir, spd) //Point along ray from object
+{
+	if (isReal(obj))
+	{
+		obj = glin[obj];
+	}
+	m = degToRad(dir);
+	b = -m*obj["x"] + obj["y"];
+	if (spd !== undefined)
+	{
+		spd = min(spd, (roomWidth+roomHeight)*2);
+		x = obj["x"];
+		y = obj["y"];
+		for (var i=0;pointDistance(obj["x"], obj["y"], x, y) >= spd;i++)
+		{
+			if (sign(m) >= 0)
+			{
+				x = obj["x"]+i;
+			}
+			else if (sign(m) < 0)
+			{
+				x = obj["x"]-i;
+			}
+			obj["y"] = m*obj["x"] + b;
+		}
+		return i;
+	}
+	else
+	{
+		obj["x"] += 1;
+		obj["y"] = m*obj["x"] + b
+	}
+}
+function lengthdirX(len, dir)
+{
+	return cos(dir*pi/180)*len;
+}
+function lengthdirY(len, dir)
+{
+	return -sin(dir*pi/180)*len;
+}
+function dotProduct(x1, y1, x2, y2)
+{
+	return x1*x2+y1*y1;
+}
+function dotProduct3d(x1, y1, z1, x2, y2, z2)
+{
+	return x1*x2+y1*y2+z1*z2;
+}
+function isReal(x)
+{
+	return (typeof x === "number") ? true : false;
+}
+function choose(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
+{
+	var ary = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16];
+	return ary[irandom(ary.length)];
+}
+function sign(x)
+{
+	return (isNaN(x/abs(x))) ? 0 : (x/abs(x));
+}
+function frac(x)
+{
+	return x-floor(x);
+}
+function isDefined(x)
+{
+	if ((typeof x !== "undefined")&&(!isNaN(x)))
+	{
+		return true;
+	}
+	return false;
+}
+//Fix
+function randomGetSeed()
+{
+	return new Date();
+}
+function randomSetSeed()
+{
+	return false;
+}
+function randomize()
+{
+	return false;
+}
+
 //////////////////
 //String Functions
 //////////////////
+function isString(x)
+{
+	return (typeof x === "string") ? true : false;
+}
 function string(x)
 {
   return "" + x;
 }
+function stringFormat(x, tot, dec)
+{
+	str = string(x);
+	while (str.substring(str.indexOf(".")).length < dec)
+	{
+		str += "0";
+	}
+	while (str.substring(0, str.indexOf(".")).length < tot)
+	{
+		str = " "+str;
+	}
+	return str;
+}
 function chr(x, y)
 {
-  if (y === null)
-  {
-    return x.fromCharCode(x);
-  }
-  else
-  {
-    return x.fromCharCode(y);
-  }
+	return String.fromCharCode(x);
 }
 function ord(x, y)
 {
@@ -638,6 +740,23 @@ function stringLettersDigits(str)
 {
   return str.replace(/[^a-zA-Z 0-9]+/g, "");
 }
+//Fix
+function ansiChar(x)
+{
+	return false;
+}
+function clipboardHasText()
+{
+	return false;
+}
+function clipboardGetText()
+{
+	return "";
+}
+function clipboardSetText()
+{
+	return false;
+}
 
 /////////////////
 //Data Structures
@@ -740,10 +859,6 @@ function dsListShuffle(id)
   }
 }
 //Later add support for dsListRead and dsListWrite. Javascript uses a different method than Game Maker, and we would want compatibility between executable and on games in the case of save files.
-
-////////////////
-//Time Functions
-////////////////
 
 ////////////////////////
 //General Game Functions
@@ -990,7 +1105,7 @@ function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
   }
   curcon.save();
   curcon.translate(x, y);
-  curcon.rotate(angle * (Math.PI / 180));
+  curcon.rotate(angle * (pi / 180));
   curcon.scale(xscale, yscale);
   curcon.globalAlpha = alpha;
   curcon.drawImage(id, 0, 0);
@@ -1008,7 +1123,7 @@ function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
   }
   curcon.save();
   curcon.translate(x, y);
-  curcon.rotate(angle * (Math.PI / 180));
+  curcon.rotate(angle * (pi / 180));
   curcon.globalAlpha = alpha;
   curcon.drawImage(id, w, h);
   curcon.restore();
@@ -1029,14 +1144,155 @@ function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, al
   curcon.restore();
 }
 
+////////////////
+//Date functions
+////////////////
+function dateDatetimeString(d)
+{
+	return d.toLocaleDateString()+d.toLocaleTimeString()+(d.getHours <= 12) ? " AM" : " PM";
+}
+function dateDateString(d)
+{
+	return d.toLocaleDateString();
+}
+function dateTimeString(d)
+{
+	return d.toLocaleTimeString()+(d.getHours <= 12) ? " AM" : " PM";
+}
+//Fix?
+function dateCurrentDatetime()
+{
+	return new Date();
+}
+function dateCurrentDate()
+{
+	return new Date();
+}
+function dateCurrentTime()
+{
+	return new Date();
+}
+function dateCreateDatetime(y, m, d, h, mi, s, ms)
+{
+	return new Date(y, m, d, h, mi, s, ms);
+}
+function dateCreateDate(y, m, d)
+{
+	return new Date(y, m, d);
+}
+function dateCreateTime(h, m, s, ms)
+{
+	return new Date(0, 0, 0, h, m, s, ms);
+}
+
 ////////////////////
 //Instance functions
 ////////////////////
+function calcVars() //Update all instance variables
+{
+	
+}
 
 ////////////////////
 //Movement Functions
 ////////////////////
-function placeFree(obj, x, y)
+function motionSet(obj, dir, spd)
+{
+	inst = glin[obj["glin"]];
+	if (inst !== undefined)
+	{
+		inst["direction"] = dir;
+		inst["speed"] = spd;
+	}
+	else
+	{
+		return false;
+	}
+}
+function motionAdd(obj, dir, spd)
+{
+	var inst = glin[obj["glin"]];
+	if (inst !== undefined)
+	{
+		if (inst["direction"] === undefined)
+		{
+			inst["direction"] = 0;
+		}
+		var dir2 = inst["direction"];
+		if (dir-dir2 > dir2-dir)
+		{
+			inst["direction"] = min(360-dir+dir2, dir-dir2);
+		}
+		else if (dir-dir2 < dir2-dir)
+		{
+			inst["direction"] = min(360-dir2+dir, dir2-dir);
+		}
+		inst["speed"] += spd;
+	}
+	else
+	{
+		return false;
+	}
+}
+function placeSnapped(obj, hsnap, vsnap)
+{
+	if ((obj["x"] % hsnap == 0)&&(obj["y"] % vsnap == 0))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+function moveRandom(obj, hsnap, vsnap)
+{
+	var x = irandom(roomWidth);
+	while (x % hsnap != 0)
+	{
+		x = irandom(roomWidth);
+	}
+	var y = irandom(roomHeight);
+	while (y % vsnap != 0)
+	{
+		y = irandom(roomHeight);
+	}
+	obj["x"] = x;
+	obj["y"] = y;
+}
+function moveSnap(obj, hsnap, vsnap)
+{
+	if (obj["x"] % hsnap != 0)
+	{
+		var m = obj["x"] % hsnap;
+		if (m > (hsnap/2))
+		{
+			obj["x"] += hsnap-m;
+		}
+		else
+		{
+			obj["x"] -= m;
+		}
+	}
+	if (obj["y"] % vsnap != 0)
+	{
+		var m = obj["y"] % vsnap;
+		if (m > (vsnap/2))
+		{
+			obj["y"] += vsnap-m;
+		}
+		else
+		{
+			obj["y"] -= m;
+		}
+	}
+}
+function moveTowardsPoint(obj, x, y, spd)
+{
+	motionSet(obj, pointDirection(obj["x"], obj["y"], x, y), spd);
+}
+//Fix
+function placeFree(obj, x, y, main)
 {
   inst = glin[obj["glin"]];
   if (inst !== null)
@@ -1047,7 +1303,17 @@ function placeFree(obj, x, y)
 	  {
  	    if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
 	    {
-		  return false;
+		  if (main !== undefined)
+		  {
+			return false;
+		  }
+		  else if (glin[i]["solid"] !== undefined)
+		  {
+			if (glin[i]["solid"] == true)
+			{
+				return false;
+			}
+		  }
 	    }
 	  }
     }
@@ -1058,9 +1324,37 @@ function placeFree(obj, x, y)
 	{
 	  if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
 	  {
-		return false;
+		if (main !== undefined)
+		  {
+			return false;
+		  }
+		  else if (glin[i]["solid"] !== undefined)
+		  {
+			if (glin[i]["solid"] == true)
+			{
+				return false;
+			}
+		  }
 	  }
 	}
   }
   return true;
+}
+function placeEmpty(obj, x, y)
+{
+	return placeFree(obj, x, y, false);
+}
+function placeMeeting(x, y, obj)
+{
+	for (var i=0;i<glin.length;i++)
+	{
+		if ((glin[i]["x"] == x)&&(glin[i]["y"] == y))
+		{
+			if ((glin[i]["x"] < obj["x"])&&(glin[i]["x"]+glin[i]["width"] >= obj["x"])&&(glin[i]["y"] < obj["y"])&&(glin[i]["y"]+glin[i]["height"] >= obj["y"]))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
