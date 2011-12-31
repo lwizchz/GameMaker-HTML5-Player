@@ -349,7 +349,7 @@ objControl.Draw = function()
   drawSetBackground(false, bckFore, cBlack);
   drawSurface(objControl.id[0]["surf"], 12, 240);
   drawSetFont(fntMain);
-  drawSetColor(surfaceGetpixel(objControl.id[0]["surf"], 32, 32));
+  drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
   drawText("Surfaces can be~#used too!", 12, 312);
 }
 
