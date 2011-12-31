@@ -1,7 +1,11 @@
 <!--
-Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-Copyright (c) 2011 jimn346
-You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+ Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+ Copyright (c) 2011 jimn346
+ You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+ 
+ This file is part of GameMaker HTML5 Player (GHP).
+ GHP is free software and comes with ABSOLUTELY NO WARANTY.
+ See LICENSE for more details.
 -->
 
 <!DOCTYPE HTML>
@@ -44,9 +48,9 @@ img {
 
 </head>
 
-<body onload="gameStart();" onunload="eventGameEnd();" onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
+<body onload="gameStart();" onunload="eventGameEnd();">
 
-<canvas id="maincan" width="640" height="480" style="cursor: url(invis.png), auto;">
+<canvas id="maincan" width="640" height="480" tabindex="1" style="cursor: url(invis.png), auto;"  onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
 <center class="nocan">
 <div style="margin-top:30%;">
 Sorry your browser doesn't support HTML5.

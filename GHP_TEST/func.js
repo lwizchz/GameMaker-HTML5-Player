@@ -1,6 +1,12 @@
-//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-//Copyright (c) 2011 jimn346
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011 jimn346
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 ///////////////////
 //Drawing functions
@@ -194,6 +200,10 @@ function drawLinks()
 	  }
 	}
   }
+}
+function drawSetAlpha(alpha)
+{
+	curcon.globalAlpha = alpha;
 }
 ////////////////
 //Font functions
@@ -588,7 +598,7 @@ function stringFormat(x, tot, dec)
 	}
 	return str;
 }
-function chr(x, y)
+function chr(x)
 {
 	return String.fromCharCode(x);
 }
@@ -1028,8 +1038,14 @@ function surfaceSetTarget(id)
   {
     id = canvas;
   }
+  this.tmpstroke = curcon.strokeStyle;
+  this.tmpfill = curcon.fillStyle;
+  this.tmpalpha = curcon.globalAlpha;
   cursurf = id;
   curcon = cursurf.getContext("2d");
+  curcon.strokeStyle = tmpstroke;
+  curcon.fillStyle = tmpfill;
+  curcon.globalAlpha = tmpalpha;
 }
 function surfaceResetTarget()
 {
@@ -1037,10 +1053,9 @@ function surfaceResetTarget()
   {
 	return undefined;
   }
-  cursurf = canvas;
-  curcon = cursurf.getContext("2d");
+  surfaceSetTarget(canvas);
 }
-function surfaceGetpixel(id, x, y)
+function surfaceGetPixel(id, x, y)
 {
   if (ie)
   {
@@ -1188,10 +1203,6 @@ function dateCreateTime(h, m, s, ms)
 ////////////////////
 //Instance functions
 ////////////////////
-function calcVars() //Update all instance variables
-{
-	
-}
 
 ////////////////////
 //Movement Functions

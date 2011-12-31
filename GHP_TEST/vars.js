@@ -1,6 +1,12 @@
-//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-//Copyright (c) 2011 jimn346
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011 jimn346
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 canvas = document.getElementById("maincan");
 if (navigator.appName == "Microsoft Internet Explorer")
@@ -28,14 +34,7 @@ mouseY = 0;
 pi = Math.PI;
 mpd = 1000*60*60*24; //Milliseconds per day
 
-if (ie)
-{
-	fps = 10;
-}
-else
-{
-	fps = 60;
-}
+fps = 60;
 cfps = 0;
 tfps = fps;
 fnd = new Date();
@@ -131,35 +130,7 @@ vkDecimal = 110;
 blankImage = new Image();
 blankImage.src = "invis.png";
 
-//Sprites
-sprCursor = new Image();
-sprCursor.src = "sprites/sprCursor.png";
-sprPie = new Image();
-sprPie.src = "sprites/sprPie.png";
-sprPlayer = new Image();
-sprPlayer.src = "sprites/sprPlayer.png";
-sprPlayer.siwidth = 32;
-sprFloor = new Image();
-sprFloor.src = "sprites/sprFloor.png";
-sprBitFont = new Image();
-sprBitFont.src = "sprites/sprBitFont.png";
-sprBitFont.siwidth = 32;
-
-//Sounds
-sndClick = new Audio();
-sndClick.src = "sounds/sndClick.wav";
-if (!ie)
-{
-	sndClick.load();
-}
-
-//Backgrounds
-bckMain = new Image();
-bckMain.src = "backgrounds/bckMain.png";
-bckFore = new Image();
-bckFore.src = "backgrounds/bckFore.png";
-
-//Fonts
+//Required functions
 function fontAdd(name, size, bold, italic)
 {
   this.temp = new Font();
@@ -255,6 +226,36 @@ function SpriteFont()
   this.propx = null;
   this.propwidth = null;
 }
+
+//Sprites
+sprCursor = new Image();
+sprCursor.src = "sprites/sprCursor.png";
+sprPie = new Image();
+sprPie.src = "sprites/sprPie.png";
+sprPlayer = new Image();
+sprPlayer.src = "sprites/sprPlayer.png";
+sprPlayer.siwidth = 32;
+sprFloor = new Image();
+sprFloor.src = "sprites/sprFloor.png";
+sprBitFont = new Image();
+sprBitFont.src = "sprites/sprBitFont.png";
+sprBitFont.siwidth = 32;
+
+//Sounds
+sndClick = new Audio();
+sndClick.src = "sounds/sndClick.wav";
+if (!ie)
+{
+	sndClick.load();
+}
+
+//Backgrounds
+bckMain = new Image();
+bckMain.src = "backgrounds/bckMain.png";
+bckFore = new Image();
+bckFore.src = "backgrounds/bckFore.png";
+
+//Fonts
 fntMain = fontAdd("Calibri", 8, false, false);
 fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
 fntSwitch2 = fontAdd("Verdana", 16, false, true);
@@ -277,7 +278,6 @@ function objDraw()
 }
 function objStep()
 {
-  calcVars(objPlayer);
   objPlayer.Step();
 }
 function objKeys(i)

@@ -1,5 +1,11 @@
-//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 function eventGameStart()
 {
@@ -75,6 +81,10 @@ function eventAlarm()
 }
 function eventKeyboard(key)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (key != undefined)
   {
     if (key in keys)
@@ -99,6 +109,10 @@ function eventKeyboard(key)
 }
 function eventKeyboardPress(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Any key
@@ -119,6 +133,10 @@ function eventKeyboardPress(e)
 }
 function eventKeyboardRelease(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Any key
@@ -209,6 +227,10 @@ function eventDestroy()
 }
 function eventMouse(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //
@@ -216,6 +238,10 @@ function eventMouse(e)
 }
 function eventMousePress(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     objMouseP();
@@ -223,6 +249,10 @@ function eventMousePress(e)
 }
 function eventMouseRelease(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Do links
@@ -250,7 +280,7 @@ function eventCleanup()
 {
 	for (var i=0;i<glin.length;i++)
 	{
-		if ((glin[i]["xprevious"] !== undefined)&&(glin[i]["yprevious"] !== undefined))
+		/*if ((glin[i]["xprevious"] !== undefined)&&(glin[i]["yprevious"] !== undefined))
 		{
 			glin[i]["direction"] = pointDirection(glin[i]["x"], glin[i]["y"], glin[i]["xprevious"], glin[i]["yprevious"]);
 			glin[i]["speed"] = pointDistance(glin[i]["x"], glin[i]["y"], glin[i]["xprevious"], glin[i]["yprevious"]);
@@ -267,6 +297,6 @@ function eventCleanup()
 		if ((glin[i]["friction"] !== undefined)&&(glin[i]["speed"] !== undefined))
 		{
 			glin[i]["speed"] -= glin[i]["friction"];
-		}
+		}*/
 	}
 }

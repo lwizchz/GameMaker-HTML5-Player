@@ -1,4 +1,4 @@
-Make sure to read the license before using the source code in any way.
+Make sure to read LICENSE before using the source code in any way.
 
 Do whatever you want with the code, but if you find something beneficial, we'd love to hear from you.
 
@@ -8,4 +8,4 @@ The Converter works, but only for small portions of code. We've just released it
 
 The Converter contains reading and parsing codes from LGM by IsmAvatar <IsmAvatar@gmail.com>, Clam <clamisgood@gmail.com>, and Quadduc <quadduc@gmail.com>.
 
-The Player contains conditional code for Internet Explorer from explorercanvas by Google.
+The Player contains conditional code for Internet Explorer from explorercanvas by Emil A Eklund <emil@eae.net>, Erik Arvidsson <erik@eae.net>, and Glen Murphy <glen@glenmurphy.com>.

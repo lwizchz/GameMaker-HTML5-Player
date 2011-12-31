@@ -1,8 +1,15 @@
-//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 function gameStart()
 {
+  canvas.focus();
   for (var i=0;i<rooms.length;i++)
   {
     rooms[i].Create();
