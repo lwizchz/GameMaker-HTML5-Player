@@ -22,6 +22,11 @@ else
 {
 	ie = false;
 }
+local = true;
+if ((window.location.protocol == "http:")||(window.location.protocol == "https:"))
+{
+	local = false;
+}
 context = canvas.getContext("2d");
 cursurf = canvas;
 curcon = context;
@@ -230,7 +235,7 @@ function SpriteFont()
 //Stuff to make color blending possible
 function imageBlend(img, col)
 {
-  if (ie)
+  if ((ie)||(local))
   {
 	return img;
   }
@@ -478,7 +483,7 @@ objPlayer.Draw = function()
   {
 	if (keys[vkLeft])
 	{
-	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cWhite, 1);
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cYellow, 1);
 	}
 	else if (keys[vkRight])
 	{

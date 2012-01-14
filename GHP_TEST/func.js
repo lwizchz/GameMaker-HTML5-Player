@@ -117,27 +117,29 @@ function drawSprite(sprite, x, y)
 
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha)
 {
-  image = sprite;
-  if (sprite.colors != undefined && color != cWhite)
-  {
-  if (sprite.colors.indexOf(stringUpper(color)) == -1)
-    sprite.colors[stringUpper(color)] = imageBlend(sprite, color);
-  image = sprite.colors[stringUpper(color)];
-  }
-  curcon.save();
-  curcon.translate(x, y);
-  curcon.rotate(angle * (pi / 180));
-  curcon.scale(xscale, yscale);
-  curcon.globalAlpha = alpha;
-  if (sprite.siwidth != undefined)
-  {
-    curcon.drawImage(image, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
-  }
-  else
-  {
-    curcon.drawImage(image, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
-  }
-  curcon.restore();
+	image = sprite;
+	if (sprite.colors != undefined && color != cWhite)
+	{
+		if (sprite.colors.indexOf(stringUpper(color)) == -1)
+		{
+			sprite.colors[stringUpper(color)] = imageBlend(sprite, color);
+		}
+		image = sprite.colors[stringUpper(color)];
+	}
+	curcon.save();
+	curcon.translate(x, y);
+	curcon.rotate(angle * (pi / 180));
+	curcon.scale(xscale, yscale);
+	curcon.globalAlpha = alpha;
+	if (sprite.siwidth != undefined)
+	{
+		curcon.drawImage(image, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
+	}
+	else
+	{
+		curcon.drawImage(image, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+	}
+	curcon.restore();
 }
 function drawCircle(x, y, r, fill)
 {
