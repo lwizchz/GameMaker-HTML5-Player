@@ -1,0 +1,27 @@
+//Copyright (c) 2011 Pixel Matrix Studios
+//By piluke
+//This is Open Source Copyleft code.
+//Use it however you like, but this and all later versions must:
+//  -remain Open Source
+//  -remain free
+//  -contain this license in all documents
+//  -remain unobfuscated except for the code within object events,
+//    scripts, and room creation codes
+//  -give credit to the correct programmers
+//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+//Have fun.
+
+var canvas = document.getElementById("maincan");
+var context = canvas.getContext("2d");
+var cursurf = canvas;
+var curcon = context;
+
+var keymap = new Array();
+
+//Constants and globals
+var mouseX, mouseY;
+mouseX = 0;
+mouseY = 0;
+
+var fps, cfps, tfps;
+fps = 
