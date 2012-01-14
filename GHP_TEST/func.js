@@ -1,6 +1,12 @@
-//Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-//Copyright (c) 2011 jimn346
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011 jimn346 <jds9496@gmail.com>
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 ///////////////////
 //Drawing functions
@@ -108,8 +114,16 @@ function drawSprite(sprite, x, y)
 {
   curcon.drawImage(sprite, x, y);
 }
+
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha)
 {
+  image = sprite;
+  if (sprite.colors != undefined && color != cWhite)
+  {
+  if (sprite.colors.indexOf(stringUpper(color)) == -1)
+    sprite.colors[stringUpper(color)] = imageBlend(sprite, color);
+  image = sprite.colors[stringUpper(color)];
+  }
   curcon.save();
   curcon.translate(x, y);
   curcon.rotate(angle * (pi / 180));
@@ -117,11 +131,11 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
   curcon.globalAlpha = alpha;
   if (sprite.siwidth != undefined)
   {
-    curcon.drawImage(sprite, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
+    curcon.drawImage(image, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
   }
   else
   {
-    curcon.drawImage(sprite, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+    curcon.drawImage(image, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
   }
   curcon.restore();
 }
@@ -194,6 +208,10 @@ function drawLinks()
 	  }
 	}
   }
+}
+function drawSetAlpha(alpha)
+{
+	curcon.globalAlpha = alpha;
 }
 ////////////////
 //Font functions
@@ -588,7 +606,7 @@ function stringFormat(x, tot, dec)
 	}
 	return str;
 }
-function chr(x, y)
+function chr(x)
 {
 	return String.fromCharCode(x);
 }
@@ -1030,10 +1048,12 @@ function surfaceSetTarget(id)
   }
   this.tmpstroke = curcon.strokeStyle;
   this.tmpfill = curcon.fillStyle;
+  this.tmpalpha = curcon.globalAlpha;
   cursurf = id;
   curcon = cursurf.getContext("2d");
   curcon.strokeStyle = tmpstroke;
   curcon.fillStyle = tmpfill;
+  curcon.globalAlpha = tmpalpha;
 }
 function surfaceResetTarget()
 {
@@ -1043,7 +1063,7 @@ function surfaceResetTarget()
   }
   surfaceSetTarget(canvas);
 }
-function surfaceGetpixel(id, x, y)
+function surfaceGetPixel(id, x, y)
 {
   if (ie)
   {
@@ -1191,10 +1211,6 @@ function dateCreateTime(h, m, s, ms)
 ////////////////////
 //Instance functions
 ////////////////////
-function calcVars() //Update all instance variables
-{
-	
-}
 
 ////////////////////
 //Movement Functions

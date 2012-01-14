@@ -1,31 +1,15 @@
-//Copyright (c) 2011 Pixel Matrix Studios
-//By piluke
-//This is Open Source Copyleft code.
-//Use it however you like, but this and all later versions must:
-//  -remain Open Source
-//  -remain free
-//  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
-//  -give credit to the correct programmers
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-//Have fun.
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 function gameStart()
 {
-  preImg = new Image();
-  imgUrl = new Array();
-  imgUrl[0] = "sprites/sprCursor.png";
-  imgUrl[1] = "sprites/sprPie.png";
-  imgUrl[2] = "sprites/sprPlayer.png";
-  imgUrl[3] = "sprites/sprCursor.png";
-  imgUrl[4] = "sprites/sprFloor.png";
-  imgUrl[5] = "backgrounds/bckMain.png";
-  imgUrl[6] = "backgrounds/bckFore.png";
-  for (var i=0;i<imgUrl.length;i++)
-  {
-    preImg.src = imgUrl[i];
-  }
+  canvas.focus();
   for (var i=0;i<rooms.length;i++)
   {
     rooms[i].Create();
@@ -39,11 +23,11 @@ function gameStart()
 }
 function mainStep()
 {
-  if (cfps == fps)
+  if (fnd != fod)
   {
-    tfps = cfps;
+    tfps = cfps+1;
     cfps = 0;
-    return 0;
+	fod = fnd;
   }
   cfps += 1;
   eventStepBegin();
@@ -62,5 +46,15 @@ function mainStep()
   eventStepEnd();
   eventDraw();
   eventAnimationEnd();
+  eventCleanup();
+  fnd = new Date();
+  fnd = fnd.getSeconds();
 }
-setInterval("mainStep();", 1000/fps);
+if (ie)
+{
+	setInterval("mainStep()", 10);
+}
+else
+{
+	setInterval("mainStep();", 1000/fps);
+}

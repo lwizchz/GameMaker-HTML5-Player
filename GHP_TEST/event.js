@@ -1,15 +1,11 @@
-//Copyright (c) 2011 Pixel Matrix Studios
-//By piluke
-//This is Open Source Copyleft code.
-//Use it however you like, but this and all later versions must:
-//  -remain Open Source
-//  -remain free
-//  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
-//  -give credit to the correct programmers
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-//Have fun.
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
 function eventGameStart()
 {
@@ -51,9 +47,7 @@ function eventCreate()
 function eventDraw()
 {
   clearDraw();
-  objControl.Draw();
-  objPlayer.Draw();
-  objFloor.Draw();
+  objDraw();
   drawForegrounds();
   drawLinks();
   drawCursor();
@@ -64,7 +58,18 @@ function eventStepBegin()
 }
 function eventStep()
 {
-  objPlayer.Step();
+  for (var i=0;i<glin.length;i++)
+  {
+	if ((glin[i]["gravity"] !== undefined)&&(glin[i]["gravity_direction"] !== undefined))
+	{
+		motionAdd(glin[i]["glin"], glin[i]["gravity_direction"], glin[i]["gravity"]);
+	}
+	if ((isDefined(glin[i]["speed"]))&&(isDefined(glin[i]["direction"])))
+	{
+		rayPoint(glin[i]["glin"], glin[i]["direction"], glin[i]["speed"]);
+	}
+  }
+  objStep();
 }
 function eventStepEnd()
 {
@@ -76,6 +81,10 @@ function eventAlarm()
 }
 function eventKeyboard(key)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (key != undefined)
   {
     if (key in keys)
@@ -93,13 +102,17 @@ function eventKeyboard(key)
 	{
 	  if (keys[i] == 1)
 	  {
-	    objPlayer.Keyboard(i);
+	    objKeys(i);
 	  }
 	}
   }
 }
 function eventKeyboardPress(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Any key
@@ -113,13 +126,17 @@ function eventKeyboardPress(e)
   {
     if (pkey[i] != keys[i])
 	{
-	  objPlayer.KeyboardPress(i);
+	  objKeyP(i);
 	  pkey[i] = keys[i];
 	}
   }
 }
 function eventKeyboardRelease(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Any key
@@ -158,7 +175,7 @@ function eventCollision(obj1, obj2)
 	y1 = obj1["y"];
 	width1 = obj1["width"];
 	height1 = obj1["height"];
-	if ((typeof width1 == undefined)||(width1 == 0)||(typeof height1 ==  undefined)||(height1 == 0))
+	if ((width1 == undefined)||(width1 == 0)||(height1 ==  undefined)||(height1 == 0))
 	{
 	  return false;
 	}
@@ -210,6 +227,10 @@ function eventDestroy()
 }
 function eventMouse(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //
@@ -217,13 +238,21 @@ function eventMouse(e)
 }
 function eventMousePress(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
-    soundPlay(sndClick);
+    objMouseP();
   }
 }
 function eventMouseRelease(e)
 {
+  if (document.activeElement != canvas)
+  {
+	return;
+  }
   if (e != undefined)
   {
     //Do links
@@ -246,4 +275,28 @@ function eventMouseMove(e)
 	mouseX = e.pageX-canvas.offsetLeft;
 	mouseY = e.pageY-canvas.offsetTop;
   }
+}
+function eventCleanup()
+{
+	for (var i=0;i<glin.length;i++)
+	{
+		/*if ((glin[i]["xprevious"] !== undefined)&&(glin[i]["yprevious"] !== undefined))
+		{
+			glin[i]["direction"] = pointDirection(glin[i]["x"], glin[i]["y"], glin[i]["xprevious"], glin[i]["yprevious"]);
+			glin[i]["speed"] = pointDistance(glin[i]["x"], glin[i]["y"], glin[i]["xprevious"], glin[i]["yprevious"]);
+			glin[i]["hspeed"] = lengthdirX(glin[i]["speed"], glin[i]["direction"]);
+			glin[i]["vspeed"] = lengthdirY(glin[i]["speed"], glin[i]["direction"]);
+			glin[i]["xprevious"] = glin[i]["x"];
+			glin[i]["yprevious"] = glin[i]["y"];
+		}
+		else //Fix
+		{
+			glin[i]["xprevious"] = glin[i]["x"];
+			glin[i]["yprevious"] = glin[i]["y"];
+		}
+		if ((glin[i]["friction"] !== undefined)&&(glin[i]["speed"] !== undefined))
+		{
+			glin[i]["speed"] -= glin[i]["friction"];
+		}*/
+	}
 }

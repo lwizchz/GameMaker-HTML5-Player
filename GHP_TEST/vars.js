@@ -1,50 +1,61 @@
-//Copyright (c) 2011 Pixel Matrix Studios
-//By piluke
-//This is Open Source Copyleft code.
-//Use it however you like, but this and all later versions must:
-//  -remain Open Source
-//  -remain free
-//  -contain this license in all documents
-//  -remain unobfuscated except specific sprites, sounds, backgrounds
-//    paths, GML scripts, fonts, time lines, objects, or rooms
-//  -give credit to the correct programmers
-//You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-//Have fun.
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011 jimn346
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
 
-var canvas = document.getElementById("maincan");
-var context = canvas.getContext("2d");
-var cursurf = canvas;
-var curcon = context;
+canvas = document.getElementById("maincan");
+if (navigator.appName == "Microsoft Internet Explorer")
+{
+	canvas = G_vmlCanvasManager.initElement(canvas);
+	Audio = function()
+	{
+		return;
+	}
+	ie = true;
+}
+else
+{
+	ie = false;
+}
+context = canvas.getContext("2d");
+cursurf = canvas;
+curcon = context;
 //These were added to handle the current surface
-var keymap = new Array();
+keymap = new Array();
 
 //Constants and globals
-var mouseX, mouseY;
 mouseX = 0;
 mouseY = 0;
+pi = Math.PI;
+mpd = 1000*60*60*24; //Milliseconds per day
 
-var fps, cfps, tfps;
 fps = 60;
 cfps = 0;
 tfps = fps;
+fnd = new Date();
+fnd = fnd.getSeconds();
+fod = fnd;
 
-var room, room_width, room_height;
 room = 0;
-room_width = 640;
-room_height = 480;
+roomWidth = 640;
+roomHeight = 480;
 
-var globalFont, links;
 globalFont = null;
 links = new Array();
 
-var foreground = new Array();
-var keys = new Array();
-var pkey = new Array();
-var cursor = new Image();
+foreground = new Array();
+keys = new Array();
+pkey = new Array();
+cursor = new Image();
+
+glin = new Array();
 
 //Colors
-var cAqua, cBlack, cBlue, cDkgray, cFuchsia, cGray, cGreen, cLime, cLtgray, cMaroon, cNavy, cOlive;
-var cOrange, cPurple, cRed, cSilver, cTeal, cWhite, cYellow;
 cAqua = "#00FFFF";
 cBlack = "#000000";
 cBlue = "#0000FF";
@@ -66,11 +77,6 @@ cWhite = "#FFFFFF";
 cYellow = "#FFFF00";
 
 //Keys
-var vkNokey, vkAnykey, vkLeft, vkRight, vkUp, vkDown, vkEnter, vkEscape, vkSpace, vkShift;
-var vkControl, vkAlt, vkBackspace, vkTab, vkHome, vkEnd, vkDelete, vkInsert, vkPageup, vkPagedown;
-var vkPause, vkPrintscreen, vkF1, vkF2, vkF3, vkF4, vkF5, vkF6, vkF7, vkF8, vkF9, vkF10, vkF11, vkF12;
-var vkNumpad0, vkNumpad1, vkNumpad2, vkNumpad3, vkNumpad4, vkNumpad5, vkNumpad6, vkNumpad7, vkNumpad8, vkNumpad9;
-var vkMultiply, vkDivide, vkAdd, vkSubtract, vkDecimal;
 vkNokey = undefined;
 vkAnykey = 0;
 vkLeft = 37;
@@ -121,35 +127,10 @@ vkSubtract = 109;
 vkDecimal = 110;
 
 //Invisible image (used for surfaceExists)
-var blankImage = new Image();
+blankImage = new Image();
 blankImage.src = "invis.png";
 
-//Sprites
-sprCursor = new Image();
-sprCursor.src = "sprites/sprCursor.png";
-sprPie = new Image();
-sprPie.src = "sprites/sprPie.png";
-sprPlayer = new Image();
-sprPlayer.src = "sprites/sprPlayer.png";
-sprPlayer.siwidth = 32;
-sprFloor = new Image();
-sprFloor.src = "sprites/sprFloor.png";
-sprBitFont = new Image();
-sprBitFont.src = "sprites/sprBitFont.png";
-sprBitFont.siwidth = 32;
-
-//Sounds
-sndClick = new Audio();
-sndClick.src = "sounds/sndClick.wav";
-sndClick.load();
-
-//Backgrounds
-bckMain = new Image();
-bckMain.src = "backgrounds/bckMain.png";
-bckFore = new Image();
-bckFore.src = "backgrounds/bckFore.png";
-
-//Fonts
+//Required functions
 function fontAdd(name, size, bold, italic)
 {
   this.temp = new Font();
@@ -189,7 +170,7 @@ function fontAddSprite(sprite, first, prop, sep)
   temp.start = first;
   temp.sep = sep;
   temp.prop = prop;
-  if (prop == true)
+  if (prop === true)
   {
     temp.propx = new Array();
     temp.propwidth = new Array();
@@ -227,14 +208,14 @@ function fontAddSprite(sprite, first, prop, sep)
   }
   return temp;
 }
-function Font() //jimn346
+function Font()
 {
   this.font = null;
   this.name = null;
   this.size = null;
   this.style = null;
 }
-function SpriteFont() //jimn346
+function SpriteFont()
 {
   this.sprite = null;
   this.start = null;
@@ -245,6 +226,36 @@ function SpriteFont() //jimn346
   this.propx = null;
   this.propwidth = null;
 }
+
+//Sprites
+sprCursor = new Image();
+sprCursor.src = "sprites/sprCursor.png";
+sprPie = new Image();
+sprPie.src = "sprites/sprPie.png";
+sprPlayer = new Image();
+sprPlayer.src = "sprites/sprPlayer.png";
+sprPlayer.siwidth = 32;
+sprFloor = new Image();
+sprFloor.src = "sprites/sprFloor.png";
+sprBitFont = new Image();
+sprBitFont.src = "sprites/sprBitFont.png";
+sprBitFont.siwidth = 32;
+
+//Sounds
+sndClick = new Audio();
+sndClick.src = "sounds/sndClick.wav";
+if (!ie)
+{
+	sndClick.load();
+}
+
+//Backgrounds
+bckMain = new Image();
+bckMain.src = "backgrounds/bckMain.png";
+bckFore = new Image();
+bckFore.src = "backgrounds/bckFore.png";
+
+//Fonts
 fntMain = fontAdd("Calibri", 8, false, false);
 fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
 fntSwitch2 = fontAdd("Verdana", 16, false, true);
@@ -259,6 +270,28 @@ function instanceCreate(inst, x, y)
   inst.Create(i, x, y);
   return i;
 }
+function objDraw()
+{
+  objControl.Draw();
+  objPlayer.Draw();
+  objFloor.Draw();
+}
+function objStep()
+{
+  objPlayer.Step();
+}
+function objKeys(i)
+{
+  objPlayer.Keyboard(i);
+}
+function objKeyP(i)
+{
+  objPlayer.KeyboardPress(i);
+}
+function objMouseP()
+{
+  objControl.MousePress();
+}
 
 //ObjControl
 objControl = function()
@@ -270,6 +303,8 @@ objControl.sprite = 0;
 objControl.Create = function(i, x, y)
 {
   objControl.id[i] = new Array();
+  objControl.id[i]["glin"] = glin.length;
+  glin[glin.length] = objControl.id[i];
   objControl.id[i]["x"] = x;
   objControl.id[i]["y"] = y;
   objControl.id[i]["sprite"] = 0;
@@ -283,6 +318,10 @@ objControl.Create = function(i, x, y)
   drawCircle(64, 64, 32, 0);
   surfaceResetTarget();
   drawSetCursor(sprCursor);
+}
+objControl.MousePress = function()
+{
+  soundPlay(sndClick);
 }
 objControl.Draw = function()
 {
@@ -310,7 +349,7 @@ objControl.Draw = function()
   drawSetBackground(false, bckFore, cBlack);
   drawSurface(objControl.id[0]["surf"], 12, 240);
   drawSetFont(fntMain);
-  drawSetColor(surfaceGetpixel(objControl.id[0]["surf"], 32, 32));
+  drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
   drawText("Surfaces can be~#used too!", 12, 312);
 }
 
@@ -327,6 +366,8 @@ objPlayer.imgnumb = 8;
 objPlayer.Create = function(i, x, y)
 {
   objPlayer.id[i] = new Array();
+  objPlayer.id[i]["glin"] = glin.length;
+  glin[glin.length] = objPlayer.id[i];
   objPlayer.id[i]["x"] = x;
   objPlayer.id[i]["y"] = y;
   objPlayer.id[i]["startx"] = x;
@@ -342,12 +383,12 @@ objPlayer.Keyboard = function(i)
 {
   for (var e=0;e<objPlayer.id.length;e++)
   {
-	if ((keys[vkLeft] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"]) == 1))
+	if ((keys[vkLeft] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] -= 1;
       objPlayer.id[e]["face"] = -1;
     }
-    if ((keys[vkRight] == 1)&&(placeFree(objPlayer.id[e], objPlayer.id[e]["x"]+1, objPlayer.id[e]["y"]) == 1))
+    if ((keys[vkRight] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]+objPlayer.id[e]["width"]+1, objPlayer.id[e]["y"])))
     {
       objPlayer.id[e]["x"] += 1;
   	  objPlayer.id[e]["face"] = 1;
@@ -360,7 +401,14 @@ objPlayer.KeyboardPress = function(i)
   {
     if (keys[vkUp] == 1)
     {
-	  objPlayer.id[e]["y"] -= 25;
+	  for (var a=25;a>0;a--)
+	  {
+	    if (placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
+		{
+		  objPlayer.id[e]["y"] -= a;
+		  break;
+		}
+	  }
     }
 	if (keys[ord("R")] == 1)
 	{
@@ -375,7 +423,7 @@ objPlayer.Step = function()
   for (var i=0;i<objPlayer.id.length;i++)
   {
     //Gravity
-    if (placeFree(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+1) == 1)
+    if ((placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))&&(placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"]+objPlayer.id[i]["width"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"])))
     {
       objPlayer.id[i]["y"] += 1;
     }
@@ -421,6 +469,8 @@ objFloor.sprite = 0;
 objFloor.Create = function(i, x, y)
 {
   objFloor.id[i] = new Array();
+  objFloor.id[i]["glin"] = glin.length;
+  glin[glin.length] = objFloor.id[i];
   objFloor.id[i]["x"] = x;
   objFloor.id[i]["y"] = y;
   objFloor.id[i]["width"] = 32;
@@ -436,7 +486,7 @@ objFloor.Draw = function()
 }
 
 //Rooms
-var rooms = new Array();
+rooms = new Array();
 rooms[0] = rmMain;
 function roomOpen(i)
 {
@@ -444,8 +494,8 @@ function roomOpen(i)
   {
     instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
   }
-  room_width = rooms[i].width;
-  room_height = rooms[i].height;
+  roomWidth = rooms[i].width;
+  roomHeight = rooms[i].height;
 }
 
 //rmMain
@@ -492,4 +542,8 @@ rmMain.Create = function()
   rmMain.inst[7][0] = objFloor;
   rmMain.inst[7][1] = 260;
   rmMain.inst[7][2] = 318;
+  rmMain.inst[8] = new Array();
+  rmMain.inst[8][0] = objFloor;
+  rmMain.inst[8][1] = 292;
+  rmMain.inst[8][2] = 350;
 }
