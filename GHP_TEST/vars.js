@@ -1,6 +1,6 @@
 /*
 * Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-* Copyright (c) 2011 jimn346
+* Copyright (c) 2011 jimn346 <jds9496@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -227,6 +227,46 @@ function SpriteFont()
   this.propwidth = null;
 }
 
+//Stuff to make color blending possible
+function imageBlend(img, col)
+{
+  if (ie)
+  {
+	return img;
+  }
+  this.temp = document.createElement("canvas");
+  temp.setAttribute("width", image.width);
+  temp.setAttribute("height", image.height);
+  temp.setAttribute("style", "visibility: hidden;");
+  this.tmpctx = temp.getContext("2d");
+  
+  //Get the data for the single color
+  col = col.replace("#", "");
+  this.rgb = parseInt(col, 16);
+ 
+  this.red = (rgb & (255 << 16)) >> 16;
+  this.green = (rgb & (255 << 8)) >> 8;
+  this.blue = (rgb & 255);
+  
+  //Put the image on the new canvas
+  tmpctx.drawImage(img, 0, 0);
+  this.imageData = tmpctx.getImageData(0, 0, temp.width, temp.height);
+  this.data = imageData.data;
+  
+  //Blend the image.
+  for (var i = 0; i < data.length; i += 4)
+  {
+	data[i] = Math.round(data[i] * red * (1 / 255));
+	data[i + 1] = Math.round(data[i + 1] * green * (1 / 255));
+	data[i + 2] = Math.round(data[i + 2] * blue * (1 / 255));
+  }
+  
+  //Set the data to the canvas.
+  tmpctx.putImageData(imageData, 0, 0);
+  
+  return temp;
+}
+
 //Sprites
 sprCursor = new Image();
 sprCursor.src = "sprites/sprCursor.png";
@@ -235,6 +275,7 @@ sprPie.src = "sprites/sprPie.png";
 sprPlayer = new Image();
 sprPlayer.src = "sprites/sprPlayer.png";
 sprPlayer.siwidth = 32;
+sprPlayer.colors = new Array();
 sprFloor = new Image();
 sprFloor.src = "sprites/sprFloor.png";
 sprBitFont = new Image();
