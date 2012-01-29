@@ -1,6 +1,6 @@
 /*
-* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-* Copyright (c) 2011 jimn346 <jds9496@gmail.com>
+* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 jimn346 <jds9496@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -173,7 +173,7 @@ function drawForegrounds()
 {
   for (var i=0;i<foreground.length;i++)
   {
-    curcon.drawImage(foreground[i], 0, 0);
+	curcon.drawImage(foreground[i], 0, 0);
   }
   foreground.length = 0;
 }
@@ -962,10 +962,6 @@ function setApplicationTitle(t)
 /////////////////
 function soundPlay(snd)
 {
-	if (ie)
-	{
-	return;
-	}
 	var sound = new Audio();
 	sound.src = snd.src;
 	sound.load();
@@ -976,10 +972,6 @@ function soundPlay(snd)
 ///////////////////
 function surfaceCreate(w, h)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
   this.temps = document.createElement("canvas");
   temps.setAttribute("width", w);
@@ -989,18 +981,10 @@ function surfaceCreate(w, h)
 }
 function surfaceFree(id)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   id.remove(0);
 }
 function surfaceExists(id)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id === -1)
   {
     id = canvas;
@@ -1016,10 +1000,6 @@ function surfaceExists(id)
 }
 function surfaceGetWidth(id)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id === -1)
   {
     id = canvas;
@@ -1028,10 +1008,6 @@ function surfaceGetWidth(id)
 }
 function surfaceGetHeight(id)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id === -1)
   {
     id = canvas;
@@ -1040,10 +1016,6 @@ function surfaceGetHeight(id)
 }
 function surfaceSetTarget(id)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id === -1)
   {
     id = canvas;
@@ -1059,18 +1031,10 @@ function surfaceSetTarget(id)
 }
 function surfaceResetTarget()
 {
-  if (ie)
-  {
-	return undefined;
-  }
   surfaceSetTarget(canvas);
 }
 function surfaceGetPixel(id, x, y)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id === -1)
   {
     id = canvas;
@@ -1084,10 +1048,6 @@ function surfaceGetPixel(id, x, y)
 }
 function drawSurface(id, x, y)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;
@@ -1096,10 +1056,6 @@ function drawSurface(id, x, y)
 }
 function drawSurfaceStretched(id, x, y, w, h)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;
@@ -1108,10 +1064,6 @@ function drawSurfaceStretched(id, x, y, w, h)
 }
 function drawSurfacePart(id, left, top, w, h, x, y)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;
@@ -1120,10 +1072,6 @@ function drawSurfacePart(id, left, top, w, h, x, y)
 }
 function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;
@@ -1138,10 +1086,6 @@ function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha)
 }
 function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;
@@ -1155,10 +1099,6 @@ function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha)
 }
 function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, alpha)
 {
-  if (ie)
-  {
-	return undefined;
-  }
   if (id == -1)
   {
     id = canvas;

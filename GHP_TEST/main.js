@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -9,6 +9,13 @@
 
 function gameStart()
 {
+  for (var i=0;i<dolo.length;i++)
+  {
+	if (!dolo[i])
+	{
+		return;
+	}
+  }
   canvas.focus();
   for (var i=0;i<rooms.length;i++)
   {
@@ -23,6 +30,15 @@ function gameStart()
 }
 function mainStep()
 {
+  for (var i=0;i<dolo.length;i++)
+  {
+	if (!dolo[i])
+	{
+		fnd = new Date();
+		fnd = fnd.getSeconds();
+		return;
+	}
+  }
   if (fnd != fod)
   {
     tfps = cfps+1;
@@ -50,11 +66,4 @@ function mainStep()
   fnd = new Date();
   fnd = fnd.getSeconds();
 }
-if (ie)
-{
-	setInterval("mainStep()", 10);
-}
-else
-{
-	setInterval("mainStep();", 1000/fps);
-}
+setInterval("mainStep();", 1000/fps);

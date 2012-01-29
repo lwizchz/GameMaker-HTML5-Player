@@ -8,6 +8,7 @@
 */
 
 var de = document.createElement("div");
+de.setAttribute("id", "de");
 de.setAttribute("style", "border: 3px solid black; border-radius: 4px; background: #336699; position: fixed; top: 9px; left: 10px;");
 de.style.width = (document.getElementById("maincan").width/2)+"px";
 de.style.height = document.getElementById("maincan").height+"px";

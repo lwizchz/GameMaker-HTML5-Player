@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -13,7 +13,11 @@ function eventGameStart()
 }
 function eventGameEnd()
 {
-  eventRoomEnd(); 
+  eventRoomEnd();
+  if (socket != null) //Close open socket
+  {
+	socket.close();
+  }
 }
 function eventRoomStart(i)
 {

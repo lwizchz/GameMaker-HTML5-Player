@@ -1,6 +1,6 @@
 /*
-* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
-* Copyright (c) 2011 jimn346 <jds9496@gmail.com>
+* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 jimn346 <jds9496@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -9,24 +9,12 @@
 */
 
 canvas = document.getElementById("maincan");
-if (navigator.appName == "Microsoft Internet Explorer")
-{
-	canvas = G_vmlCanvasManager.initElement(canvas);
-	Audio = function()
-	{
-		return;
-	}
-	ie = true;
-}
-else
-{
-	ie = false;
-}
 local = true;
 if ((window.location.protocol == "http:")||(window.location.protocol == "https:"))
 {
 	local = false;
 }
+
 context = canvas.getContext("2d");
 cursurf = canvas;
 curcon = context;
@@ -47,8 +35,13 @@ fnd = fnd.getSeconds();
 fod = fnd;
 
 room = 0;
-roomWidth = 640;
-roomHeight = 480;
+roomWidth = canvas.width;
+roomHeight = canvas.height;
+
+socket = null;
+sock_data = new Array();
+req = null;
+ip = "127.0.0.1";
 
 globalFont = null;
 links = new Array();
@@ -59,6 +52,7 @@ pkey = new Array();
 cursor = new Image();
 
 glin = new Array();
+dolo = new Array();
 
 //Colors
 cAqua = "#00FFFF";
@@ -235,7 +229,7 @@ function SpriteFont()
 //Stuff to make color blending possible
 function imageBlend(img, col)
 {
-  if ((ie)||(local))
+  if (local)
   {
 	return img;
   }
@@ -275,31 +269,49 @@ function imageBlend(img, col)
 //Sprites
 sprCursor = new Image();
 sprCursor.src = "sprites/sprCursor.png";
+sprCursor.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprCursor.onload = function(){dolo[sprCursor.dolo] = true};
 sprPie = new Image();
 sprPie.src = "sprites/sprPie.png";
+sprPie.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprPie.onload = function(){dolo[sprPie.dolo] = true};
 sprPlayer = new Image();
 sprPlayer.src = "sprites/sprPlayer.png";
+sprPlayer.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprPlayer.onload = function(){dolo[sprPlayer.dolo] = true};
 sprPlayer.siwidth = 32;
 sprPlayer.colors = new Array();
 sprFloor = new Image();
 sprFloor.src = "sprites/sprFloor.png";
+sprFloor.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprFloor.onload = function(){dolo[sprFloor.dolo] = true};
 sprBitFont = new Image();
 sprBitFont.src = "sprites/sprBitFont.png";
+sprBitFont.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprBitFont.onload = function(){dolo[sprBitFont.dolo] = true};
 sprBitFont.siwidth = 32;
 
 //Sounds
 sndClick = new Audio();
 sndClick.src = "sounds/sndClick.wav";
-if (!ie)
-{
-	sndClick.load();
-}
+sndClick.load();
 
 //Backgrounds
 bckMain = new Image();
 bckMain.src = "backgrounds/bckMain.png";
+bckMain.dolo = dolo.length;
+dolo[dolo.length] = false;
+bckMain.onload = function(){dolo[bckMain.dolo] = true};
 bckFore = new Image();
 bckFore.src = "backgrounds/bckFore.png";
+bckFore.dolo = dolo.length;
+dolo[dolo.length] = false;
+bckFore.onload = function(){dolo[bckFore.dolo] = true};
 
 //Fonts
 fntMain = fontAdd("Calibri", 8, false, false);
