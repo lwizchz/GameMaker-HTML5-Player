@@ -61,12 +61,12 @@ function drawText(text, x, y)
   }
   else
   {
-    if ((globalFont instanceof Font) || (globalFont === null))
+    if ((instanceOf(globalFont) == "Font") || (globalFont === null))
 	{
 		curcon.font = globalFont.font;
 		curcon.fillText(text, x, y);
 	}
-	else if (globalFont instanceof SpriteFont)
+	else if (instanceOf(globalFont) == "SpriteFont")
 	{
 	  if (globalFont.prop === false)
 	  {
@@ -133,11 +133,11 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 	curcon.globalAlpha = alpha;
 	if (sprite.siwidth != undefined)
 	{
-		curcon.drawImage(image, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
+		curcon.drawImage(image, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
 	}
 	else
 	{
-		curcon.drawImage(image, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+		curcon.drawImage(image, floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
 	}
 	curcon.restore();
 }
@@ -273,7 +273,7 @@ function fontAddSprite(sprite, first, prop, sep)
 }
 function fontExists(ind)
 {
-  if (ind instanceof Font || ind instanceof SpriteFont)
+  if (instanceOf(ind) == "Font" || instanceOf(ind) == "SpriteFont")
   {
     return true;
   }
@@ -292,7 +292,7 @@ function fontDelete(ind)
 }
 function fontGetBold(ind)
 {
-  if (ind instanceof Font && (ind.style == 1 || ind.style == 3))
+  if (instanceOf(ind) == "Font" && (ind.style == 1 || ind.style == 3))
   {
     return true;
   }
@@ -302,7 +302,7 @@ function fontGetBold(ind)
 }
 function fontGetItalic(ind)
 {
-  if (ind instanceof Font && (ind.style == 2 || ind.style == 3))
+  if (instanceOf(ind) == "Font" && (ind.style == 2 || ind.style == 3))
   {
     return true;
   }
@@ -355,9 +355,17 @@ function abs(x)
 {
   return Math.abs(x);
 }
-function round(x)
+function round(x, d)
 {
-  return Math.round(x);
+	if (d == undefined)
+	{
+		d = 1;
+	}
+	else
+	{
+		d = round(d);
+	}
+	return Math.round(x*d)/d;
 }
 function ceil(x)
 {
@@ -398,6 +406,10 @@ function max(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x
 }
 function random(x)
 {
+  if (x == undefined)
+  {
+	x = 1;
+  }
   return Math.random()*x;
 }
 function randomRange(x1, x2)
@@ -466,7 +478,7 @@ function median(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15
 	  return a-b;
 	}
   );
-  var mid = Math.floor(ary.length/2);
+  var mid = floor(ary.length/2);
   if ((ary.length % 2) == 1)
   {
     return ary[mid];
@@ -633,12 +645,12 @@ function stringWidth(str)
 }
 function stringHeight(str)
 {
-  if (globalFont instanceof Font)
+  if (instanceOf(globalFont) == "Font")
   {
     curcon.font = globalFont.font;
     return curcon.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
   }
-  else if (globalFont instanceof SpriteFont)
+  else if (instanceOf(globalFont) == "SpriteFont")
   {
     return globalFont.sprite.height * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
   }
@@ -873,7 +885,7 @@ function dsListShuffle(id)
   for (var i = 0; i < id.length; i++)
   {
     this.a = id[i];
-	this.b = parseInt(Math.random()*len);
+	this.b = parseInt(random()*len);
 	id[i] = id[b];
 	id[p] = a;
   }
@@ -956,6 +968,16 @@ function variableLocalArray2Set(a, i1, i2, val)
 function setApplicationTitle(t)
 {
   document.title = t;
+}
+function instanceOf(o) //Fixes instanceof cross-frame breakage
+{
+	var s = Object.prototype.toString.call(o);
+	s = s.substring(s.indexOf(" ")+1, s.length-1);
+	if (s == "Object") //User defined
+	{
+		return o.constructor.name
+	}
+	return s;
 }
 /////////////////
 //Sound functions
@@ -1124,18 +1146,19 @@ function dateTimeString(d)
 {
 	return d.toLocaleTimeString()+(d.getHours <= 12) ? " AM" : " PM";
 }
-//Fix?
 function dateCurrentDatetime()
 {
 	return new Date();
 }
 function dateCurrentDate()
 {
-	return new Date();
+	var d = new Date();
+	return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 function dateCurrentTime()
 {
-	return new Date();
+	var d = new Date();
+	return new Date(0, 0, 0, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
 }
 function dateCreateDatetime(y, m, d, h, mi, s, ms)
 {
@@ -1148,6 +1171,257 @@ function dateCreateDate(y, m, d)
 function dateCreateTime(h, m, s, ms)
 {
 	return new Date(0, 0, 0, h, m, s, ms);
+}
+function dateValidDatetime(y, m, d, h, mi, s, ms)
+{
+	var dt = new Date(y, m, d, h, mi, s, ms);
+	var tom = {0:"", 2:"", 4:"", 6:"", 7:"", 9:"", 11:""}; //Months with 31 days
+	if (instanceOf(dt) !== "Date")
+	{
+		return false;
+	}
+	if ((abs(y) != y)||(abs(m) != m)||(abs(d) != d)||(abs(h) != h)||(abs(mi) != mi)||(abs(s) != s)||(abs(ms) != ms))
+	{
+		return new Date(abs(y), abs(m), abs(d), abs(h), abs(mi), abs(s), abs(ms));
+	}
+	if (m > 11)
+	{
+		return dt;
+	}
+	if ((m == 1)&&(d > 29)) //Leap years
+	{
+		return dt;
+	}
+	else if ((m == 1)&&(d == 29)&&!(y % 4))
+	{
+		return dt;
+	}
+	if (d > 31)
+	{
+		return dt;
+	}
+	else if ((d == 31)&&!(m in tom))
+	{
+		return dt;
+	}
+	if (isNaN(dt.getTime()))
+	{
+		return dt;
+	}
+	if ((h > 23)||(h < 0))
+	{
+		return dt;
+	}
+	if ((m > 59)||(m < 0))
+	{
+		return dt;
+	}
+	if ((s > 59)||(s < 0))
+	{
+		return dt;
+	}
+	if ((ms > 999)||(ms < 0))
+	{
+		return dt;
+	}
+	return true;
+}
+function dateValidDate(y, m, d)
+{
+	return dateValidDatetime(y, m, d, 0, 0, 0, 0);
+}
+function dateValidTime(h, m, s, ms)
+{
+	return dateValieDatetime(0, 0, 0, h, m, s, ms);
+}
+function dateValidate(d)
+{
+	var r = dateValidDatetime(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+	if (r === true)
+	{
+		return d;
+	}
+	return r;
+}
+function dateInc(d, x1, x2, x3, x4, x5, x6, x7)
+{
+	return dateValidate(new Date(d.getFullYear()+x1, d.getMonth()+x2, d.getDate()+x3, d.getHours()+x4, d.getMinutes()+x5, d.getSeconds()+x6, d.getMilliseconds()+x7));
+}
+function dateIncYear(d, x)
+{
+	return dateInc(d, x, 0, 0, 0, 0, 0, 0);
+}
+function dateIncMonth(d, x)
+{
+	return dateInc(d, 0, x, 0, 0, 0, 0, 0);
+}
+function dateIncWeek(d, x)
+{
+	return dateInc(d, 0, 0, 7*x, 0, 0, 0, 0);
+}
+function dateIncDay(d, x)
+{
+	return dateInc(d, 0, 0, x, 0, 0, 0, 0);
+}
+function dateIncHour(d, x)
+{
+	return dateInc(d, 0, 0, 0, x, 0, 0, 0);
+}
+function dateIncMinute(d, x)
+{
+	return dateInc(d, 0, 0, 0, 0, x, 0, 0);
+}
+function dateIncSeconds(d, x)
+{
+	return dateInc(d, 0, 0, 0, 0, 0, x, 0);
+}
+function dateIncMillisecond(d, x)
+{
+	return dateInc(d, 0, 0, 0, 0, 0, 0, x);
+}
+function dateGetYear(d)
+{
+	return d.getFullYear();
+}
+function dateGetMonth(d)
+{
+	return d.getMonth();
+}
+function dateGetWeek(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1);
+	return ceil((((d-j)/86400000)+j.getDay()+1)/7);
+}
+function dateGetDay(d)
+{
+	return d.getDate();
+}
+function dateGetHour(d)
+{
+	return d.getHours();
+}
+function dateGetMinutes(d)
+{
+	return d.getMinutes();
+}
+function dateGetSeconds(d)
+{
+	return d.getSeconds();
+}
+function dateGetMilliseconds(d)
+{
+	return d.getMilliseconds();
+}
+function dateGetWeekday(d)
+{
+	return d.getDay();
+}
+function dateGetDayOfYear(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1);
+	return ceil((d-j)/86400000)+1;
+}
+function dateGetHourOfYear(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
+	return ceil((d-j)/3600000)+1;
+}
+function dateGetMinuteOfYear(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
+	return ceil((d-j)/60000)+1;
+}
+function dateGetSecondOfYear(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
+	return ceil((d-j)/1000)+1;
+}
+function dateGetMillisecondOfYear(d)
+{
+	var j = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
+	return ceil(d-j)+1;
+}
+function dateYearSpan(d1, d2)
+{
+	return round(abs(d1-d2)/31536000000, 10);
+}
+function dateWeekSpan(d1, d2)
+{
+	return round(abs(d1-d2)/604800000, 10);
+}
+function dateDaySpan(d1, d2)
+{
+	return round(abs(d1-d2)/86400000, 10);
+}
+function dateHourSpan(d1, d2)
+{
+	return round(abs(d1-d2)/3600000, 10);
+}
+function dateMinuteSpan(d1, d2)
+{
+	return round(abs(d1-d2)/60000, 10);
+}
+function dateSecondSpan(d1, d2)
+{
+	return round(abs(d1-d2)/1000, 10);
+}
+function dateMillisecondSpan(d1, d2)
+{
+	return round(abs(d1-d2));
+}
+function dateCompareDatetime(d1, d2)
+{
+	return sign(d1-d2);
+}
+function dateCompareDate(d1, d2)
+{
+	return dateCompareDatetime(d1, d2);
+}
+function dateCompareTime(d1, d2)
+{
+	return dateCompareDatetime(d1, d2);
+}
+function dateDateOf(d)
+{
+	return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function dateTimeOf(d)
+{
+	return new Date(0, 0, 0, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+}
+function dateDatetimeString(d)
+{
+	return d.toString();
+}
+function dateDateString(d)
+{
+	return d.toDateString();
+}
+function dateTimeString(d)
+{
+	return d.toTimeString();
+}
+function dateDaysInMonth(d)
+{
+	return 32-new Date(d.getFullYear(), d.getMonth(), 32).getDate();
+}
+function dateDaysInYear(d)
+{
+	return 365+dateLeapYear(d);
+}
+function dateLeapYear(d)
+{
+	return (new Date(d.getFullYear(), 1, 29).getDate() == 1) ? false : true;
+}
+function dateIsToday(d)
+{
+	var t = new Date();
+	return (new Date(d.getFullYear(), d.getMonth(), d.getDate()) == new Date(t.getFullYear(), t.getMonth(), t.getDate())) ? true : false;
+}
+//Fix
+function dateMonthSpan(d1, d2)
+{
+	return round(abs(d1-d2)/2628000000, 10); //Not all months have 30 days
 }
 
 ////////////////////
