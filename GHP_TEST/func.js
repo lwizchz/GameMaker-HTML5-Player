@@ -1427,6 +1427,14 @@ function dateMonthSpan(d1, d2)
 ////////////////////
 //Instance functions
 ////////////////////
+function instanceDestroy(obj)
+{
+	if (obj !== undefined)
+	{
+		glin[obj["glin"]] = null;
+	}
+	return null;
+}
 
 ////////////////////
 //Movement Functions
@@ -1592,4 +1600,41 @@ function placeMeeting(x, y, obj)
 		}
 	}
 	return false;
+}
+
+////////////////
+//Room functions
+////////////////
+function roomGoto(r)
+{
+	var rm = undefined;
+	if (typeof r == "number")
+	{
+		rm = r;
+	}
+	else
+	{
+		for (var i=0;i<rooms.length;i++)
+		{
+			if (rooms[i] == r)
+			{
+				rm = i;
+				break;
+			}
+		}
+		if (rm == undefined)
+		{
+			return false;
+		}
+	}
+	for (var i=0;i<rooms[room].inst.length;i++)
+	{
+		if (rooms[room].inst[i][0].id.length > 0)
+		{
+			rooms[room].inst[i][0].id.length = instanceDestroy();
+		}
+	}
+	glin.length = null;
+	roomOpen(rm);
+	return true;
 }

@@ -6,18 +6,13 @@
 * GHP is free software and comes with ABSOLUTELY NO WARANTY.
 * See LICENSE for more details.
 */
-
 function eventGameStart()
 {
-  
+	canvas.style.background = cLtgray;
 }
 function eventGameEnd()
 {
   eventRoomEnd();
-  if (socket != null) //Close open socket
-  {
-	socket.close();
-  }
 }
 function eventRoomStart(i)
 {

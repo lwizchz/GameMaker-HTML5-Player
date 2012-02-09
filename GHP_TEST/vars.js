@@ -38,11 +38,6 @@ room = 0;
 roomWidth = canvas.width;
 roomHeight = canvas.height;
 
-socket = null;
-sock_data = new Array();
-req = null;
-ip = "127.0.0.1";
-
 globalFont = null;
 links = new Array();
 
@@ -377,38 +372,45 @@ objControl.Create = function(i, x, y)
   surfaceResetTarget();
   drawSetCursor(sprCursor);
 }
-objControl.MousePress = function()
+objControl.MousePress = function(i)
 {
-  soundPlay(sndClick);
+	for (var e=0;e<objControl.id.length;e++)
+	{
+		soundPlay(sndClick);
+	}
 }
 objControl.Draw = function()
 {
-  drawSetBackground(true, bckMain, "#999999");
-  drawSetColor(cBlack);
-  drawSetFont(fntMain);
-  drawText("Copyright (c) 2011 Pixel Matrix Studios, by piluke, see the commented license for more information.", 0, 10);
-  drawText("FPS: "+tfps, 600, 10);
-  drawRect(0, 0, 470, 12, false);
-  drawSetColor(cGray);
-  drawRect(30, 30, 50, 50, true);
-  drawSetColor(cBlue);
-  drawCircle(100, 40, 20, false);
-  drawSprite(sprPie, 5, 70);
-  drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
-  drawRect(100, 70, 200, 170, true);
-  drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
-  drawCircle(275, 100, 50, true);
-  drawSetColor(cBlue);
-  drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
-  drawSetFont(fntOther);
-  drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
-  drawSetFont(fntBitmap);
-  drawText("You can even use~#sprite fonts!", 16, 176);
-  drawSetBackground(false, bckFore, cBlack);
-  drawSurface(objControl.id[0]["surf"], 12, 240);
-  drawSetFont(fntMain);
-  drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
-  drawText("Surfaces can be~#used too!", 12, 312);
+	for (var i=0;i<objControl.id.length;i++)
+	{
+		drawSetBackground(true, bckMain, cGray);
+		drawSetColor(cBlack);
+		drawSetFont(fntMain);
+		var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
+		drawText(str, 0, 10);
+		drawText("FPS: "+tfps, 600, 10);
+		drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, false);
+		drawSetColor(cOrange);
+		drawRect(30, 30, 50, 50, true);
+		drawSetColor(cBlue);
+		drawCircle(100, 40, 20, false);
+		drawSprite(sprPie, 5, 70);
+		drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
+		drawRect(100, 70, 200, 170, true);
+		drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
+		drawCircle(275, 100, 50, true);
+		drawSetColor(cBlue);
+		drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
+		drawSetFont(fntOther);
+		drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
+		drawSetFont(fntBitmap);
+		drawText("You can even use~#sprite fonts!", 16, 176);
+		drawSetBackground(false, bckFore, cBlack);
+		drawSurface(objControl.id[0]["surf"], 12, 240);
+		drawSetFont(fntMain);
+		drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
+		drawText("Surfaces can be~#used too!", 12, 312);
+	}
 }
 
 //ObjPlayer
@@ -546,6 +548,7 @@ objFloor.Draw = function()
 //Rooms
 rooms = new Array();
 rooms[0] = rmMain;
+rooms[1] = rmS;
 function roomOpen(i)
 {
   for (var e=0;e<rooms[i].inst.length;e++)
@@ -604,4 +607,21 @@ rmMain.Create = function()
   rmMain.inst[8][0] = objFloor;
   rmMain.inst[8][1] = 292;
   rmMain.inst[8][2] = 350;
+}
+//rmS
+function rmS(i)
+{
+  //Do nothing
+}
+rmS.inst = new Array();
+rmS.rmCrCode = false;
+rmS.objCrCode = false;
+rmS.width = 700;
+rmS.height = 500;
+rmS.Create = function()
+{
+  rmS.inst[0] = new Array();
+  rmS.inst[0][0] = objFloor;
+  rmS.inst[0][1] = 0;
+  rmS.inst[0][2] = 0;
 }
