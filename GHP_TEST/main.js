@@ -30,40 +30,45 @@ function gameStart()
 }
 function mainStep()
 {
-  for (var i=0;i<dolo.length;i++)
-  {
-	if (!dolo[i])
+	if (dldone)
 	{
-		fnd = new Date();
-		fnd = fnd.getSeconds();
-		return;
+		for (var i=0;i<dolo.length;i++)
+		{
+			if (!dolo[i])
+			{
+				fnd = new Date();
+				fnd = fnd.getSeconds();
+				return;
+			}
+		}
+		dldone = true;
 	}
-  }
-  if (fnd != fod)
-  {
-    tfps = cfps+1;
-    cfps = 0;
-	fod = fnd;
-  }
-  cfps += 1;
-  eventStepBegin();
-  eventAlarm();
-  eventKeyboard();
-  eventMouse();
-  eventKeyboardPress();
-  eventMousePress();
-  eventKeyboardRelease();
-  eventMouseRelease();
-  eventStep();
-  eventPathEnd();
-  eventOutsideRoom();
-  eventIntersectBoundary();
-  eventCollision();
-  eventStepEnd();
-  eventDraw();
-  eventAnimationEnd();
-  eventCleanup();
-  fnd = new Date();
-  fnd = fnd.getSeconds();
+	if (fnd != fod)
+	{
+		tfps = cfps+1;
+		cfps = 0;
+		fod = fnd;
+	}
+	cfps += 1;
+	eventStepBegin();
+	eventAlarm();
+	eventKeyboard();
+	eventMouse();
+	eventKeyboardPress();
+	eventMousePress();
+	eventKeyboardRelease();
+	eventMouseRelease();
+	eventStep();
+	eventPathEnd();
+	eventOutsideRoom();
+	eventIntersectBoundary();
+	eventCollision();
+	eventStepEnd();
+	eventAnimationEnd();
+	eventCleanup();
+	fnd = new Date();
+	fnd = fnd.getSeconds();
+	setTimeout(mainStep, 1000/fps);
 }
-setInterval("mainStep();", 1000/fps);
+mainStep();
+eventDraw();

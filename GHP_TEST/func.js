@@ -11,6 +11,13 @@
 ///////////////////
 //Drawing functions
 ///////////////////
+function requestAnimFrame()
+{
+	return (window.requestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame)(eventDraw); //Cross-browser support
+}
 function drawLine(x1, y1, x2, y2)
 {
   x1-=0.5;
@@ -176,7 +183,7 @@ function drawCircle(x, y, r, fill)
 function clearDraw()
 {
   links.length = 0;
-  canvas.width = canvas.width;
+  context.clearRect(0, 0, roomWidth, roomHeight);
 }
 function drawSetBackground(isback, back, fill)
 {
@@ -560,7 +567,7 @@ function rayPoint(obj, dir, spd) //Point along ray from object
 	else
 	{
 		obj["x"] += 1;
-		obj["y"] = m*obj["x"] + b
+		obj["y"] = m*obj["x"] + b;
 	}
 }
 function lengthdirX(len, dir)
@@ -598,7 +605,7 @@ function frac(x)
 }
 function isDefined(x)
 {
-	if ((typeof x !== "undefined")&&(!isNaN(x)))
+	if ((x !== undefined)&&(!isNaN(x)))
 	{
 		return true;
 	}
@@ -1627,7 +1634,7 @@ function placeMeeting(x, y, obj)
 ////////////////
 //Room functions
 ////////////////
-function roomGoto(r)
+function roomGoto(r, m)
 {
 	var rm = undefined;
 	if (typeof r == "number")
@@ -1649,6 +1656,10 @@ function roomGoto(r)
 			return false;
 		}
 	}
+	if (m !== undefined)
+	{
+		rm += m;
+	}
 	for (var i=0;i<rooms[room].inst.length;i++)
 	{
 		if (rooms[room].inst[i][0].id.length > 0)
@@ -1659,4 +1670,16 @@ function roomGoto(r)
 	glin.length = null;
 	roomOpen(rm);
 	return true;
+}
+function roomGotoNext()
+{
+	return roomGoto(room, 1);
+}
+function roomGotoPrevious()
+{
+	return roomGoto(room, -1);
+}
+function roomRestart()
+{
+	return roomGoto(room);
 }

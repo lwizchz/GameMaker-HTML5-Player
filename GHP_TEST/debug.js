@@ -13,7 +13,9 @@ de.setAttribute("style", "border: 3px solid black; border-radius: 4px; backgroun
 de.style.width = (document.getElementById("maincan").width/2)+"px";
 de.style.height = document.getElementById("maincan").height+"px";
 document.body.appendChild(de);
-var mpress = false;
+load();
+var rs = false;
+var mv = false;
 
 function clear()
 {
@@ -53,40 +55,44 @@ function print(s)
 	ce.value += s;
 	ce.scrollTop = ce.scrollHeight;
 }
+function rnm(e)
+{
+	if (e != undefined)
+	{
+		if (rs)
+		{
+			de.style.width = e.pageX-de.offsetLeft+"px";
+			de.style.height = e.pageY-de.offsetTop+"px";
+		}
+		else if (mv)
+		{
+			de.style.left = e.pageX+dx-x+"px";
+			de.style.top = e.pageY+dy-y+"px";
+		}
+		ce.setAttribute("cols", ""+Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4/8));
+		ce.setAttribute("rows", ""+Math.round((de.style.height.substring(0, de.style.height.length-2)-25)/18));
+		te.style.width = Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4)+"px";
+		me.style.width = de.style.width;
+	}
+}
 function resize(e)
 {
 	if (e != undefined)
 	{
-		if (mpress)
-		{
-			de.style.width = e.pageX-de.offsetLeft+"px";
-			de.style.height = e.pageY-de.offsetTop+"px";
-			ce.setAttribute("cols", ""+Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4/8));
-			ce.setAttribute("rows", ""+Math.round((de.style.height.substring(0, de.style.height.length-2)-25)/18));
-			te.style.width = Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4)+"px";
-		}
+		mv = false;
+		rs = !rs;
 	}
 }
-function mp(e)
+function move(e)
 {
 	if (e != undefined)
 	{
-		mpress = true;
-		he.style.width = "30px";
-		he.style.height = "30px";
-		he.style.right = "-10px";
-		he.style.bottom = "-10px";
-	}
-}
-function mr(e)
-{
-	if (e != undefined)
-	{
-		mpress = false;
-		he.style.width = "10px";
-		he.style.height = "10px";
-		he.style.right = "0px";
-		he.style.bottom = "0px";
+		rs = false;
+		mv = !mv;
+		x = e.pageX;
+		y = e.pageY;
+		dx = parseInt(de.style.left);
+		dy = parseInt(de.style.top);
 	}
 }
 function ots(t)
@@ -177,6 +183,32 @@ function teChange(t)
 	}
 	te.value = "";
 }
+function save()
+{
+	localStorage.deX = de.style.left;
+	localStorage.deY = de.style.top;
+	localStorage.deWidth = de.style.width;
+	localStorage.deHeight = de.style.height;
+}
+function load()
+{
+	if (localStorage.deX)
+	{
+		de.style.left = localStorage.deX;
+	}
+	if (localStorage.deY)
+	{
+		de.style.top = localStorage.deY;
+	}
+	if (localStorage.deWidth)
+	{
+		de.style.width = localStorage.deWidth;
+	}
+	if (localStorage.deHeight)
+	{
+		de.style.height = localStorage.deHeight;
+	}
+}
 
 var ce = document.createElement("textarea");
 ce.setAttribute("cols", ""+Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4/8));
@@ -193,9 +225,14 @@ te.setAttribute("onchange", "teChange(this);");
 te.setAttribute("style", "border: 1px solid black; background: #FFFFD0; position: absolute; bottom: 5px; left: 5px;");
 te.style.width = Math.round(de.style.width.substring(0, de.style.width.length-2)/5*4)+"px";
 de.appendChild(te);
+var me = document.createElement("div");
+me.setAttribute("style", "margin: 0px; border: 0px; border-radius: 4px; padding: 0px; height: 5px; position: absolute; top: 0px; left: 0px; background: black; cursor: move;");
+me.style.width = de.style.width;
+me.setAttribute("onmousedown", "move(event)");
+de.appendChild(me);
 var he = document.createElement("div");
-he.setAttribute("style", "margin: 0px; bprder: 0px; padding: 0px; width: 10px; height: 10px; position: absolute; bottom: 0px; right: 0px; background: black; cursor: se-resize;");
-he.setAttribute("onmousemove", "resize(event);");
-he.setAttribute("onmousedown", "mp(event)");
-he.setAttribute("onmouseup", "mr(event)");
+he.setAttribute("style", "margin: 0px; border: 0px; padding: 0px; width: 10px; height: 10px; position: absolute; bottom: 0px; right: 0px; background: black; cursor: se-resize;");
+he.setAttribute("onmousedown", "resize(event)");
 de.appendChild(he);
+document.onmousemove = rnm;
+window.onunload = save;

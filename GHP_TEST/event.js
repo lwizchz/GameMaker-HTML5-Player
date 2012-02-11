@@ -25,11 +25,20 @@ function eventRoomChange()
   eventCreate();
   eventRoomCrCode();
   eventRoomStart();
-  eventDraw();
+  //eventDraw();
 }
 function eventRoomEnd()
 {
-
+	for (var i=0;i<rooms[room].inst.length;i++)
+	{
+		if (rooms[room].inst[i][0].id.length > 0)
+		{
+			rooms[room].inst[i][0].id.length = instanceDestroy();
+		}
+		delete rooms[room].inst[i];
+	}
+	glin.length = null;
+	delete glin;
 }
 function eventInstCrCode()
 {
@@ -45,7 +54,7 @@ function eventCreate()
 }
 function eventDraw()
 {
-  clearDraw();
+  requestAnimFrame();
   objDraw();
   drawForegrounds();
   drawLinks();
@@ -168,7 +177,7 @@ function eventIntersectBoundary()
 }
 function eventCollision(obj1, obj2)
 {
-  if ((obj1 != undefined)&&(obj2 != undefined))
+  /*if ((obj1 != undefined)&&(obj2 != undefined))
   {
     x1 = obj1["x"];
 	y1 = obj1["y"];
@@ -202,7 +211,7 @@ function eventCollision(obj1, obj2)
   else //Called as event, not function
   {
     
-  }
+  }*/
 }
 function eventAnimationEnd()
 {

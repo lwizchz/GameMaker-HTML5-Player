@@ -48,6 +48,7 @@ cursor = new Image();
 
 glin = new Array();
 dolo = new Array();
+dldone = false;
 
 //Colors
 cAqua = "#00FFFF";
@@ -457,26 +458,24 @@ objPlayer.Keyboard = function(i)
 }
 objPlayer.KeyboardPress = function(i)
 {
-  for (var e=0;e<objPlayer.id.length;e++)
-  {
-    if (keys[vkUp] == 1)
-    {
-	  for (var a=25;a>0;a--)
-	  {
-	    if (placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
-		{
-		  objPlayer.id[e]["y"] -= a;
-		  break;
-		}
-	  }
-    }
-	if (keys[ord("R")] == 1)
+	for (var e=0;e<objPlayer.id.length;e++)
 	{
-	  objPlayer.id[e]["x"] = objPlayer.id[e]["startx"];
-	  objPlayer.id[e]["y"] = objPlayer.id[e]["starty"];
-      objPlayer.id[e]["face"] = 1;
+		if (keys[vkUp] == 1)
+		{
+		for (var a=25;a>0;a--)
+		{
+			if (placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
+			{
+			objPlayer.id[e]["y"] -= a;
+			break;
+			}
+		}
+		}
+		if (keys[ord("R")] == 1)
+		{
+			roomRestart();
+		}
 	}
-  }
 }
 objPlayer.Step = function()
 {
@@ -548,7 +547,7 @@ objFloor.Draw = function()
 //Rooms
 rooms = new Array();
 rooms[0] = rmMain;
-rooms[1] = rmS;
+rooms[1] = rmDraw;
 function roomOpen(i)
 {
   for (var e=0;e<rooms[i].inst.length;e++)
@@ -557,6 +556,9 @@ function roomOpen(i)
   }
   roomWidth = rooms[i].width;
   roomHeight = rooms[i].height;
+  canvas.width = roomWidth;
+  canvas.height = roomHeight;
+  room = i;
 }
 
 //rmMain
@@ -608,20 +610,20 @@ rmMain.Create = function()
   rmMain.inst[8][1] = 292;
   rmMain.inst[8][2] = 350;
 }
-//rmS
-function rmS(i)
+//rmDraw
+function rmDraw(i)
 {
   //Do nothing
 }
-rmS.inst = new Array();
-rmS.rmCrCode = false;
-rmS.objCrCode = false;
-rmS.width = 700;
-rmS.height = 500;
-rmS.Create = function()
+rmDraw.inst = new Array();
+rmDraw.rmCrCode = false;
+rmDraw.objCrCode = false;
+rmDraw.width = 700;
+rmDraw.height = 500;
+rmDraw.Create = function()
 {
-  rmS.inst[0] = new Array();
-  rmS.inst[0][0] = objFloor;
-  rmS.inst[0][1] = 0;
-  rmS.inst[0][2] = 0;
+  rmDraw.inst[0] = new Array();
+  rmDraw.inst[0][0] = objControl;
+  rmDraw.inst[0][1] = 0;
+  rmDraw.inst[0][2] = 0;
 }
