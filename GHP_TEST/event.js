@@ -54,6 +54,7 @@ function eventCreate()
 }
 function eventDraw()
 {
+  clearDraw();
   requestAnimFrame();
   objDraw();
   drawForegrounds();
@@ -257,24 +258,31 @@ function eventMousePress(e)
 }
 function eventMouseRelease(e)
 {
-  if (document.activeElement != canvas)
-  {
-	return;
-  }
-  if (e != undefined)
-  {
-    //Do links
-	if (links.length > 0)
+	if (document.activeElement != canvas)
 	{
-	  for (var i=0;i<links.length;i++)
-	  {
-	    if ((mouseX >= links[i][1])&&(mouseY >= links[i][2])&&(mouseX <= links[i][1]+links[i][3])&&(mouseY <= links[i][2]+links[i][4]))
-		{
-		  eval(links[i][0]);
-		}
-	  }
+		return;
 	}
-  }
+	if (e != undefined)
+	{
+		//Do links
+		if (links.length > 0)
+		{
+			for (var i=0;i<links.length;i++)
+			{
+				if ((mouseX >= links[i][2])&&(mouseY >= links[i][3])&&(mouseX <= links[i][2]+links[i][4])&&(mouseY <= links[i][3]+links[i][5]))
+				{
+					if (links[i][1] !== undefined)
+					{
+						links[i][0](links[i][1]);
+					}
+					else
+					{
+						eval(links[i][0]);
+					}
+				}
+			}
+		}
+	}
 }
 function eventMouseMove(e)
 {

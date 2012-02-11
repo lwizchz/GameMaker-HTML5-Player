@@ -42,6 +42,7 @@ function mainStep()
 			}
 		}
 		dldone = true;
+		delete window.dolo;
 	}
 	if (fnd != fod)
 	{

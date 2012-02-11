@@ -316,6 +316,17 @@ fntSwitch2 = fontAdd("Verdana", 16, false, true);
 fntOther = fntSwitch1;
 fntBitmap = fontAddSprite(sprBitFont, 33, false, -16);
 
+//Scripts
+function drawCopyright()
+{
+	drawSetColor(cBlack);
+	drawSetFont(fntMain);
+	var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
+	drawText(str, 0, 10);
+	drawText("FPS: "+tfps, 600, 10);
+	drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, false);
+}
+
 //Objects
 function instanceCreate(inst, x, y)
 {
@@ -384,33 +395,59 @@ objControl.Draw = function()
 {
 	for (var i=0;i<objControl.id.length;i++)
 	{
-		drawSetBackground(true, bckMain, cGray);
-		drawSetColor(cBlack);
-		drawSetFont(fntMain);
-		var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
-		drawText(str, 0, 10);
-		drawText("FPS: "+tfps, 600, 10);
-		drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, false);
-		drawSetColor(cOrange);
-		drawRect(30, 30, 50, 50, true);
-		drawSetColor(cBlue);
-		drawCircle(100, 40, 20, false);
-		drawSprite(sprPie, 5, 70, 0);
-		drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
-		drawRect(100, 70, 200, 170, true);
-		drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
-		drawCircle(275, 100, 50, true);
-		drawSetColor(cBlue);
-		drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
-		drawSetFont(fntOther);
-		drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
-		drawSetFont(fntBitmap);
-		drawText("You can even use~#sprite fonts!", 16, 176);
-		drawSetBackground(false, bckFore, cBlack);
-		drawSurface(objControl.id[0]["surf"], 12, 240);
-		drawSetFont(fntMain);
-		drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
-		drawText("Surfaces can be~#used too!", 12, 312);
+		if (rooms[room] == rmMain)
+		{
+			drawCopyright();
+			drawSetColor(cBlack);
+			drawRect(50, 70, 300, 250, true);
+			drawRect(350, 70, 600, 250, true);
+			drawRect(50, 270, 300, 450, true);
+			drawRect(350, 270, 600, 450, true);
+			addLink(roomGoto, rmDraw, 50, 70, 300, 250, false);
+			drawSetFont(fntBitmap);
+			drawSetColor(cRed);
+			drawText("Drawing", 100, 100);
+			drawSetColor(cOrange);
+			drawText("Movement", 400, 100);
+			drawSetColor(cYellow);
+			drawText("Text~#embedding", 100, 300);
+			drawSetColor(cGreen);
+			drawText("Other", 400, 300);
+		}
+		else if (rooms[room] == rmDraw)
+		{
+			drawSetBackground(true, bckMain, cGray);
+			drawCopyright();
+			drawSetColor(cOrange);
+			drawRect(30, 30, 50, 50, true);
+			drawSetColor(cBlue);
+			drawCircle(100, 40, 20, false);
+			drawSprite(sprPie, 5, 70, 0);
+			drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
+			drawRect(100, 70, 200, 170, true);
+			drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
+			drawCircle(275, 100, 50, true);
+			drawSetColor(cBlue);
+			drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
+			drawSetFont(fntOther);
+			drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
+			drawSetFont(fntBitmap);
+			drawText("You can even use~#sprite fonts!", 16, 176);
+			drawSetBackground(false, bckFore, cBlack);
+			drawSurface(objControl.id[0]["surf"], 12, 240);
+			drawSetFont(fntMain);
+			drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
+			drawText("Surfaces can be~#used too!", 12, 312);
+		}
+		if (rooms[room] != rmMain)
+		{
+			drawSetColor(cBlack);
+			drawRect(500, 10, 550, 30, true);
+			addLink(roomGoto, rmMain, 500, 10, 550, 30, false);
+			drawSetFont(fntMain);
+			drawSetColor(cWhite);
+			drawText("Back", 510, 25);
+		}
 	}
 }
 
@@ -577,38 +614,6 @@ rmMain.Create = function()
   rmMain.inst[0][0] = objControl;
   rmMain.inst[0][1] = 0;
   rmMain.inst[0][2] = 0;
-  rmMain.inst[1] = new Array();
-  rmMain.inst[1][0] = objPlayer;
-  rmMain.inst[1][1] = 100;
-  rmMain.inst[1][2] = 250;
-  rmMain.inst[2] = new Array();
-  rmMain.inst[2][0] = objFloor;
-  rmMain.inst[2][1] = 100;
-  rmMain.inst[2][2] = 350;
-  rmMain.inst[3] = new Array();
-  rmMain.inst[3][0] = objFloor;
-  rmMain.inst[3][1] = 132;
-  rmMain.inst[3][2] = 350;
-  rmMain.inst[4] = new Array();
-  rmMain.inst[4][0] = objFloor;
-  rmMain.inst[4][1] = 164;
-  rmMain.inst[4][2] = 350;
-  rmMain.inst[5] = new Array();
-  rmMain.inst[5][0] = objFloor;
-  rmMain.inst[5][1] = 196;
-  rmMain.inst[5][2] = 350;
-  rmMain.inst[6] = new Array();
-  rmMain.inst[6][0] = objFloor;
-  rmMain.inst[6][1] = 228;
-  rmMain.inst[6][2] = 350;
-  rmMain.inst[7] = new Array();
-  rmMain.inst[7][0] = objFloor;
-  rmMain.inst[7][1] = 260;
-  rmMain.inst[7][2] = 318;
-  rmMain.inst[8] = new Array();
-  rmMain.inst[8][0] = objFloor;
-  rmMain.inst[8][1] = 292;
-  rmMain.inst[8][2] = 350;
 }
 //rmDraw
 function rmDraw(i)
@@ -618,8 +623,8 @@ function rmDraw(i)
 rmDraw.inst = new Array();
 rmDraw.rmCrCode = false;
 rmDraw.objCrCode = false;
-rmDraw.width = 700;
-rmDraw.height = 500;
+rmDraw.width = 640;
+rmDraw.height = 480;
 rmDraw.Create = function()
 {
   rmDraw.inst[0] = new Array();

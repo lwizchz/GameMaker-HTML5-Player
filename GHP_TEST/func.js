@@ -48,23 +48,27 @@ function drawSetColor(color)
 	curcon.strokeStyle = color;
 	curcon.fillStyle = color;
 }
+function drawGetColor()
+{
+	return curcon.fillStyle || curcon.strokeStyle;
+}
 function drawText(text, x, y)
 {
   if (text.indexOf("~#") != -1)
   {
-    text1 = text.substr(0, text.indexOf("~#"));
-	text2 = text.substr(text.indexOf("~#")+2, text.length);
+    var text1 = text.substr(0, text.indexOf("~#"));
+	var text2 = text.substr(text.indexOf("~#")+2, text.length);
 	drawText(text1, x, y);
 	drawText(text2, x, y+stringHeight(text1)+2);
   }
   else if (text.indexOf("~a:") != -1) //Hyperlinks
   {
-	link = text.substr(text.indexOf("~a:")+3, text.length).indexOf("~");
-	func = text.substr(text.indexOf("~a:")+3, link);
-	text1 = text.substr(0, text.indexOf("~a:"));
-	text2 = text.substr(text.indexOf("~a:")+func.length+4, text.substring(text.indexOf("~a:")+func.length+4, text.length).indexOf("~"));
+	var link = text.substr(text.indexOf("~a:")+3, text.length).indexOf("~");
+	var func = text.substr(text.indexOf("~a:")+3, link);
+	var text1 = text.substr(0, text.indexOf("~a:"));
+	var text2 = text.substr(text.indexOf("~a:")+func.length+4, text.substring(text.indexOf("~a:")+func.length+4, text.length).indexOf("~"));
 	drawText(text1+text2, x, y);
-	addLink(func, x+stringWidth(text1), y-stringHeight(text), stringWidth(text2), stringHeight(text));
+	addLink(func, undefined, x+stringWidth(text1), y-stringHeight(text), stringWidth(text2), stringHeight(text), true, drawGetColor());
   }
   else
   {
@@ -81,7 +85,7 @@ function drawText(text, x, y)
 	    {
 	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
 		  {
-	      drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
+			drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
 		  }
 	    }
 	  }
@@ -92,9 +96,9 @@ function drawText(text, x, y)
 	    {
 	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
 		  {
-		  curx -= globalFont.propx[ord(stringCharAt(text, i)) - globalFont.start];
-	      drawSpriteExt(globalFont.sprite, curx, y, ord(stringCharAt(text, i)) - globalFont.start);
-		  curx += globalFont.propwidth[ord(stringCharAt(text, i)) - globalFont.start] + globalFont.sep;
+			curx -= globalFont.propx[ord(stringCharAt(text, i)) - globalFont.start];
+			drawSpriteExt(globalFont.sprite, curx, y, ord(stringCharAt(text, i)) - globalFont.start);
+			curx += globalFont.propwidth[ord(stringCharAt(text, i)) - globalFont.start] + globalFont.sep;
 		  }
 	    }
 	  }
@@ -146,7 +150,7 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 	    xx = sprite.xorig;
 	if (sprite.yorig != undefined)
 	    yy = sprite.yorig;
-	image = sprite;
+	var image = sprite;
 	if (sprite.colors != undefined && color != cWhite)
 	{
 		if (sprite.colors.indexOf(stringUpper(color)) == -1)
@@ -182,8 +186,9 @@ function drawCircle(x, y, r, fill)
 }
 function clearDraw()
 {
-  links.length = 0;
-  context.clearRect(0, 0, roomWidth, roomHeight);
+	delete window.links;
+	links = new Array();
+	context.clearRect(0, 0, roomWidth, roomHeight);
 }
 function drawSetBackground(isback, back, fill)
 {
@@ -218,27 +223,32 @@ function drawSetFont(font)
 {
   globalFont = font;
 }
-function addLink(func, x, y, width, height)
+function addLink(func, arg, x, y, width, height, istext, color)
 {
-  links[0] = new Array();
-  links[0][0] = func;
-  links[0][1] = x;
-  links[0][2] = y;
-  links[0][3] = width;
-  links[0][4] = height;
+  var i = links.length
+  links[i] = new Array();
+  links[i][0] = func;
+  links[i][1] = arg
+  links[i][2] = x;
+  links[i][3] = y;
+  links[i][4] = width;
+  links[i][5] = height;
+  links[i][6] = istext;
+  links[i][7] = color;
 }
 function drawLinks()
 {
-  if (links.length > 0)
-  {
-	for (var i=0;i<links.length;i++)
+	if (links.length > 0)
 	{
-	  if ((mouseX >= links[i][1])&&(mouseY >= links[i][2])&&(mouseX <= links[i][1]+links[i][3])&&(mouseY <= links[i][2]+links[i][4]))
-	  {
-		drawLine(links[i][1], links[i][2]+links[i][4]+2, links[i][1]+links[i][3], links[i][2]+links[i][4]+2, false);
-	  }
+		for (var i=0;i<links.length;i++)
+		{
+			if ((mouseX >= links[i][2])&&(mouseY >= links[i][3])&&(mouseX <= links[i][2]+links[i][4])&&(mouseY <= links[i][3]+links[i][5])&&(links[i][6]))
+			{
+				drawSetColor(links[i][7]);
+				drawLine(links[i][2], links[i][3]+links[i][5]+2, links[i][2]+links[i][4], links[i][3]+links[i][5]+2);
+			}
+		}
 	}
-  }
 }
 function drawSetAlpha(alpha)
 {
@@ -317,7 +327,7 @@ function fontGetFontname(ind)
 }
 function fontDelete(ind)
 {
-  delete ind;
+  delete this.ind;
 }
 function fontGetBold(ind)
 {
@@ -828,7 +838,7 @@ function dsListCreate()
 }
 function dsListDestroy(id)
 {
-  delete id;
+  delete this.id;
 }
 function dsListClear(id)
 {
@@ -870,8 +880,8 @@ function dsListInsert(id, pos, val)
   id.Clear();
   id.Concat(start);
   
-  delete start;
-  delete end;
+  delete this.start;
+  delete this.end;
 }
 function dsListReplace(id, pos, val)
 {
@@ -1667,7 +1677,8 @@ function roomGoto(r, m)
 			rooms[room].inst[i][0].id.length = instanceDestroy();
 		}
 	}
-	glin.length = null;
+	delete window.glin;
+	glin = new Array();
 	roomOpen(rm);
 	return true;
 }
