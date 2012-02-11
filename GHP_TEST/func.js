@@ -110,13 +110,35 @@ function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
   gradient.addColorStop(1, col2);
   curcon.fillStyle = gradient;
 }
-function drawSprite(sprite, x, y)
+function drawSprite(sprite, x, y, subimg)
 {
-  curcon.drawImage(sprite, x, y);
+    this.xx = 0;
+	this.yy = 0;
+	if (sprite.xorig != undefined)
+	    xx = sprite.xorig;
+	if (sprite.yorig != undefined)
+	    yy = sprite.yorig;
+	curcon.save();
+	curcon.translate(x, y);
+	if (sprite.siwidth != undefined)
+	{
+		curcon.drawImage(sprite, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, -xx, -yy, sprite.siwidth, sprite.height);
+	}
+	else
+	{
+		curcon.drawImage(sprite, -xx, -yy);
+	}
+	curcon.restore();
 }
 
 function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha)
 {
+    this.xx = 0;
+	this.yy = 0;
+	if (sprite.xorig != undefined)
+	    xx = sprite.xorig;
+	if (sprite.yorig != undefined)
+	    yy = sprite.yorig;
 	image = sprite;
 	if (sprite.colors != undefined && color != cWhite)
 	{
@@ -133,11 +155,11 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 	curcon.globalAlpha = alpha;
 	if (sprite.siwidth != undefined)
 	{
-		curcon.drawImage(image, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, 0, 0, sprite.siwidth, sprite.height);
+		curcon.drawImage(image, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, -xx, -yy, sprite.siwidth, sprite.height);
 	}
 	else
 	{
-		curcon.drawImage(image, floor(subimg) * sprite.width, 0, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+		curcon.drawImage(image, floor(subimg) * sprite.width, 0, sprite.width, sprite.height, -xx, -yy, sprite.width, sprite.height);
 	}
 	curcon.restore();
 }

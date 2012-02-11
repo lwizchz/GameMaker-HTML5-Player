@@ -394,7 +394,7 @@ objControl.Draw = function()
 		drawRect(30, 30, 50, 50, true);
 		drawSetColor(cBlue);
 		drawCircle(100, 40, 20, false);
-		drawSprite(sprPie, 5, 70);
+		drawSprite(sprPie, 5, 70, 0);
 		drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
 		drawRect(100, 70, 200, 170, true);
 		drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
@@ -541,7 +541,7 @@ objFloor.Draw = function()
 {
   for (var i=0;i<objFloor.id.length;i++)
   {
-    drawSprite(objFloor.id[i]["sprite"], objFloor.id[i]["x"], objFloor.id[i]["y"]);
+    drawSprite(objFloor.id[i]["sprite"], objFloor.id[i]["x"], objFloor.id[i]["y"], 0);
   }
 }
 
