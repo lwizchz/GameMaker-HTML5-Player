@@ -1694,3 +1694,89 @@ function roomRestart()
 {
 	return roomGoto(room);
 }
+
+//Collision System
+
+//This collision system works by finding how close two shapes must be to collide, given the direction from one to the other.
+//It calculates the distance from the center to the edge of each shape in the respective direction, adds those, and checks if
+//that distance is less than the distance from the center of one shape to the center of the next.
+
+//Rectangle
+function lengthRectangle(w, h, dir)
+{
+  if (dir >= 180)
+    dir -= 180;
+
+  if (!(dir > Math.atan(h / w)) * 180 / Math.PI || dir > (180 - Math.atan(h / w)) * 180 / Math.PI)
+    return Math.abs(w / 2 / Math.cos(dir * Math.PI / 180));
+  else
+    return Math.abs(h / 2 / Math.cos((90 - dir) * Math.PI / 180));
+}
+
+//Ellipse
+function lengthEllipse(w, h, dir)
+{
+  dir = dir * Math.PI / 180;
+  return (w * h) / (Math.sqrt(Math.pow(h * Math.cos(dir), 2) + Math.pow(w * Math.sin(dir), 2))) / 2;
+}
+
+//Diamond
+function lengthDiamond(w, h, dir)
+{
+  if (dir > 180)
+    dir -= 180;
+
+  if (dir > 90)
+    dir = 90 - (dir - 90);
+
+  this.sl1 = Math.tan(dir * pi / 180);
+  this.sl2 = -(h / 2) / (w / 2);
+
+  this.xx = (h / 2) / (sl1 - s2l);
+  this.yy = xx * sl1;
+
+  return Math.sqrt(Math.pow(xx, 2) + Math.pow(yy, 2));
+}
+
+//This function checks of collisions.
+//The character codes for different shapes are:
+//r - rectangle
+//e - ellipse
+//d - diamond
+//p - precise (not yet supported)
+function checkCollision(sh1, x1, y1, x2, y2, sh2, xx1, yy1, xx2, yy2)
+{
+  this.centX1 = (x1 + x2) / 2;
+  this.centY1 = (y1 + y2) / 2;
+  
+  this.centX2 = (xx1 + xx2) / 2;
+  this.centY2 = (yy1 + yy2) / 2;
+  
+  this.dir1 = (centY2 - centY1) / (centX2 - centX1) * 180 / Math.PI;
+  this.dir2 = (centY1 - centY2) / (centX1 - centX2) * 180 / Math.PI;
+  
+  this.w1 = Math.abs(x1 - x2);
+  this.h1 = Math.abs(y1 - y2);
+  
+  this.w2 = Math.abs(xx1 - xx2);
+  this.h2 = Math.abs(yy1 - yy2);
+  
+  if (sh1 == "r")
+    this.l1 = lengthRectangle(w1, h1, dir1);
+  if (sh1 == "e")
+    this.l1 = lengthEllipse(w1, h1, dir1);
+  if (sh1 == "d")
+    this.l1 = lengthDiamond(w1, h1, dir1);
+  
+  if (sh2 == "r")
+    this.l2 = lengthRectangle(w2, h2, dir2);
+  if (sh2 == "e")
+    this.l2 = lengthEllipse(w2, h2, dir2);
+  if (sh2 == "d")
+    this.l2 = lengthDiamond(w2, h2, dir2);
+	
+  if (Math.sqrt(Math.pow(centX1 - centX2, 2) + Math.pow(centY1 - centY2, 2)) < l1 + l2)
+    return true;
+  else
+    return false;
+}
