@@ -150,8 +150,8 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 	    xx = sprite.xorig;
 	if (sprite.yorig != undefined)
 	    yy = sprite.yorig;
-	var image = sprite;
-	if (sprite.colors != undefined && color != cWhite)
+	image = sprite;
+	if (sprite.colors != undefined && color.toUpperCase() != cWhite)
 	{
 		if (sprite.colors.indexOf(stringUpper(color)) == -1)
 		{
@@ -1741,23 +1741,24 @@ function lengthDiamond(w, h, dir)
 //e - ellipse
 //d - diamond
 //p - precise (not yet supported)
-function checkCollision(sh1, x1, y1, x2, y2, sh2, xx1, yy1, xx2, yy2)
+function checkCollision(sh1, centX1, centY1, w1, h1, rot1, sh2, centX2, centY2, w2, h2, rot2)
 {
-  this.centX1 = (x1 + x2) / 2;
-  this.centY1 = (y1 + y2) / 2;
+  //Calculate the direction the line from the center should be based on direction from one mask to the other and rotation.
+  this.dir1 = (centY2 - centY1) / (centX2 - centX1) * 180 / Math.PI + rot1;
+  this.dir2 = (centY1 - centY2) / (centX1 - centX2) * 180 / Math.PI + rot2;
   
-  this.centX2 = (xx1 + xx2) / 2;
-  this.centY2 = (yy1 + yy2) / 2;
+  //Fix the directions so that they are usable.
+  while (dir1 >= 360)
+    dir1 -= 360;
+  while (dir1 < 0)
+    dir1 += 360;
+
+  while (dir2 >= 360)
+    dir2 -= 360;
+  while (dir2 < 0)
+    dir2 += 360;
   
-  this.dir1 = (centY2 - centY1) / (centX2 - centX1) * 180 / Math.PI;
-  this.dir2 = (centY1 - centY2) / (centX1 - centX2) * 180 / Math.PI;
-  
-  this.w1 = Math.abs(x1 - x2);
-  this.h1 = Math.abs(y1 - y2);
-  
-  this.w2 = Math.abs(xx1 - xx2);
-  this.h2 = Math.abs(yy1 - yy2);
-  
+  //Find the distance from center to edge for each mask.
   if (sh1 == "r")
     this.l1 = lengthRectangle(w1, h1, dir1);
   if (sh1 == "e")
@@ -1772,6 +1773,7 @@ function checkCollision(sh1, x1, y1, x2, y2, sh2, xx1, yy1, xx2, yy2)
   if (sh2 == "d")
     this.l2 = lengthDiamond(w2, h2, dir2);
 	
+  //Check if the masks are close enough to collide.
   if (Math.sqrt(Math.pow(centX1 - centX2, 2) + Math.pow(centY1 - centY2, 2)) < l1 + l2)
     return true;
   else
