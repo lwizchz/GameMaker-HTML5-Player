@@ -388,7 +388,10 @@ objControl.MousePress = function(i)
 {
 	for (var e=0;e<objControl.id.length;e++)
 	{
-		soundPlay(sndClick);
+		if (rooms[room] == rmOther)
+		{
+			soundPlay(sndClick);
+		}
 	}
 }
 objControl.Draw = function()
@@ -434,9 +437,9 @@ objControl.Draw = function()
 			drawSetFont(fntBitmap);
 			drawText("You can even use~#sprite fonts!", 16, 176);
 			drawSetBackground(false, bckFore, cBlack);
-			drawSurface(objControl.id[0]["surf"], 12, 240);
+			drawSurface(objControl.id[i]["surf"], 12, 240);
 			drawSetFont(fntMain);
-			drawSetColor(surfaceGetPixel(objControl.id[0]["surf"], 32, 32));
+			drawSetColor(surfaceGetPixel(objControl.id[i]["surf"], 32, 32));
 			drawText("Surfaces can be~#used too!", 12, 312);
 		}
 		if (rooms[room] != rmMain)
@@ -448,6 +451,13 @@ objControl.Draw = function()
 			drawSetColor(cWhite);
 			drawText("Back", 510, 25);
 		}
+	}
+}
+objControl.Destroy = function()
+{
+	for (var i=0;i<objControl.id.length;i++)
+	{
+		surfaceFree(objControl.id[i]["surf"]);
 	}
 }
 
@@ -587,6 +597,10 @@ rooms[0] = rmMain;
 rooms[1] = rmDraw;
 function roomOpen(i)
 {
+  if (rooms[i] == undefined)
+  {
+	return;
+  }
   for (var e=0;e<rooms[i].inst.length;e++)
   {
     instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
@@ -596,6 +610,7 @@ function roomOpen(i)
   canvas.width = roomWidth;
   canvas.height = roomHeight;
   room = i;
+  clearDraw();
 }
 
 //rmMain

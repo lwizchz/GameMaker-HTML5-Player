@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 piluke <pikingqwerty@gmail.com>
+ * Copyright (C) 2011-12 piluke <pikingqwerty@gmail.com>
  * 
  * This file is part of GHPC.
  * GHPC is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -50,7 +50,7 @@ public class ghpframe extends JFrame implements ActionListener {
 	Rectangle wr, pr;
 	FileChooser lfc;
 	JComboBox<?> el;
-	JCheckBox zc;
+	JCheckBox zc, dc;
 	Container con;
 	String lf;
 	ghpframe()	{
@@ -110,8 +110,12 @@ public class ghpframe extends JFrame implements ActionListener {
 		pane.add(el);
 		zc = new JCheckBox("Zip?");
 		zc.setSelected(Boolean.valueOf(prop.getProperty("zip")));
-		zc.setBounds(120, 120, 100, 40);
+		zc.setBounds(120, 120, 80, 40);
 		pane.add(zc);
+		dc = new JCheckBox("Debugger?");
+		dc.setSelected(Boolean.valueOf(prop.getProperty("debug")));
+		dc.setBounds(210, 120, 100, 40);
+		pane.add(dc);
 		con.add(pane);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
@@ -223,16 +227,36 @@ public class ghpframe extends JFrame implements ActionListener {
 			File tmpdir = new File(d.getPath().substring(0, d.getPath().lastIndexOf("\\"))+"\\"+dir.substring(0, dir.lastIndexOf(".")));
 			File udir = new File(d.getPath().substring(0, d.getPath().lastIndexOf("\\")));
 			tmpdir.mkdir();
-			FileOutputStream main, event, func, mainjs, vars;
+			FileOutputStream li, re, main, event, func, mainjs, debug, vars;
 			byte buf;
 			String line;
 			try {
+					//LICENSE
+					File lisf = new File(tmpdir+"\\LICENSE");
+					lisf.createNewFile();
+					li = new FileOutputStream(lisf);
+					InputStreamReader lif = new InputStreamReader(ghpc.class.getResourceAsStream("/LICENSE"));
+					while (lif.ready()) {
+							buf = (byte) lif.read();
+							li.write(buf);
+					}
+					lif.close();
+					//README
+					File resf = new File(tmpdir+"\\README");
+					resf.createNewFile();
+					re = new FileOutputStream(resf);
+					InputStreamReader ref = new InputStreamReader(ghpc.class.getResourceAsStream("/README"));
+					while (ref.ready()) {
+							buf = (byte) ref.read();
+							re.write(buf);
+					}
+					lif.close();
 					//main.html
 					File mainsf = new File(tmpdir+"\\main.html");
 					mainsf.createNewFile();
 					main = new FileOutputStream(mainsf);
 					InputStreamReader[] mainf = new InputStreamReader[3];
-					mainf[0] = new InputStreamReader(ghpc.class.getResourceAsStream("mainf0"));
+					mainf[0] = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainf0"));
 					while (mainf[0].ready()) {
 							buf = (byte) mainf[0].read();
 							main.write(buf);
@@ -242,7 +266,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) dir.substring(0, dir.lastIndexOf(".")).toCharArray()[i];
 							main.write(buf);
 					}
-					mainf[1] = new InputStreamReader(ghpc.class.getResourceAsStream("mainf1"));
+					mainf[1] = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainf1"));
 					while (mainf[1].ready()) {
 							buf = (byte) mainf[1].read();
 							main.write(buf);
@@ -252,44 +276,56 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) descr.toCharArray()[i];
 							main.write(buf);
 					}
-					mainf[2] = new InputStreamReader(ghpc.class.getResourceAsStream("mainf2"));
+					mainf[2] = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainf2"));
 					while (mainf[2].ready()) {
 							buf = (byte) mainf[2].read();
 							main.write(buf);
 					}
 					mainf[2].close();
+					if (dc.isSelected()) {
+							line = "<script type=\"text/javascript\" src=\"debug.js\"></script>\n";
+							for (int e=0;e<line.length();e++) {
+									buf = (byte) line.toCharArray()[e];
+									main.write(buf);
+							}
+					}
+					line = "\n</body>\n</html>";
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							main.write(buf);
+					}
 					main.close();
 					proBar(7);
 					
 					//Browser icons/main dir imgs
 					BufferedImage[] bicof = new BufferedImage[10];
 					FileOutputStream bicosf = new FileOutputStream(tmpdir+"\\chrome.png");
-					bicof[0] = ImageIO.read(ghpc.class.getResourceAsStream("bicof0"));
+					bicof[0] = ImageIO.read(ghpc.class.getResourceAsStream("src/bicof0"));
 					ImageIO.write(bicof[0], "png", bicosf);
 					bicosf.close();
 					bicosf = new FileOutputStream(tmpdir+"\\firefox.png");
-					bicof[1] = ImageIO.read(ghpc.class.getResourceAsStream("bicof1"));
+					bicof[1] = ImageIO.read(ghpc.class.getResourceAsStream("src/bicof1"));
 					ImageIO.write((RenderedImage) bicof[1], "png", bicosf);
 					bicosf.close();
 					bicosf = new FileOutputStream(tmpdir+"\\safari.png");
-					bicof[2] = ImageIO.read(ghpc.class.getResourceAsStream("bicof2"));
+					bicof[2] = ImageIO.read(ghpc.class.getResourceAsStream("src/bicof2"));
 					ImageIO.write((RenderedImage) bicof[2], "png", bicosf);
 					bicosf.close();
 					bicosf = new FileOutputStream(tmpdir+"\\opera.png");
-					bicof[3] = ImageIO.read(ghpc.class.getResourceAsStream("bicof3"));
+					bicof[3] = ImageIO.read(ghpc.class.getResourceAsStream("src/bicof3"));
 					ImageIO.write((RenderedImage) bicof[3], "png", bicosf);
 					bicosf.close();
 					bicosf = new FileOutputStream(tmpdir+"\\invis.png");
-					bicof[4] = ImageIO.read(ghpc.class.getResourceAsStream("invis"));
+					bicof[4] = ImageIO.read(ghpc.class.getResourceAsStream("src/invis"));
 					ImageIO.write((RenderedImage) bicof[4], "png", bicosf);
 					bicosf.close();
 					proBar(8);
 					
-					//event.js, func.js, main.js
+					//event.js, func.js, main.js, debug.js
 					File eventsf = new File(tmpdir+"\\event.js");
 					eventsf.createNewFile();
 					event = new FileOutputStream(eventsf);
-					InputStreamReader eventf = new InputStreamReader(ghpc.class.getResourceAsStream("eventf"));
+					InputStreamReader eventf = new InputStreamReader(ghpc.class.getResourceAsStream("src/eventf"));
 					while (eventf.ready()) {
 							buf = (byte) eventf.read();
 							event.write(buf);
@@ -298,7 +334,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					File funcsf = new File(tmpdir+"\\func.js");
 					funcsf.createNewFile();
 					func = new FileOutputStream(funcsf);
-					InputStreamReader funcf = new InputStreamReader(ghpc.class.getResourceAsStream("funcf"));
+					InputStreamReader funcf = new InputStreamReader(ghpc.class.getResourceAsStream("src/funcf"));
 					while (funcf.ready()) {
 							buf = (byte) funcf.read();
 							func.write(buf);
@@ -307,19 +343,30 @@ public class ghpframe extends JFrame implements ActionListener {
 					File mainjsf = new File(tmpdir+"\\main.js");
 					mainjsf.createNewFile();
 					mainjs = new FileOutputStream(mainjsf);
-					InputStreamReader mainjf = new InputStreamReader(ghpc.class.getResourceAsStream("mainjf"));
+					InputStreamReader mainjf = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainjf"));
 					while (mainjf.ready()) {
 							buf = (byte) mainjf.read();
 							mainjs.write(buf);
 					}
 					mainjf.close();
+					if (dc.isSelected()) {
+							File debugsf = new File(tmpdir+"\\debug.js");
+							debugsf.createNewFile();
+							debug = new FileOutputStream(debugsf);
+							InputStreamReader debugf = new InputStreamReader(ghpc.class.getResourceAsStream("src/debugf"));
+							while (debugf.ready()) {
+									buf = (byte) debugf.read();
+									debug.write(buf);
+							}
+							debugf.close();
+					}
 					
 					//vars.js
 					File varsf = new File(tmpdir+"\\vars.js");
 					varsf.createNewFile();
 					vars = new FileOutputStream(varsf);
 					InputStreamReader[] varf = new InputStreamReader[10];
-					varf[0] = new InputStreamReader(ghpc.class.getResourceAsStream("varf0"));
+					varf[0] = new InputStreamReader(ghpc.class.getResourceAsStream("src/varf0"));
 					while (varf[0].ready()) {
 							buf = (byte) varf[0].read();
 							vars.write(buf);
@@ -329,7 +376,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) Integer.toString(fps).toCharArray()[i];
 							vars.write(buf);
 					}
-					varf[1] = new InputStreamReader(ghpc.class.getResourceAsStream("varf1"));
+					varf[1] = new InputStreamReader(ghpc.class.getResourceAsStream("src/varf1"));
 					while (varf[1].ready()) {
 							buf = (byte) varf[1].read();
 							vars.write(buf);
@@ -512,7 +559,7 @@ public class ghpframe extends JFrame implements ActionListener {
 													while (eab.hasNext()) {
 															Argument arg = eab.next();
 															if (arg.kind == Argument.ARG_STRING) {
-																	line += "	"+gmltoghp(arg.getVal())+"\n";
+																	line += "	"+gmltoghp(arg.getVal(), objname)+"\n";
 															}
 															else if (arg.kind == Argument.ARG_EXPRESSION) {
 							//										line += "	"+arg.getVal().substring(0, arg.getVal().indexOf("\n"))+" = "+arg.getVal().substring(arg.getVal().indexOf("\n")+2)+"\n";
@@ -534,7 +581,7 @@ public class ghpframe extends JFrame implements ActionListener {
 													while (eab.hasNext()) {
 															Argument arg = eab.next();
 															if (arg.kind == Argument.ARG_STRING) {
-																	line += "	"+gmltoghp(arg.getVal())+"\n";
+																	line += "	"+gmltoghp(arg.getVal(), objname)+"\n";
 															}
 															else if (arg.kind == Argument.ARG_EXPRESSION) {
 							//										line += "	"+arg.getVal().substring(0, arg.getVal().indexOf("\n"))+" = "+arg.getVal().substring(arg.getVal().indexOf("\n")+2)+"\n";
@@ -808,26 +855,113 @@ public class ghpframe extends JFrame implements ActionListener {
 					System.out.println("Couldn't open zip "+dir+".zip.");
 			}
 	}
-	public String gmltoghp(String code) {
-			String[] cl = code.split(";\n");
+	public String gmltoghp(String code, String obj) {
+			String[] cl = code.split("\n");
 			String cc = "";
-			String[] gml = {"window_set_cursor", "draw_sprite"};
-			String[] gcl = {"drawSetCursor", "drawSprite"};
+			BufferedInputStream gmlf = new BufferedInputStream(ghpc.class.getResourceAsStream("func/gmnames"));
+			DataInputStream gclf = new DataInputStream(ghpc.class.getResourceAsStream("func/ghpnames"));
+			String gmls = "";
+			String gcls = "";
+			byte[] buf = new byte[2048];
+			try {
+					while (gmlf.read(buf) != -1) {
+							gmls += new String(buf);
+					}
+					gmlf.close();
+					buf = new byte[2048];
+					while (gclf.read(buf) != -1) {
+							gcls += new String(buf);
+					}
+					gclf.close();
+			} catch (IOException e) {
+					System.out.println("Can't read fnames.");
+			}
+			String[] gml = gmls.split("\n");
+			String[] gcl = gcls.split("\n");
 			for (int i=0;i<cl.length;i++) {
 					char[] nc = cl[i].toCharArray();
-					int pap = code.indexOf("(");
+					String ars = new String();
+					int pap = cl[i].indexOf("(");
+					if (pap == -1) {
+							pap = nc.length;
+					}
 					int gc = -1;
 					for (int e=0;e<gml.length;e++) {
-							if (new String(nc).substring(0, pap).equals(gml[e].toString())) {
+							String gmlc = gml[e].toString();
+							int gmlp = gmlc.indexOf("(");
+							gmlc = gmlc.substring(0, (gmlp == -1) ? gmlc.length() : gmlp);
+							if (new String(nc).substring(0, pap).equals(gmlc)) {
 									gc = e;
 									break;
 							}
 					}
-					if (gc >= 0) {
-							cc += gcl[gc]+new String(nc).substring(pap, nc.length);
-							continue;
+					if (gc > -1) {
+							String ac = gcl[gc].substring(gcl[gc].indexOf("(")+1);
+							ac = ac.substring(0, ac.indexOf(")"));
+							String[] garg = gcl[gc].split(",");
+							if (garg.length > 0) {
+								String[] oarg = new String(nc).substring(new String(nc).indexOf("(")+1).split(",");
+								for (int e=0;e<garg.length;e++) {
+										if (garg[e].contains("%obj%")) {
+												ars += obj;
+										}
+										else if (garg[e].contains("%q%")) {
+												ars += oarg[0];
+										}
+										else if (garg[e].contains("%w%")) {
+												ars += oarg[1];
+										}
+										else if (garg[e].contains("%e%")) {
+												ars += oarg[2];
+										}
+										else if (garg[e].contains("rw%")) {
+												ars += oarg[3];
+										}
+										else if (garg[e].contains("%t%")) {
+												ars += oarg[4];
+										}
+										else if (garg[e].contains("%y%")) {
+												ars += oarg[5];
+										}
+										else if (garg[e].contains("%u%")) {
+												ars += oarg[6];
+										}
+										else if (garg[e].contains("%i%")) {
+												ars += oarg[7];
+										}
+										else if (garg[e].contains("%o%")) {
+												ars += oarg[8];
+										}
+										else if (garg[e].contains("%p%")) {
+												ars += oarg[9];
+										}
+										else if (garg[e].contains("%a%")) {
+												ars += oarg[10];
+										}
+										else if (garg[e].contains("%s%")) {
+												ars += oarg[11];
+										}
+										else if (garg[e].contains("%d%")) {
+												ars += oarg[12];
+										}
+										else if (garg[e].contains("%f%")) {
+												ars += oarg[13];
+										}
+										else if (garg[e].contains("%g%")) {
+												ars += oarg[14];
+										}
+										else if (garg[e].contains("%h%")) {
+												ars += oarg[15];
+										}
+										if (e < garg.length-2) {
+												ars += ", ";
+										}
+								}
+								ars += ");";
+							}
+							nc = gcl[gc].substring(0, gcl[gc].indexOf("(")+1).toCharArray();
 					}
-					cc += new String(nc);
+					cc += new String(nc)+ars;
 			}
 			return cc;
 	}

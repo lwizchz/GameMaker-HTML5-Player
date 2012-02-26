@@ -1647,7 +1647,7 @@ function placeMeeting(x, y, obj)
 function roomGoto(r, m)
 {
 	var rm = undefined;
-	if (typeof r == "number")
+	if (!isNaN(Number(r)))
 	{
 		rm = r;
 	}
@@ -1672,10 +1672,7 @@ function roomGoto(r, m)
 	}
 	for (var i=0;i<rooms[room].inst.length;i++)
 	{
-		if (rooms[room].inst[i][0].id.length > 0)
-		{
-			rooms[room].inst[i][0].id.length = instanceDestroy();
-		}
+		rooms[room].inst[i][0].id.length = 0;
 	}
 	delete window.glin;
 	glin = new Array();
