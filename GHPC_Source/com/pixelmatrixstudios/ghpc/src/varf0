@@ -1,0 +1,37 @@
+/*
+* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011 jimn346
+* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+* 
+* This file is part of GameMaker HTML5 Player (GHP).
+* GHP is free software and comes with ABSOLUTELY NO WARANTY.
+* See LICENSE for more details.
+*/
+
+canvas = document.getElementById("maincan");
+if (navigator.appName == "Microsoft Internet Explorer")
+{
+	canvas = G_vmlCanvasManager.initElement(canvas);
+	Audio = function()
+	{
+		return;
+	}
+	ie = true;
+}
+else
+{
+	ie = false;
+}
+context = canvas.getContext("2d");
+cursurf = canvas;
+curcon = context;
+//These were added to handle the current surface
+keymap = new Array();
+
+//Constants and globals
+mouseX = 0;
+mouseY = 0;
+pi = Math.PI;
+mpd = 1000*60*60*24; //Milliseconds per day
+
+fps = 

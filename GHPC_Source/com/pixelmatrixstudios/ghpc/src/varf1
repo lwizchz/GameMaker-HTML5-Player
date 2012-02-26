@@ -1,0 +1,192 @@
+;
+cfps = 0;
+tfps = fps;
+fnd = new Date();
+fnd = fnd.getSeconds();
+fod = fnd;
+
+room = 0;
+roomWidth = 640;
+roomHeight = 480;
+
+globalFont = null;
+links = new Array();
+
+foreground = new Array();
+keys = new Array();
+pkey = new Array();
+cursor = new Image();
+
+glin = new Array();
+
+//Colors
+cAqua = "#00FFFF";
+cBlack = "#000000";
+cBlue = "#0000FF";
+cDkgray = "#404040";
+cFuchsia = "#FF00FF";
+cGray = "#808080";
+cGreen = "#008000";
+cLime = "#00FF00";
+cLtgray = "#C0C0C0";
+cMaroon = "#800000";
+cNavy = "#000080";
+cOlive = "#808000";
+cOrange = "#FFA000";
+cPurple = "#800080";
+cRed = "#FF0000";
+cSilver = "#C0C0C0";
+cTeal = "#008080";
+cWhite = "#FFFFFF";
+cYellow = "#FFFF00";
+
+//Keys
+vkNokey = undefined;
+vkAnykey = 0;
+vkLeft = 37;
+vkRight = 39;
+vkUp = 38;
+vkDown = 40;
+vkEnter = 13;
+vkEscape = 27;
+vkShift = 16;
+vkControl = 17;
+vkAlt = 18;
+vkBackspace = 8;
+vkTab = 9;
+vkHome = 36;
+vkEnd = 35;
+vkDelete = 46;
+vkInsert = 45;
+vkPageup = 33;
+vkPagedown = 34;
+vkPause = 19;
+vkPrintscreen = 44;
+vkF1 = 112;
+vkF2 = 113;
+vkF3 = 114;
+vkF4 = 115;
+vkF5 = 116;
+vkF6 = 117;
+vkF7 = 118;
+vkF8 = 119;
+vkF9 = 120;
+vkF10 = 121;
+vkF11 = 122;
+vkF12 = 123;
+vkNumpad0 = 96;
+vkNumpad1 = 97;
+vkNumpad2 = 98;
+vkNumpad3 = 99;
+vkNumpad4 = 100;
+vkNumpad5 = 101;
+vkNumpad6 = 102;
+vkNumpad7 = 103;
+vkNumpad8 = 104;
+vkNumpad9 = 105;
+vkMultiply = 106;
+vkDivide = 111;
+vkAdd = 107;
+vkSubtract = 109;
+vkDecimal = 110;
+
+//Invisible image (used for surfaceExists)
+blankImage = new Image();
+blankImage.src = "invis.png";
+
+//Required functions
+function fontAdd(name, size, bold, italic)
+{
+  this.temp = new Font();
+  temp.style = bold + italic * 2;
+  this.str = "";
+  if (temp.style == 1)
+  {
+    str = "bold ";
+  }
+  if (temp.style == 2)
+  {
+    str = "italic ";
+  }
+  if (temp.style == 3)
+  {
+    str = "italic bold ";
+  }
+  str += size + "pt " + name;
+  temp.font = str;
+  temp.name = name;
+  temp.size = size;
+  return temp;
+}
+function surfaceCreate(w, h)
+{
+  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
+  this.temps = document.createElement("canvas");
+  temps.setAttribute("width", w);
+  temps.setAttribute("height", h);
+  temps.setAttribute("style", "visibility: hidden;");
+  return temps;
+}
+function fontAddSprite(sprite, first, prop, sep)
+{
+  this.temp = new SpriteFont();
+  temp.sprite = sprite;
+  temp.start = first;
+  temp.sep = sep;
+  temp.prop = prop;
+  if (prop === true)
+  {
+    temp.propx = new Array();
+    temp.propwidth = new Array();
+	this.minx = sprite.siwidth;
+	this.maxw = 0;
+	this.surf = surfaceCreate(sprite.width, sprite.height);
+	this.con = surf.getContext("2d");
+	con.drawImage(sprite, 0, 0);
+	this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
+	for (var i = 0; i < sprite.width / sprite.siwidth; i++)
+	{
+	  for (var x = 0; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    minx = min(minx, x);
+		  }
+	    }
+	  }
+	  temp.propx[i] = minx;
+	  for (var x = minx + 1; x < sprite.siwidth; x++)
+	  {
+	    for (var y = 0; y < sprite.height; y++)
+	    {
+	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+		  {
+		    maxw = max(maxw, x - minx);
+		  }
+	    }
+	  }
+	  temp.propwidth[i] = maxw;
+	}
+  }
+  return temp;
+}
+function Font()
+{
+  this.font = null;
+  this.name = null;
+  this.size = null;
+  this.style = null;
+}
+function SpriteFont()
+{
+  this.sprite = null;
+  this.start = null;
+  this.sep = null;
+  this.prop = null;
+  
+  //These two variables are used for proportional sprite fonts.
+  this.propx = null;
+  this.propwidth = null;
+}

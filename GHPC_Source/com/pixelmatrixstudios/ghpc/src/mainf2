@@ -1,0 +1,52 @@
+A test for piluke's GHP.">
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+<style type="text/css">
+canvas {
+  border: 3px solid black;
+  display: block;
+  margin: auto;
+  border-radius: 4px;
+  background: #FFFFFF;
+}
+body {
+  background: gray;
+}
+.nocan {
+  width: 640px;
+  height: 480px;
+  border: 3px solid black;
+  display: block;
+  margin: auto;
+  border-radius: 4px;
+  background: #FFFFFF;
+}
+img {
+  border: none;
+}
+</style>
+
+<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+
+</head>
+
+<body onload="gameStart();" onunload="eventGameEnd();">
+
+<canvas id="maincan" width="640" height="480" tabindex="1" style="cursor: url(invis.png), auto;"  onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
+<center class="nocan">
+<div style="margin-top:30%;">
+Sorry your browser doesn't support HTML5.
+<br>
+<a href="http://chrome.google.com/" title="Google Chrome"><img src="chrome.png"></img></a>
+<a href="http://www.mozilla.com/" title="Mozilla Firefox"><img src="firefox.png"></img></a>
+<a href="http://www.apple.com/safari" title="Apple Safari"><img src="safari.png"></img></a>
+<a href="http://www.opera.com/" title="Opera"><img src="opera.png"></img></a>
+</div>
+</center>
+</canvas>
+
+<script type="text/javascript" src="vars.js"></script>
+<script type="text/javascript" src="func.js"></script>
+<script type="text/javascript" src="event.js"></script>
+<script type="text/javascript" src="main.js"></script>
