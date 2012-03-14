@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 jimn346 <jds9496@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -57,6 +58,15 @@ function eventDraw()
   clearDraw();
   requestAnimFrame();
   objDraw();
+  
+  //Draw particle systems.
+  if (systems.length > 0)
+  {
+	systems.sort(sortDepth);
+	for (var g = 0; g < systems.length; g++)
+		if (systems[g].autoDraw)
+			partSystemDrawit(systems[g]);
+  }
   drawForegrounds();
   drawLinks();
   drawCursor();
@@ -79,6 +89,12 @@ function eventStep()
 	}
   }
   objStep();
+  
+  //Update particle systems.
+  if (systems.length > 0)
+	for (var g = 0; g < systems.length; g++)
+		if (systems[g].autoUpdate)
+			partSystemUpdate(systems[g]);
 }
 function eventStepEnd()
 {

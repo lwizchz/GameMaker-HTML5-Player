@@ -262,6 +262,256 @@ function imageBlend(img, col)
   return temp;
 }
 
+///////////
+//Particles
+///////////
+
+//This handles all of the systems.
+var systems = new Array();
+
+//Constants
+var psDeflectHorizontal = 0;
+var psDeflectVertical = 1;
+
+var psShapeRectangle = 0;
+var psShapeEllipse = 1;
+var psShapeDiamond = 2;
+var psShapeLine = 3;
+
+var psDistrLinear = 0;
+var psDistrGaussian = 1;
+var psDistrInvgaussian = 2;
+
+var psChangeMotion = 0;
+var psChangeShape = 1;
+var psChangeAll = 2;
+
+var psForceConstant = 0;
+var psForceLinear = 1;
+var psForceQuadratic = 2;
+
+//Shapes
+ptShapePixel = new Image();
+ptShapePixel.src = "particles/00_pixel.png";
+ptShapePixel.colors = new Array();
+
+ptShapeDisk = new Image();
+ptShapeDisk.src = "particles/01_disk.png";
+ptShapeDisk.colors = new Array();
+
+ptShapeSquare = new Image();
+ptShapeSquare.src = "particles/02_square.png";
+ptShapeSquare.colors = new Array();
+
+ptShapeLine = new Image();
+ptShapeLine.src = "particles/03_line.png";
+ptShapeLine.colors = new Array();
+
+ptShapeStar = new Image();
+ptShapeStar.src = "particles/04_star.png";
+ptShapeStar.colors = new Array();
+
+ptShapeCircle = new Image();
+ptShapeCircle.src = "particles/05_circle.png";
+ptShapeCircle.colors = new Array();
+
+ptShapeRing = new Image();
+ptShapeRing.src = "particles/06_ring.png";
+ptShapeRing.colors = new Array();
+
+ptShapeSphere = new Image();
+ptShapeSphere.src = "particles/07_sphere.png";
+ptShapeSphere.colors = new Array();
+
+ptShapeFlare = new Image();
+ptShapeFlare.src = "particles/08_flare.png";
+ptShapeFlare.colors = new Array();
+
+ptShapeSpark = new Image();
+ptShapeSpark.src = "particles/09_spark.png";
+ptShapeSpark.colors = new Array();
+
+ptShapeExplosion = new Image();
+ptShapeExplosion.src = "particles/10_explosion.png";
+ptShapeExplosion.colors = new Array();
+
+ptShapeCloud = new Image();
+ptShapeCloud.src = "particles/11_cloud.png";
+ptShapeCloud.colors = new Array();
+
+ptShapeSmoke = new Image();
+ptShapeSmoke.src = "particles/12_smoke.png";
+ptShapeSmoke.colors = new Array();
+
+ptShapeSnow = new Image();
+ptShapeSnow.src = "particles/13_snow.png";
+ptShapeSnow.colors = new Array();
+
+function ParticleSystem()
+{
+	this.attractors = new Array();
+	this.changers = new Array();
+	this.deflectors = new Array();
+	this.destroyers = new Array();
+	this.emitters = new Array();
+	this.particles = new Array();
+	
+	this.order = true;
+	this.depth = 0;
+	
+	this.x = 0;
+	this.y = 0;
+	
+	this.autoUpdate = true;
+	this.autoDraw = true;
+}
+
+function ParticleAttractor()
+{
+	this.x = 0;
+	this.y = 0;
+	this.dist = 0;
+	this.kind = psForceConstant;
+	this.additive = true;
+}
+
+function ParticleChanger()
+{
+	this.xMin = 0;
+	this.xMax = 0;
+	this.yMin = 0;
+	this.yMax = 0;
+	this.shape = psShapeRectangle;
+	this.kind = psChangeAll;
+	type1 = null;
+	type2 = null;
+}
+
+function ParticleDeflector()
+{
+	this.xMin = 0;
+	this.xMax = 0;
+	this.yMin = 0;
+	this.yMax = 0;
+	this.kind = psDeflectHorizontal;
+	this.friction = 0;
+}
+
+function ParticleDestroyer()
+{
+	this.xMin = 0;
+	this.xMax = 0;
+	this.yMin = 0;
+	this.yMax = 0;
+	this.shape = spShapeRectangle;
+}
+
+function ParticleEmitter()
+{
+	this.xMin = 0;
+	this.xMax = 0;
+	this.yMin = 0;
+	this.yMax = 0;
+	this.shape = psShapeRectangle;
+	this.distribution = psDistrLinear;
+	this.stream = new Array();
+	this.number = new Array();
+}
+
+function ParticleType()
+{
+	this.shape = ptShapePixel;
+	
+	this.sizeMin = 1;
+	this.sizeMax = 1;
+	this.sizeIncr = 0;
+	this.sizeWiggle = 0;
+	
+	this.xscale = 1;
+	this.yscale = 1;
+	
+	this.angMin = 0;
+	this.angMax = 0;
+	this.angIncr = 0;
+	this.angWiggle = 0;
+	this.angRelative = 0;
+	
+	this.color1 = cWhite;
+	this.color2 = cWhite;
+	this.color3 = cWhite;
+	
+	this.colorMix = false;
+	
+	this.rgb = false;
+	this.rMin = 255;
+	this.gMin = 255;
+	this.bMin = 255;
+	this.rMax = 255;
+	this.gMax = 255;
+	this.bMax = 255;
+	
+	this.hsv = false;
+	this.hMin = 255;
+	this.sMin = 255;
+	this.vMin = 255;
+	this.hMax = 255;
+	this.sMax = 255;
+	this.vMax = 255;
+	
+	this.alpha1 = 1;
+	this.alpha2 = 1;
+	this.alpha3 = 1;
+	
+	this.blend = false;
+	
+	this.lifeMin = 100;
+	this.lifeMax = 100;
+	
+	this.stepNumber = 0;
+	this.stepType = null;
+	
+	this.deathNumber = 0;
+	this.deathType = null;
+	
+	this.speedMin = 1;
+	this.speedMax = 1;
+	this.speedIncr = 0;
+	this.speedWiggle = 0;
+	
+	this.dirMin = 360;
+	this.dirMax = 0;
+	this.dirIncr = 0;
+	this.dirWiggle = 0;
+	
+	this.gravAmount = 0;
+	this.gravDirection = 0;
+	
+	//Only used if it is a sprite
+	this.animat = false;
+	this.stretch = false;
+	this.rand = false;
+}
+
+function Particle()
+{
+	this.type = null;
+	this.size = null;
+	this.ang = null;
+	this.color = null;
+	this.alpha = null;
+	this.life = 0;
+	this.time = null;
+	this.speed = null;
+	this.dir = null;
+	this.x = null;
+	this.y = null;
+	this.subimg = null;
+	
+	//If hit by a changer...
+	this.type2 = null;
+	this.chtype = null;
+}
+
 //Sprites
 sprCursor = new Image();
 sprCursor.src = "sprites/sprCursor.png";
@@ -383,6 +633,23 @@ objControl.Create = function(i, x, y)
   drawCircle(64, 64, 32, 0);
   surfaceResetTarget();
   drawSetCursor(sprCursor);
+  objControl.id[i]["ps1"] = partSystemCreate();
+  partSystemAutomaticDraw(objControl.id[i]["ps1"], false);
+  partSystemAutomaticUpdate(objControl.id[i]["ps1"], false);
+  objControl.id[i]["type1"] = partTypeCreate();
+  partTypeShape(objControl.id[i]["type1"], ptShapeRing);
+  partTypeSize(objControl.id[i]["type1"], .25, .5, .03125, 0);
+  partTypeOrientation(objControl.id[i]["type1"], 0, 360, 4, 0, 0);
+  partTypeColor3(objControl.id[i]["type1"], cWhite, cWhite, cWhite);
+  partTypeAlpha3(objControl.id[i]["type1"], 1, .5, 0);
+  partTypeBlend(objControl.id[i]["type1"], false);
+  partTypeLife(objControl.id[i]["type1"], 5,10);
+  partTypeSpeed(objControl.id[i]["type1"], 1, 2, 0, 0);
+  partTypeDirection(objControl.id[i]["type1"], 0, 360, 0, 0);
+  partTypeGravity(objControl.id[i]["type1"], 0, 0);
+  objControl.id[i]["em1"] = partEmitterCreate(objControl.id[i]["ps1"]);
+  partEmitterRegion(objControl.id[i]["ps1"], objControl.id[i]["em1"], 240, 248, 240, 248, psShapeEllipse, psDistrGaussian);
+  partEmitterStream(objControl.id[i]["ps1"], objControl.id[i]["em1"], objControl.id[i]["type1"], 1);
 }
 objControl.MousePress = function(i)
 {
@@ -441,6 +708,8 @@ objControl.Draw = function()
 			drawSetFont(fntMain);
 			drawSetColor(surfaceGetPixel(objControl.id[i]["surf"], 32, 32));
 			drawText("Surfaces can be~#used too!", 12, 312);
+			partSystemUpdate(objControl.id[i]["ps1"]);
+			partSystemDrawit(objControl.id[i]["ps1"]);
 		}
 		if (rooms[room] != rmMain)
 		{

@@ -254,6 +254,48 @@ function drawSetAlpha(alpha)
 {
 	curcon.globalAlpha = alpha;
 }
+
+function makeColorRGB(r, g, b)
+{
+	return "#" + r.toString(16) + g.toString(16) + b.toString(16);
+}
+
+//Adapted from (basically copied) http://www.easyrgb.com/math.html.
+function makeColorHSV(h, s, v)
+{
+	this.r = null;
+	this.g = null;
+	this.b = null;
+	
+	if (s == 0)
+	{
+		r = v * 255;
+		g = v * 255;
+		b = v * 255;
+	}
+	else
+	{
+		this.var_h = h * 6;
+		if (var_h == 6)
+			var_h = 0;
+		this.var_i = int(var_h);
+		this.var_1 = V * ( 1 - S );
+		var_2 = V * ( 1 - S * ( var_h - var_i ) );
+		var_3 = V * ( 1 - S * ( 1 - ( var_h - var_i ) ) );
+
+		if      ( var_i == 0 ) { this.var_r = v     ; this.var_g = var_3 ; this.var_b = var_1 ;}
+		else if ( var_i == 1 ) { this.var_r = var_2 ; this.var_g = v     ; this.var_b = var_1 ;}
+		else if ( var_i == 2 ) { this.var_r = var_1 ; this.var_g = v     ; this.var_b = var_3 ;}
+		else if ( var_i == 3 ) { this.var_r = var_1 ; this.var_g = var_2 ; this.var_b = v     ;}
+		else if ( var_i == 4 ) { this.var_r = var_3 ; this.var_g = var_1 ; this.var_b = v     ;}
+		else                   { this.var_r = v     ; this.var_g = var_1 ; this.var_b = var_2 ;}
+
+		r = var_r * 255;
+		g = var_g * 255;
+		b = var_b * 255;
+	}
+	return "#" + r.toString(16) + g.toString(16) + b.toString(16);
+}
 ////////////////
 //Font functions
 ////////////////
@@ -1692,7 +1734,9 @@ function roomRestart()
 	return roomGoto(room);
 }
 
+//////////////////
 //Collision System
+//////////////////
 
 //This collision system works by finding how close two shapes must be to collide, given the direction from one to the other.
 //It calculates the distance from the center to the edge of each shape in the respective direction, adds those, and checks if
@@ -1701,38 +1745,38 @@ function roomRestart()
 //Rectangle
 function lengthRectangle(w, h, dir)
 {
-  if (dir >= 180)
-    dir -= 180;
+	if (dir >= 180)
+		dir -= 180;
 
-  if (!(dir > Math.atan(h / w)) * 180 / Math.PI || dir > (180 - Math.atan(h / w)) * 180 / Math.PI)
-    return Math.abs(w / 2 / Math.cos(dir * Math.PI / 180));
-  else
-    return Math.abs(h / 2 / Math.cos((90 - dir) * Math.PI / 180));
+	if (!(dir > Math.atan(h / w)) * 180 / Math.PI || dir > (180 - Math.atan(h / w)) * 180 / Math.PI)
+		return Math.abs(w / 2 / Math.cos(dir * Math.PI / 180));
+	else
+		return Math.abs(h / 2 / Math.cos((90 - dir) * Math.PI / 180));
 }
 
 //Ellipse
 function lengthEllipse(w, h, dir)
 {
-  dir = dir * Math.PI / 180;
-  return (w * h) / (Math.sqrt(Math.pow(h * Math.cos(dir), 2) + Math.pow(w * Math.sin(dir), 2))) / 2;
+	dir = dir * Math.PI / 180;
+	return (w * h) / (Math.sqrt(Math.pow(h * Math.cos(dir), 2) + Math.pow(w * Math.sin(dir), 2))) / 2;
 }
 
 //Diamond
 function lengthDiamond(w, h, dir)
 {
-  if (dir > 180)
-    dir -= 180;
+	if (dir > 180)
+		dir -= 180;
 
-  if (dir > 90)
-    dir = 90 - (dir - 90);
+	if (dir > 90)
+		dir = 90 - (dir - 90);
 
-  this.sl1 = Math.tan(dir * pi / 180);
-  this.sl2 = -(h / 2) / (w / 2);
+	this.sl1 = Math.tan(dir * pi / 180);
+	this.sl2 = -(h / 2) / (w / 2);
 
-  this.xx = (h / 2) / (sl1 - s2l);
-  this.yy = xx * sl1;
+	this.xx = (h / 2) / (sl1 - s2l);
+	this.yy = xx * sl1;
 
-  return Math.sqrt(Math.pow(xx, 2) + Math.pow(yy, 2));
+	return Math.sqrt(Math.pow(xx, 2) + Math.pow(yy, 2));
 }
 
 //This function checks of collisions.
@@ -1778,4 +1822,601 @@ function checkCollision(sh1, centX1, centY1, w1, h1, rot1, sh2, centX2, centY2, 
     return true;
   else
     return false;
+}
+
+/////////////////
+//Particle System
+/////////////////
+
+//Functions necessary.
+
+function sortDepth(a, b)
+{
+	return b.depth - a.depth;
+}
+
+function sortNum(a, b)
+{
+	return a - b;
+}
+
+//This returns a random number from 0 to x. If weight is true, it is more likely to be near x. Otherwise it is more likely to be near 0.
+function randomWeight(x, weight)
+{
+	this.ar = new Array();
+	for (var a = 0; a < 6; a++)
+		ar[a] = Math.random() * x;
+	ar.sort(sortNum);
+	if (weight)
+		return ar[Math.round(Math.random() * 2) + 3];
+	else
+		return ar[Math.round(Math.random() * 2)];
+}
+
+function drawParticle(shape, x, y, subimg, xscale, yscale, angle, color, alpha, blend)
+{
+	this.xx = 0;
+	this.yy = 0;
+	if (shape.xorig != undefined)
+		xx = shape.xorig;
+	if (shape.yorig != undefined)
+		yy = shape.yorig;
+	image = shape;
+	if (shape.colors != undefined && color.toUpperCase() != cWhite)
+	{
+		if (shape.colors.indexOf(stringUpper(color)) == -1)
+			shape.colors[stringUpper(color)] = imageBlend(shape, color);
+		image = shape.colors[stringUpper(color)];
+	}
+	curcon.save();
+	curcon.translate(x, y);
+	curcon.rotate(angle * (pi / 180));
+	curcon.scale(xscale, yscale);
+	curcon.globalAlpha = alpha;
+	if (blend == true)
+		curcon.globalCompositeOperation = "lighter";
+	else
+		curcon.globalCompositeOperation = "source-over";
+		
+	//Subimages are kept in case the particle is a sprite.
+	if (shape.siwidth != undefined)
+		curcon.drawImage(image, floor(subimg) * shape.siwidth, 0, shape.siwidth, shape.height, -xx * xscale, -yy * yscale, shape.siwidth, shape.height);
+	else
+		curcon.drawImage(image, floor(subimg) * shape.width, 0, shape.width, shape.height, -xx * xscale, -yy * yscale, shape.width, shape.height);
+	curcon.restore();
+}
+
+function mixColorRandom(col1, col2)
+{
+	col1 = col1.replace("#", "");
+	this.rgb1 = parseInt(col, 16);
+ 
+	this.red1 = (rgb1 & (255 << 16)) >> 16;
+	this.green1 = (rgb1 & (255 << 8)) >> 8;
+	this.blue1 = (rgb1 & 255);
+	
+	col2 = col2.replace("#", "");
+	this.rgb2 = parseInt(col, 16);
+ 
+	this.red2 = (rgb2 & (255 << 16)) >> 16;
+	this.green2 = (rgb2 & (255 << 8)) >> 8;
+	this.blue2 = (rgb2 & 255);
+	
+	this.red = Math.round(Math.random() * Math.abs(red1 - red2) + Math.min(red1, red2));
+	this.green = Math.round(Math.random() * Math.abs(green1 - green2) + Math.min(green1, green2));
+	this.blue = Math.round(Math.random() * Math.abs(blue1 - blue2) + Math.min(blue1, blue2));
+	
+	this.str = "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+	
+	return str;
+}
+
+function mixColorAmount(col1, col2, amt1, amt2)
+{
+	col1 = col1.replace("#", "");
+	this.rgb1 = parseInt(col1, 16);
+ 
+	this.red1 = (rgb1 & (255 << 16)) >> 16;
+	this.green1 = (rgb1 & (255 << 8)) >> 8;
+	this.blue1 = (rgb1 & 255);
+	
+	col2 = col2.replace("#", "");
+	this.rgb2 = parseInt(col2, 16);
+ 
+	this.red2 = (rgb2 & (255 << 16)) >> 16;
+	this.green2 = (rgb2 & (255 << 8)) >> 8;
+	this.blue2 = (rgb2 & 255);
+	
+	this.red = Math.round(red1 * amt1 + red2 * amt2);
+	this.green = Math.round(green1 * amt1 + green2 * amt2);
+	this.blue = Math.round(blue1 * amt1 + blue2 * amt2);
+	
+	this.str = "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+	
+	return str;
+}
+
+//Actual GM functions.
+
+function partAttractorCreate(ps)
+{
+	this.tmp = new ParticleAttractor();
+	ps.attractors[ps.attractors.length] = tmp;
+	return tmp;
+}
+function partAttractorDestroy(ps, ind)
+{
+	ps.attractors.splice(ind.attractors.indexOf(ind), 1);
+	delete ind;
+}
+function partAttractorDestroyAll(ps)
+{
+	for (var i = 0; i < ps.attractors.length; i++)
+		delete ps.attractors[i];
+	ps.attractors.length = 0;
+}
+function partAttractorExists(ps, ind)
+{
+	return (ps.attractors.indexOf(ind) != -1);
+}
+
+function partEmitterCreate(ps)
+{
+	this.tmp = new ParticleEmitter();
+	ps.emitters[ps.emitters.length] = tmp;
+	return tmp;
+}
+function partEmitterRegion(ps, ind, xmin, xmax, ymin, ymax, shape, distribution)
+{
+	ind.xMin = xmin;
+	ind.xMax = xmax;
+	ind.yMin = ymin;
+	ind.yMax = ymax;
+	ind.shape = shape;
+	ind.distribution = distribution;
+}
+function partEmitterStream(ps, ind, parttype, number)
+{
+	ind.stream[ind.stream.length] = parttype;
+	ind.number[ind.number.length] = number;
+}
+function partEmitterBurst(ind, emit, parttype, number)
+{
+	for (c = 0; c < number; c++)
+	{
+		this.part = new Particle();
+		part.type = parttype;
+		part.size = Math.random() * (part.type.sizeMax - part.type.sizeMin) + part.type.sizeMin;
+		part.ang = Math.random() * (part.type.angMax - part.type.angMin) + part.type.angMin;
+		
+		if (part.type.colorMix)
+			part.color = mixColorRandom(part.type.color1, part.type.color2)
+		else if (part.type.rgb)
+		{
+			this.tr = Math.round(Math.random() * (part.type.rMax - part.type.rMin) + part.type.rMin);
+			this.tg = Math.round(Math.random() * (part.type.gMax - part.type.gMin) + part.type.gMin);
+			this.tb = Math.round(Math.random() * (part.type.bMax - part.type.bMin) + part.type.bMin);
+			part.color = makeColorRGB(tr, tg, tb);
+		}
+		else if (part.type.hsv)
+		{
+			this.th = Math.round(Math.random() * (part.type.hMax - part.type.hMin) + part.type.hMin);
+			this.ts = Math.round(Math.random() * (part.type.sMax - part.type.sMin) + part.type.sMin);
+			this.tv = Math.round(Math.random() * (part.type.vMax - part.type.vMin) + part.type.vMin);
+			part.color = makeColorHSV(th, ts, tv);
+		}
+		else
+			part.color = part.type.color1;
+			
+		part.alpha = part.type.alpha1;
+		part.life = Math.random() * (part.type.lifeMax - part.type.lifeMin) + part.type.lifeMin;
+		part.speed = Math.random() * (part.type.speedMax - part.type.speedMin) + part.type.speedMin;
+		part.dir = Math.random() * (part.type.dirMax - part.type.dirMin) + part.type.dirMin;
+		
+		this.dir = Math.random() * 360;
+		
+		if (emit.shape == psShapeRectangle)
+			this.length = lengthRectangle(Math.abs(emit.xMax - emit.xMin), Math.abs(emit.yMax - emit.yMin), dir);
+		if (emit.shape == psShapeEllipse)
+			this.length = lengthEllipse(Math.abs(emit.xMax - emit.xMin), Math.abs(emit.yMax - emit.yMin), dir);
+		if (emit.shape == psShapeDiamond)
+			this.length = lengthDiamond(Math.abs(emit.xMax - emit.xMin), Math.abs(emit.yMax - emit.yMin), dir);
+		if (emit.shape == psShapeLine)
+			this.length = Math.sqrt(Math.pow(Math.abs(emit.xMax - emit.xMin), 2) + Math.pow(Math.abs(emit.yMax - emit.yMin), 2)) / 2;
+		
+		if (emit.distribution == psDistrLinear)
+			length = Math.random() * length;
+		if (emit.distribution == psDistrGaussian)
+			length = randomWeight(length, false);
+		if (emit.distribution == psDistrInvgaussian)
+			length = randomWeight(length, true);
+		
+		if (emit.shape == psShapeLine)
+			if (dir >= 180)
+			{
+				part.x = (emit.xMax + emit.xMin) / 2 + Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.y = (emit.yMax + emit.yMin) / 2 - Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+			}
+			else
+			{
+				part.x = (emit.xMax + emit.xMin) / 2 - Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.y = (emit.yMax + emit.yMin) / 2 + Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+			}
+		else
+		{
+			part.x = (emit.xMax + emit.xMin) / 2 + Math.cos(dir*Math.PI / 180) * length;
+			part.y = (emit.yMax + emit.yMin) / 2 + -Math.sin(dir*Math.PI / 180) * length;
+		}
+		
+		if (part.type.rand && part.type.shape.siwidth != undefined)
+			part.subimg = Math.round(Math.random() * (part.type.shape.width / part.type.shape.siwidth));
+		else
+			part.subimg = 0;
+		
+		ind.particles[ind.particles.length] = part;
+	}
+}
+
+function partSystemCreate()
+{
+	this.tmp = new ParticleSystem();
+	systems[systems.length] = tmp;
+	return tmp;
+}
+function partSystemUpdate(ind)
+{
+	if (ind.particles.length > 0)
+		for (var i = 0; i < ind.particles.length; i++)
+		{
+			this.part = ind.particles[i];
+			
+			//Update position, size, speed, etc.
+			part.x += Math.cos(part.dir * Math.PI / 180) * part.speed;
+			part.y += -Math.sin(part.dir * Math.PI / 180) * part.speed;
+			
+			if (part.type2 != null && part.chtype == psChangeMotion)
+			{
+				part.ang += part.type2.angIncr;
+				part.ang += part.type2.angWiggle * (Math.round(Math.random() * 2) - 1);
+				
+				part.speed += part.type2.speedIncr;
+				part.speed += part.type2.speedWiggle * (Math.round(Math.random() * 2) - 1);
+			
+				part.dir += part.type2.dirIncr;
+				part.dir += part.type2.dirWiggle * (Math.round(Math.random() * 2) - 1);
+			}
+			else
+			{
+				part.ang += part.type.angIncr;
+				part.ang += part.type.angWiggle * (Math.round(Math.random() * 2) - 1);
+				
+				part.speed += part.type.speedIncr;
+				part.speed += part.type.speedWiggle * (Math.round(Math.random() * 2) - 1);
+			
+				part.dir += part.type.dirIncr;
+				part.dir += part.type.dirWiggle * (Math.round(Math.random() * 2) - 1);
+			}
+			
+			if (part.type2 != null && part.chtype == psChangeShape)
+			{
+				part.size += part.type2.sizeIncr;
+				part.size += part.type2.sizeWiggle * (Math.round(Math.random() * 2) - 1);
+			
+				if (!(part.type2.colorMix || part.type2.rgb || part.type2.hsv))
+				{
+					if (part.time / part.life <= 1 / 2)
+						part.color = mixColorAmount(part.type2.color1, part.type2.color2, part.time / (part.life / 2), 1 - part.time / (part.life / 2))
+					else
+						part.color = mixColorAmount(part.type2.color2, part.type2.color2, ((part.time - (part.life / 2)) / (part.life / 2)), 1 - ((part.time - (part.life / 2)) / (part.life / 2)))
+				}
+			
+				if (part.type2.animat)
+					if (part.type2.stretch)
+						part.subimg += (part.type2.shape.width / part.type2.shape.siwidth) / life;
+					else
+						part.subimg++;
+			}
+			else
+			{
+				part.size += part.type.sizeIncr;
+				part.size += part.type.sizeWiggle * (Math.round(Math.random() * 2) - 1);
+			
+				if (!(part.type.colorMix || part.type.rgb || part.type.hsv))
+				{
+					if (part.time / part.life <= 1 / 2)
+						part.color = mixColorAmount(part.type.color1, part.type.color2, part.time / (part.life / 2), 1 - part.time / (part.life / 2))
+					else
+						part.color = mixColorAmount(part.type.color2, part.type.color2, ((part.time - (part.life / 2)) / (part.life / 2)), 1 - ((part.time - (part.life / 2)) / (part.life / 2)))
+				}
+			
+				if (part.type.animat)
+					if (part.type.stretch)
+						part.subimg += (part.type.shape.width / part.type.shape.siwidth) / life;
+					else
+						part.subimg++;
+			}
+			
+			
+			if (part.time / part.life <= 1 / 2)
+				part.alpha = (part.time / (part.life / 2)) * part.type.alpha1 + (1 - part.time / (part.life / 2)) * part.type.alpha2;
+			else
+				part.alpha = (((part.time - (part.life / 2)) / (part.life / 2))) * part.type.alpha2 + (1 - ((part.time - (part.life / 2)) / (part.life / 2))) * part.type.alpha3;
+			
+			part.time += 1;
+			
+			if (part.time >= part.life)
+			{
+				ind.particles.splice(ind.particles.indexOf(part), 1);
+				delete part;
+				i--;
+			}
+			
+			//Update based on attractors.
+			if (ind.attractors.length > 0)
+				for (var a = 0; a < ind.attractors.length; a++)
+				{
+					this.dist = Math.sqrt(Math.pow(ind.attractors[a].x - part.x, 2) + Math.pow(ind.attractors[a].y - part.y, 2));
+					if (dist < ind.attractors[a].dist)
+					{
+						if (ind.attractors[a].kind == psForceConstant)
+							this.force = ind.attractors[a].force;
+						else if (ind.attractors[a].kind == psForceLinear)
+							this.force = ind.attractors[a].force * (1 - dist / ind.attractors[a].dist);
+						else if (ind.attractors[a].kind == psForceQuadratic)
+							this.force = Math.pow(Math.sqrt(ind.attractors[a].force) * (1 - dist / ind.attractors[a].dist), 2);
+						
+						if (ind.attractors[a].additive == true)
+						{
+							part.speed += force;
+							part.dir += sign(pointDirection(part.x, pary.y, attractors[a].x, attractors[a].y) - part.dir) * force / pointDirection(part.x, pary.y, attractors[a].x, attractors[a].y);
+						}
+						else
+						{
+							part.x += lengthdirX(force, pointDirection(part.x, pary.y, attractors[a].x, attractors[a].y));
+							part.y += lengthdirY(force, pointDirection(part.x, pary.y, attractors[a].x, attractors[a].y));
+						}
+					}
+				}
+			
+			//Update based on changers.
+			if (ind.changers.length > 0)
+				for (var a = 0; a < ind.changers.length; a++)
+				{
+					this.centX = (ind.changers[a].xMin + ind.changers[a].xMax) / 2;
+					this.centY = (ind.changers[a].yMin + ind.changers[a].yMax) / 2;
+					this.w = Math.abs(ind.changers[a].xMin - ind.changers[a].xMax);
+					this.h = Math.abs(ind.changers[a].yMin - ind.changers[a].yMax);
+					this.dir = ((part.y - centY) / (part.x - centX)) / Math.PI * 180;
+					
+					if (ind.changers[a].shape == psShapeRectangle)
+						this.length = lengthRectangle(w, h, dir);
+					else if (ind.changers[a].shape == psShapeEllipse)
+						this.length = lengthEllipse(w, h, dir);
+					else if (ind.changers[a].shape == psShapeDiamond)
+						this.length = lengthDiamond(w, h, dir);
+					
+					if (Math.sqrt(Math.pow(centX - part.x, 2) + Math.pow(centY - part.y, 2)) <= length && part.type2 == null && part.type == ind.changers[a].type1)
+					{
+						if (ind.changers[a].kind == psChangeMotion)
+						{
+							part.type2 = ind.changers[a].type2;
+							part.chtype = psChangeMotion;
+						}
+						else if (ind.changers[a].kind == psChangeShape)
+						{
+							part.type2 = ind.changers[a].type2;
+							part.chtype = psChangeShape;
+							if (part.type2.colorMix)
+								part.color = mixColorRandom(part.type2.color1, part.type2.color2)
+							else if (part.type2.rgb)
+							{
+								this.tr = Math.round(Math.random() * (part.type2.rMax - part.type2.rMin) + part.type2.rMin);
+								this.tg = Math.round(Math.random() * (part.type2.gMax - part.type2.gMin) + part.type2.gMin);
+								this.tb = Math.round(Math.random() * (part.type2.bMax - part.type2.bMin) + part.type2.bMin);
+								part.color = makeColorRGB(tr, tg, tb);
+							}
+							else if (part.type2.hsv)
+							{
+								this.th = Math.round(Math.random() * (part.type2.hMax - part.type2.hMin) + part.type2.hMin);
+								this.ts = Math.round(Math.random() * (part.type2.sMax - part.type2.sMin) + part.type2.sMin);
+								this.tv = Math.round(Math.random() * (part.type2.vMax - part.type2.vMin) + part.type2.vMin);
+								part.color = makeColorHSV(th, ts, tv);
+							}
+						}
+						else if (ind.changers[a].kind == psChangeAll)
+						{
+							part.type == ind.changers[a].type2;
+							if (part.type.colorMix)
+								part.color = mixColorRandom(part.type.color1, part.type.color2)
+							else if (part.type.rgb)
+							{
+								this.tr = Math.round(Math.random() * (part.type.rMax - part.type.rMin) + part.type.rMin);
+								this.tg = Math.round(Math.random() * (part.type.gMax - part.type.gMin) + part.type.gMin);
+								this.tb = Math.round(Math.random() * (part.type.bMax - part.type.bMin) + part.type.bMin);
+								part.color = makeColorRGB(tr, tg, tb);
+							}
+							else if (part.type.hsv)
+							{
+								this.th = Math.round(Math.random() * (part.type.hMax - part.type.hMin) + part.type.hMin);
+								this.ts = Math.round(Math.random() * (part.type.sMax - part.type.sMin) + part.type.sMin);
+								this.tv = Math.round(Math.random() * (part.type.vMax - part.type.vMin) + part.type.vMin);
+								part.color = makeColorHSV(th, ts, tv);
+							}
+						}
+					}
+				}
+				
+			//Update based on deflectors
+			if (ind.deflectors.length > 0)
+				for (var a = 0; a < ind.deflectors.length; a++)
+				{
+					this.centX = (ind.deflectors[a].xMin + ind.deflectors[a].xMax) / 2;
+					this.centY = (ind.deflectors[a].yMin + ind.deflectors[a].yMax) / 2;
+					this.w = Math.abs(ind.deflectors[a].xMin - ind.deflectors[a].xMax);
+					this.h = Math.abs(ind.deflectors[a].yMin - ind.deflectors[a].yMax);
+					this.dir = ((part.y - centY) / (part.x - centX)) / Math.PI * 180;
+					
+					this.length = lengthRectangle(w, h, dir);
+					
+					if (Math.sqrt(Math.pow(centX - part.x, 2) + Math.pow(centY - part.y, 2)) <= length)
+					{
+						part.speed -= ind.deflectors[a].friction;
+						if (ind.deflectors[a].kind == psDeflectHorizontal)
+							part.dir = pointDirection(0, 0, -lengthDirX(part.speed, part.dir), lengthDirY(part.speed, part.dir));
+						else if (ind.deflectors[a].kind == psDeflectVertical)
+							part.dir = pointDirection(0, 0, lengthDirX(part.speed, part.dir), -lengthDirY(part.speed, part.dir));
+					}
+				}
+				
+			//Update based on destroyers
+			if (ind.destroyers.length > 0)
+				for (var a = 0; a < ind.destroyers.length; a++)
+				{
+					this.centX = (ind.destroyers[a].xMin + ind.destroyers[a].xMax) / 2;
+					this.centY = (ind.destroyers[a].yMin + ind.destroyers[a].yMax) / 2;
+					this.w = Math.abs(ind.destroyers[a].xMin - ind.destroyers[a].xMax);
+					this.h = Math.abs(ind.destroyers[a].yMin - ind.destroyers[a].yMax);
+					this.dir = ((part.y - centY) / (part.x - centX)) / Math.PI * 180;
+					
+					if (ind.destroyers[a].shape == psShapeRectangle)
+						this.length = lengthRectangle(w, h, dir);
+					else if (ind.destroyers[a].shape == psShapeEllipse)
+						this.length = lengthEllipse(w, h, dir);
+					else if (ind.destroyers[a].shape == psShapeDiamond)
+						this.length = lengthDiamond(w, h, dir);
+					
+					if (Math.sqrt(Math.pow(centX - part.x, 2) + Math.pow(centY - part.y, 2)) <= length)
+					{
+						ind.particles.splice(ind.particles.indexOf(part), 1);
+						delete part;
+						i--;
+					}		
+				}
+		}
+	if (ind.emitters.length > 0)
+		for (var i = 0; i < ind.emitters.length; i++)
+		{
+			this.emit = ind.emitters[i];
+			if (emit.stream.length > 0)
+				for (var a = 0; a < emit.stream.length; a++)
+					partEmitterBurst(ind, emit, emit.stream[a], emit.number[a]);
+		}
+}
+function partSystemDrawit(ind)
+{
+	if (ind.particles.length > 0)
+		if (ind.order == true)
+		{
+			for (var i = 0; i < ind.particles.length; i++)
+			{
+				this.particle = ind.particles[i];
+				if (ind.particles[i] != null)
+				{
+					if (particle.type2 != null && particle.chtype == psChangeShape)
+						this.shape = particle.type2.shape;
+					else
+						this.shape = particle.type.shape;
+					drawParticle(shape, ind.x + particle.x, ind.y + particle.y, particle.subimg, particle.size * particle.type.xscale, particle.size * particle.type.yscale, particle.ang, particle.color, particle.alpha, particle.type.blend);
+				}
+			}
+		}
+		else
+		{
+			for (var i = ind.particles.length - 1; i >= 0; i--)
+			{
+				this.particle = ind.particles[i];
+				
+				if (ind.particles[i] != null)
+				{
+					if (particle.type2 != null && particle.chtype == psChangeShape)
+						this.shape = particle.type2.shape;
+					else
+						this.shape = particle.type.shape;
+					drawParticle(shape, ind.x + particle.x, ind.y + particle.y, particle.subimg, particle.size * particle.type.xscale, particle.size * particle.type.yscale, particle.ang + particle.dir * particle.angRelative, particle.color, particle.alpha, particle.type.blend);
+				}
+			}
+		}
+}
+function partSystemAutomaticDraw(ind, automatic)
+{
+	ind.autoDraw = automatic;
+}
+function partSystemAutomaticUpdate(ind, automatic)
+{
+	ind.autoUpdate = automatic;
+}
+
+function partTypeCreate()
+{
+	return new ParticleType();
+}
+function partTypeShape(ind, shape)
+{
+	ind.shape = shape;
+	ind.animat = false;
+	ind.stretch = false;
+	ind.rand = false;
+}
+function partTypeSize(ind, sizeMin, sizeMax, sizeIncr, sizeWiggle)
+{
+	ind.sizeMin = sizeMin;
+	ind.sizeMax = sizeMax;
+	ind.sizeIncr = sizeIncr;
+	ind.sizeWiggle = sizeWiggle;
+}
+function partTypeScale(ind, xscale, yscale)
+{
+	ind.xscale = xscale;
+	ind.yscale = yscale;
+}
+function partTypeOrientation(ind, angMin, angMax, angIncr, angWiggle, angRelative)
+{
+	ind.angMin = angMin;
+	ind.angMax = angMax;
+	ind.angIncr = angIncr;
+	ind.angWiggle = angWiggle;
+	ind.angRelative = angRelative;
+}
+function partTypeColor3(ind, color1, color2, color3)
+{
+	ind.color1 = color1;
+	ind.color2 = color2;
+	ind.color3 = color3;
+	ind.colorMix = false;
+	ind.rgb = false;
+	ind.hsv = false;
+}
+function partTypeAlpha3(ind, alpha1, alpha2, alpha3)
+{
+	ind.alpha1 = alpha1;
+	ind.alpha2 = alpha2;
+	ind.alpha3 = alpha3;
+}
+function partTypeBlend(ind, additive)
+{
+	ind.blend = additive;
+}
+function partTypeLife(ind, lifeMin, lifeMax)
+{
+	ind.lifeMin = lifeMin;
+	ind.lifeMax = lifeMax;
+}
+function partTypeSpeed(ind, speedMin, speedMax, speedIncr, speedWiggle)
+{
+	ind.speedMin = speedMin;
+	ind.speedMax = speedMax;
+	ind.speedIncr = speedIncr;
+	ind.speedWiggle = speedWiggle;
+}
+function partTypeDirection(ind, dirMin, dirMax, dirIncr, dirWiggle)
+{
+	ind.dirMin = dirMin;
+	ind.dirMax = dirMax;
+	ind.dirIncr = dirIncr;
+	ind.dirWiggle = dirWiggle;
+}
+function partTypeGravity(ind, gravAmount, gravDir)
+{
+	ind.gravAmount = gravAmount;
+	ind.gravDir = gravDir;
 }
