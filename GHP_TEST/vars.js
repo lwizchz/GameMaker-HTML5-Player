@@ -416,6 +416,7 @@ function ParticleEmitter()
 	this.distribution = psDistrLinear;
 	this.stream = new Array();
 	this.number = new Array();
+	this.count = new Array();
 }
 
 function ParticleType()
@@ -637,18 +638,18 @@ objControl.Create = function(i, x, y)
   partSystemAutomaticDraw(objControl.id[i]["ps1"], false);
   partSystemAutomaticUpdate(objControl.id[i]["ps1"], false);
   objControl.id[i]["type1"] = partTypeCreate();
-  partTypeShape(objControl.id[i]["type1"], ptShapeRing);
+  partTypeShape(objControl.id[i]["type1"], ptShapeFlare);
   partTypeSize(objControl.id[i]["type1"], .25, .5, .03125, 0);
   partTypeOrientation(objControl.id[i]["type1"], 0, 360, 4, 0, 0);
-  partTypeColor3(objControl.id[i]["type1"], cWhite, cWhite, cWhite);
+  partTypeColor3(objControl.id[i]["type1"], cRed, cGreen, cBlue);
   partTypeAlpha3(objControl.id[i]["type1"], 1, .5, 0);
-  partTypeBlend(objControl.id[i]["type1"], false);
+  partTypeBlend(objControl.id[i]["type1"], true);
   partTypeLife(objControl.id[i]["type1"], 5,10);
   partTypeSpeed(objControl.id[i]["type1"], 1, 2, 0, 0);
   partTypeDirection(objControl.id[i]["type1"], 0, 360, 0, 0);
   partTypeGravity(objControl.id[i]["type1"], 0, 0);
   objControl.id[i]["em1"] = partEmitterCreate(objControl.id[i]["ps1"]);
-  partEmitterRegion(objControl.id[i]["ps1"], objControl.id[i]["em1"], 240, 248, 240, 248, psShapeEllipse, psDistrGaussian);
+  partEmitterRegion(objControl.id[i]["ps1"], objControl.id[i]["em1"], 192, 192, 288, 288, psShapeEllipse, psDistrGaussian);
   partEmitterStream(objControl.id[i]["ps1"], objControl.id[i]["em1"], objControl.id[i]["type1"], 1);
 }
 objControl.MousePress = function(i)

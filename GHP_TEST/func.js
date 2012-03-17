@@ -257,7 +257,7 @@ function drawSetAlpha(alpha)
 
 function makeColorRGB(r, g, b)
 {
-	return "#" + r.toString(16) + g.toString(16) + b.toString(16);
+	return "#" + toHex(r) + toHex(g) + toHex(b);
 }
 
 //Adapted from (basically copied) http://www.easyrgb.com/math.html.
@@ -294,7 +294,7 @@ function makeColorHSV(h, s, v)
 		g = var_g * 255;
 		b = var_b * 255;
 	}
-	return "#" + r.toString(16) + g.toString(16) + b.toString(16);
+	return "#" + toHex(r) + toHex(g) + toHex(b);
 }
 ////////////////
 //Font functions
@@ -1911,6 +1911,11 @@ function mixColorRandom(col1, col2)
 	return str;
 }
 
+function toHex(num)
+{
+	this.str = num.toString(16);
+	return (str.length == 1) ? "0" + str : str;
+}
 function mixColorAmount(col1, col2, amt1, amt2)
 {
 	col1 = col1.replace("#", "");
@@ -1931,7 +1936,7 @@ function mixColorAmount(col1, col2, amt1, amt2)
 	this.green = Math.round(green1 * amt1 + green2 * amt2);
 	this.blue = Math.round(blue1 * amt1 + blue2 * amt2);
 	
-	this.str = "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+	this.str = "#" + toHex(red) + toHex(green) + toHex(blue);
 	
 	return str;
 }
@@ -1979,6 +1984,7 @@ function partEmitterStream(ps, ind, parttype, number)
 {
 	ind.stream[ind.stream.length] = parttype;
 	ind.number[ind.number.length] = number;
+	ind.count[ind.count.length] = 0;
 }
 function partEmitterBurst(ind, emit, parttype, number)
 {
@@ -2034,18 +2040,18 @@ function partEmitterBurst(ind, emit, parttype, number)
 		if (emit.shape == psShapeLine)
 			if (dir >= 180)
 			{
-				part.x = (emit.xMax + emit.xMin) / 2 + Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
-				part.y = (emit.yMax + emit.yMin) / 2 - Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 - Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
 			}
 			else
 			{
-				part.x = (emit.xMax + emit.xMin) / 2 - Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
-				part.y = (emit.yMax + emit.yMin) / 2 + Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 - Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
 			}
 		else
 		{
-			part.x = (emit.xMax + emit.xMin) / 2 + Math.cos(dir*Math.PI / 180) * length;
-			part.y = (emit.yMax + emit.yMin) / 2 + -Math.sin(dir*Math.PI / 180) * length;
+			part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(dir*Math.PI / 180) * length;
+			part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + -Math.sin(dir*Math.PI / 180) * length;
 		}
 		
 		if (part.type.rand && part.type.shape.siwidth != undefined)
@@ -2084,6 +2090,12 @@ function partSystemUpdate(ind)
 			
 				part.dir += part.type2.dirIncr;
 				part.dir += part.type2.dirWiggle * (Math.round(Math.random() * 2) - 1);
+				
+				this.tmphs = lengthdirX(part.speed, part.dir) + lengthdirX(part.type2.gravAmount, part.type2.gravDirection);
+				this.tmpvs = lengthdirY(part.speed, part.dir) + lengthdirY(part.type2.gravAmount, part.type2.gravDirection);
+				
+				part.speed = Math.sqrt(Math.pow(tmphs, 2) + Math.pow(tmpvs, 2));
+				part.dir = pointDirection(0, 0, tmphs, tmpvs);
 			}
 			else
 			{
@@ -2095,6 +2107,12 @@ function partSystemUpdate(ind)
 			
 				part.dir += part.type.dirIncr;
 				part.dir += part.type.dirWiggle * (Math.round(Math.random() * 2) - 1);
+				
+				this.tmphs = lengthdirX(part.speed, part.dir) + lengthdirX(part.type.gravAmount, part.type.gravDirection);
+				this.tmpvs = lengthdirY(part.speed, part.dir) + lengthdirY(part.type.gravAmount, part.type.gravDirection);
+				
+				part.speed = Math.sqrt(Math.pow(tmphs, 2) + Math.pow(tmpvs, 2));
+				part.dir = pointDirection(0, 0, tmphs, tmpvs);
 			}
 			
 			if (part.type2 != null && part.chtype == psChangeShape)
@@ -2105,9 +2123,9 @@ function partSystemUpdate(ind)
 				if (!(part.type2.colorMix || part.type2.rgb || part.type2.hsv))
 				{
 					if (part.time / part.life <= 1 / 2)
-						part.color = mixColorAmount(part.type2.color1, part.type2.color2, part.time / (part.life / 2), 1 - part.time / (part.life / 2))
+						part.color = mixColorAmount(part.type2.color1, part.type2.color2, 1 - part.time / (part.life / 2), part.time / (part.life / 2))
 					else
-						part.color = mixColorAmount(part.type2.color2, part.type2.color2, ((part.time - (part.life / 2)) / (part.life / 2)), 1 - ((part.time - (part.life / 2)) / (part.life / 2)))
+						part.color = mixColorAmount(part.type2.color2, part.type2.color3, 1 - ((part.time - (part.life / 2)) / (part.life / 2)), ((part.time - (part.life / 2)) / (part.life / 2)))
 				}
 			
 				if (part.type2.animat)
@@ -2124,9 +2142,9 @@ function partSystemUpdate(ind)
 				if (!(part.type.colorMix || part.type.rgb || part.type.hsv))
 				{
 					if (part.time / part.life <= 1 / 2)
-						part.color = mixColorAmount(part.type.color1, part.type.color2, part.time / (part.life / 2), 1 - part.time / (part.life / 2))
+						part.color = mixColorAmount(part.type.color1, part.type.color2, 1 - part.time / (part.life / 2), part.time / (part.life / 2))
 					else
-						part.color = mixColorAmount(part.type.color2, part.type.color2, ((part.time - (part.life / 2)) / (part.life / 2)), 1 - ((part.time - (part.life / 2)) / (part.life / 2)))
+						part.color = mixColorAmount(part.type.color2, part.type.color3, 1 - ((part.time - (part.life / 2)) / (part.life / 2)), ((part.time - (part.life / 2)) / (part.life / 2)))
 				}
 			
 				if (part.type.animat)
@@ -2293,13 +2311,25 @@ function partSystemUpdate(ind)
 					}		
 				}
 		}
+		
+	//Create particles from emitters.
 	if (ind.emitters.length > 0)
 		for (var i = 0; i < ind.emitters.length; i++)
 		{
 			this.emit = ind.emitters[i];
 			if (emit.stream.length > 0)
 				for (var a = 0; a < emit.stream.length; a++)
-					partEmitterBurst(ind, emit, emit.stream[a], emit.number[a]);
+					if (emit.number[a] >= 0)
+						partEmitterBurst(ind, emit, emit.stream[a], emit.number[a]);
+					else
+					{
+						emit.count[a]++;
+						if (emit.count[a] == Math.floor(-emit.number[a]))
+						{
+							partEmitterBurst(ind, emit, emit.stream[a], 1);
+							emit.count[a] = 0;
+						}
+					}
 		}
 }
 function partSystemDrawit(ind)
