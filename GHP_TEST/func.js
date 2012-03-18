@@ -1943,6 +1943,7 @@ function mixColorAmount(col1, col2, amt1, amt2)
 
 //Actual GM functions.
 
+//Attractors
 function partAttractorCreate(ps)
 {
 	this.tmp = new ParticleAttractor();
@@ -1951,7 +1952,7 @@ function partAttractorCreate(ps)
 }
 function partAttractorDestroy(ps, ind)
 {
-	ps.attractors.splice(ind.attractors.indexOf(ind), 1);
+	ps.attractors.splice(ps.attractors.indexOf(ind), 1);
 	delete ind;
 }
 function partAttractorDestroyAll(ps)
@@ -1964,12 +1965,196 @@ function partAttractorExists(ps, ind)
 {
 	return (ps.attractors.indexOf(ind) != -1);
 }
+function partAttractorClear(ps, ind)
+{
+	ind.x = 0;
+	ind.y = 0;
+	ind.dist = 0;
+	ind.kind = psForceConstant;
+	ind.additive = true;
+}
+function partAttractorPosition(ps, ind, x, y)
+{
+	ind.x = x;
+	ind.y = y;
+}
+function partAttractorForce(ps, ind, dist, kind, addative)
+{
+	ind.dist = dist;
+	ind.kind = kind;
+	ind.additive = additive;
+}
 
+//Changers
+function partChangerCreate(ps)
+{
+	this.tmp = ParticleChanger();
+	ps.changers[ps.changers.length] = tmp;
+	return tmp;
+}
+function partChangerDestroy(ps, ind)
+{
+	ps.changers.splice(ps.changers.indexOf(ind), 1);
+	delete ind;
+}
+function partChangerDestroyAll(ps)
+{
+	for (var i = 0; i < ps.changers.length; i++)
+		delete ps.changers[i];
+	ps.changers.length = 0;
+}
+function partChangerExists(ps, ind)
+{
+	return (ps.changers.indexOf(ind) != -1);
+}
+function partChangerClear(ps, ind)
+{
+	ind.xMin = 0;
+	ind.xMax = 0;
+	ind.yMin = 0;
+	ind.yMax = 0;
+	ind.shape = psShapeRectangle;
+	ind.kind = psChangeAll;
+	ind.type1 = null;
+	ind.type2 = null;
+}
+function partChangerRegion(ps, ind, xMin, xMax, yMin, yMax, shape)
+{
+	ind.xMin = xMin;
+	ind.xMax = xMax;
+	ind.yMin = yMin;
+	ind.yMax = yMax;
+	ind.shape = shape;
+}
+function partChangerTypes(ps, ind, type1, type2)
+{
+	ind.type1 = type1;
+	ind.type2 = type2;
+}
+function partChangerKind(ps, ind, kind)
+{
+	ind.kind = kind;
+}
+
+//Deflectors
+function partDeflectorCreate(ps)
+{
+	this.tmp = ParticleChanger();
+	ps.deflectors[ps.deflectors.length] = tmp;
+	return tmp;
+}
+function partDeflectorDestroy(ps, ind)
+{
+	ps.deflectors.splice(ps.deflectors.indexOf(ind), 1);
+	delete ind;
+}
+function partDeflectorDestroyAll(ps)
+{
+	for (var i = 0; i < ps.deflectors.length; i++)
+		delete ps.deflectors[i];
+	ps.deflectors.length = 0;
+}
+function partDeflectorExists(ps, ind)
+{
+	return (ps.deflectors.indexOf(ind) != -1);
+}
+function partDeflectorClear(ps, ind)
+{
+	ind.xMin = 0;
+	ind.xMax = 0;
+	ind.yMin = 0;
+	ind.yMax = 0;
+	ind.kind = psDeflectHorizontal;
+	ind.friction = 0;
+}
+function partDeflectorRegion(ps, ind, xMin, xMax, yMin, yMax)
+{
+	ind.xMin = xMin;
+	ind.xMax = xMax;
+	ind.yMin = yMin;
+	ind.yMax = yMax;
+}
+function partDeflectorKind(ps, ind, kind)
+{
+	ind.kind = kind;
+}
+function partDeflectorFriction(ps, ind, friction)
+{
+	ind.friction = friction;
+}
+
+//Destroyers
+function partDestroyerCreate(ps)
+{
+	this.tmp = ParticleChanger();
+	ps.destroyers[ps.destroyers.length] = tmp;
+	return tmp;
+}
+function partDestroyerDestroy(ps, ind)
+{
+	ps.destroyers.splice(ps.destroyers.indexOf(ind), 1);
+	delete ind;
+}
+function partDestroyerDestroyAll(ps)
+{
+	for (var i = 0; i < ps.destroyers.length; i++)
+		delete ps.destroyers[i];
+	ps.destroyers.length = 0;
+}
+function partDestroyerExists(ps, ind)
+{
+	return (ps.destroyers.indexOf(ind) != -1);
+}
+function partDestroyerClear(ps, ind)
+{
+	ind.xMin = 0;
+	ind.xMax = 0;
+	ind.yMin = 0;
+	ind.yMax = 0;
+	ind.shape = spShapeRectangle;
+}
+function partDestroyerRegion(ps, ind, xMin, xMax, yMin, yMax, shape)
+{
+	ind.xMin = xMin;
+	ind.xMax = xMax;
+	ind.yMin = yMin;
+	ind.yMax = yMax;
+	ind.shape = shape;
+}
+
+//Emitters
 function partEmitterCreate(ps)
 {
 	this.tmp = new ParticleEmitter();
 	ps.emitters[ps.emitters.length] = tmp;
 	return tmp;
+}
+function partEmitterDestroy(ps, ind)
+{
+	ps.emitters.splice(ps.emitters.indexOf(ind), 1);
+	delete ind;
+}
+function partEmitterDestroyAll(ps)
+{
+	for (var i = 0; i < ps.emitters.length; i++)
+		delete ps.emitters[i];
+	ps.emitters.length = 0;
+}
+function partEmitterExists(ps, ind)
+{
+	return (ps.emitters.indexOf(ind) != -1);
+}
+function partEmitterClear(ps, ind)
+{
+	ind.xMin = 0;
+	ind.xMax = 0;
+	ind.yMin = 0;
+	ind.yMax = 0;
+	ind.shape = psShapeRectangle;
+	ind.distribution = psDistrLinear;
+	ind.stream = new Array();
+	ind.number = new Array();
+	ind.count = new Array();
 }
 function partEmitterRegion(ps, ind, xmin, xmax, ymin, ymax, shape, distribution)
 {
@@ -1980,45 +2165,10 @@ function partEmitterRegion(ps, ind, xmin, xmax, ymin, ymax, shape, distribution)
 	ind.shape = shape;
 	ind.distribution = distribution;
 }
-function partEmitterStream(ps, ind, parttype, number)
-{
-	ind.stream[ind.stream.length] = parttype;
-	ind.number[ind.number.length] = number;
-	ind.count[ind.count.length] = 0;
-}
 function partEmitterBurst(ind, emit, parttype, number)
 {
 	for (c = 0; c < number; c++)
 	{
-		this.part = new Particle();
-		part.type = parttype;
-		part.size = Math.random() * (part.type.sizeMax - part.type.sizeMin) + part.type.sizeMin;
-		part.ang = Math.random() * (part.type.angMax - part.type.angMin) + part.type.angMin;
-		
-		if (part.type.colorMix)
-			part.color = mixColorRandom(part.type.color1, part.type.color2)
-		else if (part.type.rgb)
-		{
-			this.tr = Math.round(Math.random() * (part.type.rMax - part.type.rMin) + part.type.rMin);
-			this.tg = Math.round(Math.random() * (part.type.gMax - part.type.gMin) + part.type.gMin);
-			this.tb = Math.round(Math.random() * (part.type.bMax - part.type.bMin) + part.type.bMin);
-			part.color = makeColorRGB(tr, tg, tb);
-		}
-		else if (part.type.hsv)
-		{
-			this.th = Math.round(Math.random() * (part.type.hMax - part.type.hMin) + part.type.hMin);
-			this.ts = Math.round(Math.random() * (part.type.sMax - part.type.sMin) + part.type.sMin);
-			this.tv = Math.round(Math.random() * (part.type.vMax - part.type.vMin) + part.type.vMin);
-			part.color = makeColorHSV(th, ts, tv);
-		}
-		else
-			part.color = part.type.color1;
-			
-		part.alpha = part.type.alpha1;
-		part.life = Math.random() * (part.type.lifeMax - part.type.lifeMin) + part.type.lifeMin;
-		part.speed = Math.random() * (part.type.speedMax - part.type.speedMin) + part.type.speedMin;
-		part.dir = Math.random() * (part.type.dirMax - part.type.dirMin) + part.type.dirMin;
-		
 		this.dir = Math.random() * 360;
 		
 		if (emit.shape == psShapeRectangle)
@@ -2040,34 +2190,87 @@ function partEmitterBurst(ind, emit, parttype, number)
 		if (emit.shape == psShapeLine)
 			if (dir >= 180)
 			{
-				part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
-				part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 - Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				this.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				this.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 - Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
 			}
 			else
 			{
-				part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 - Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
-				part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				this.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 - Math.cos(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
+				this.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + Math.sin(Math.abs(emit.yMax - emit.yMin) / Math.abs(emit.xMax - emit.xMin)) * length;
 			}
 		else
 		{
-			part.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(dir*Math.PI / 180) * length;
-			part.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + -Math.sin(dir*Math.PI / 180) * length;
+			this.x = (emit.xMax == emit.xMin) ? emit.xMax : (emit.xMax + emit.xMin) / 2 + Math.cos(dir*Math.PI / 180) * length;
+			this.y = (emit.yMax == emit.yMin) ? emit.yMax : (emit.yMax + emit.yMin) / 2 + -Math.sin(dir*Math.PI / 180) * length;
 		}
 		
-		if (part.type.rand && part.type.shape.siwidth != undefined)
-			part.subimg = Math.round(Math.random() * (part.type.shape.width / part.type.shape.siwidth));
-		else
-			part.subimg = 0;
-		
-		ind.particles[ind.particles.length] = part;
+		partParticlesCreate(ind, x, y, parttype, number);
 	}
 }
+function partEmitterStream(ps, ind, parttype, number)
+{
+	ind.stream[ind.stream.length] = parttype;
+	ind.number[ind.number.length] = number;
+	ind.count[ind.count.length] = 0;
+}
 
+//Systems
 function partSystemCreate()
 {
 	this.tmp = new ParticleSystem();
 	systems[systems.length] = tmp;
 	return tmp;
+}
+function partSystemDestroy(ind)
+{
+	systems.splice(systems.indexOf(ind), 1);
+	delete ind;
+}
+function partSystemExists(ind)
+{
+	return (systems.indexOf(ind) != -1);
+}
+function partSystemClear(ind)
+{
+	partAttractorDestroyAll(ind);
+	partChangerDestroyAll(ind);
+	partDeflectorDestroyAll(ind);
+	partDestroyerDestroyAll(ind);
+	partEmitterDestroyAll(ind);
+	
+	for (var i = 0; i < ind.particles.length; i++)
+		delete ind.particles[i];
+	ind.particles.length = 0;
+	
+	ind.order = true;
+	ind.depth = 0;
+	
+	ind.x = 0;
+	ind.y = 0;
+	
+	ind.autoUpdate = true;
+	ind.autoDraw = true;
+}
+function partSystemDrawOrder(ind, oldtonew)
+{
+	ind.order = oldtonew;
+}
+function partSystemDepth(ind, depth)
+{
+	ind.depth = depth;
+}
+function partSystemPosition(ind, x, y)
+{
+	ind.x = x;
+	ind.y = y;
+}
+function partSystemAutomaticUpdate(ind, automatic)
+{
+	ind.autoUpdate = automatic;
+}
+function partSystemAutomaticDraw(ind, automatic)
+{
+	ind.autoDraw = automatic;
 }
 function partSystemUpdate(ind)
 {
@@ -2120,7 +2323,7 @@ function partSystemUpdate(ind)
 				part.size += part.type2.sizeIncr;
 				part.size += part.type2.sizeWiggle * (Math.round(Math.random() * 2) - 1);
 			
-				if (!(part.type2.colorMix || part.type2.rgb || part.type2.hsv))
+				if (!(part.type2.colorMix || part.type2.rgb || part.type2.hsv || part.overcolor))
 				{
 					if (part.time / part.life <= 1 / 2)
 						part.color = mixColorAmount(part.type2.color1, part.type2.color2, 1 - part.time / (part.life / 2), part.time / (part.life / 2))
@@ -2160,14 +2363,19 @@ function partSystemUpdate(ind)
 			else
 				part.alpha = (((part.time - (part.life / 2)) / (part.life / 2))) * part.type.alpha2 + (1 - ((part.time - (part.life / 2)) / (part.life / 2))) * part.type.alpha3;
 			
-			part.time += 1;
-			
-			if (part.time >= part.life)
-			{
-				ind.particles.splice(ind.particles.indexOf(part), 1);
-				delete part;
-				i--;
-			}
+			//Create particles each step.
+			if (part.type.stepNumber != 0)
+				if (part.type.stepNumber > 0)
+					partParticlesCreate(ind, part.x, part.y, part.type.stepType, part.type.stepNumber);
+				else
+				{
+					part.stepCount++;
+					if (part.stepCount = Math.floor(-part.type.stepNumber))
+						{
+							partParticlesCreate(ind, part.x, part.y, part.type.stepType, 1);
+							part.stepCount = 0;
+						}
+				}
 			
 			//Update based on attractors.
 			if (ind.attractors.length > 0)
@@ -2310,7 +2518,22 @@ function partSystemUpdate(ind)
 						i--;
 					}		
 				}
+			
+			if (part != undefined && part != null)
+			{
+				part.time += 1;
+	
+				if (part.time >= part.life)
+				{
+					if (part.type.deathNumber != 0)
+						partParticlesCreate(ind, part.x, part.y, part.type.deathType, part.type.deathNumber);
+					ind.particles.splice(ind.particles.indexOf(part), 1);
+					delete part;
+					i--;
+				}
+			}
 		}
+
 		
 	//Create particles from emitters.
 	if (ind.emitters.length > 0)
@@ -2367,18 +2590,171 @@ function partSystemDrawit(ind)
 			}
 		}
 }
-function partSystemAutomaticDraw(ind, automatic)
+function partParticlesCreate(ind, x, y, type, number)
 {
-	ind.autoDraw = automatic;
+	for (c = 0; c < number; c++)
+	{
+		this.part2 = new Particle();
+		part2.type = type;
+		part2.size = Math.random() * (part2.type.sizeMax - part2.type.sizeMin) + part2.type.sizeMin;
+		part2.ang = Math.random() * (part2.type.angMax - part2.type.angMin) + part2.type.angMin;
+		
+		if (part2.type.colorMix)
+			part2.color = mixColorRandom(part2.type.color1, part2.type.color2);
+		else if (part2.type.rgb)
+		{
+			this.tr = Math.round(Math.random() * (part2.type.rMax - part2.type.rMin) + part2.type.rMin);
+			this.tg = Math.round(Math.random() * (part2.type.gMax - part2.type.gMin) + part2.type.gMin);
+			this.tb = Math.round(Math.random() * (part2.type.bMax - part2.type.bMin) + part2.type.bMin);
+			part2.color = makeColorRGB(tr, tg, tb);
+		}
+		else if (part2.type.hsv)
+		{
+			this.th = Math.round(Math.random() * (part2.type.hMax - part2.type.hMin) + part2.type.hMin);
+			this.ts = Math.round(Math.random() * (part2.type.sMax - part2.type.sMin) + part2.type.sMin);
+			this.tv = Math.round(Math.random() * (part2.type.vMax - part2.type.vMin) + part2.type.vMin);
+			part2.color = makeColorHSV(th, ts, tv);
+		}
+		else
+			part2.color = part2.type.color1;
+			
+		part2.alpha = part2.type.alpha1;
+		part2.life = Math.random() * (part2.type.lifeMax - part2.type.lifeMin) + part2.type.lifeMin;
+		part2.speed = Math.random() * (part2.type.speedMax - part2.type.speedMin) + part2.type.speedMin;
+		part2.dir = Math.random() * (part2.type.dirMax - part2.type.dirMin) + part2.type.dirMin;
+		part2.x = x;
+		part2.y = y;
+		
+		if (part2.type.rand && part2.type.shape.siwidth != undefined)
+			part2.subimg = Math.round(Math.random() * (part2.type.shape.width / part2.type.shape.siwidth));
+		else
+			part2.subimg = 0;
+		
+		ind.particles[ind.particles.length] = part2;
+	}
 }
-function partSystemAutomaticUpdate(ind, automatic)
+function partParticlesCreateColor(ind, x, y, type, color, number)
 {
-	ind.autoUpdate = automatic;
+	for (c = 0; c < number; c++)
+	{
+		this.part = new Particle();
+		part.type = type;
+		part.size = Math.random() * (part.type.sizeMax - part.type.sizeMin) + part.type.sizeMin;
+		part.ang = Math.random() * (part.type.angMax - part.type.angMin) + part.type.angMin;
+		
+		part.color = color;
+		part.overcolor = true;
+			
+		part.alpha = part.type.alpha1;
+		part.life = Math.random() * (part.type.lifeMax - part.type.lifeMin) + part.type.lifeMin;
+		part.speed = Math.random() * (part.type.speedMax - part.type.speedMin) + part.type.speedMin;
+		part.dir = Math.random() * (part.type.dirMax - part.type.dirMin) + part.type.dirMin;
+		part.x = x;
+		part.y = y;
+		
+		if (part.type.rand && part.type.shape.siwidth != undefined)
+			part.subimg = Math.round(Math.random() * (part.type.shape.width / part.type.shape.siwidth));
+		else
+			part.subimg = 0;
+		
+		ind.particles[ind.particles.length] = part;
+	}
+}
+function partParticlesClear(ind)
+{
+	for (var i = 0; i < ind.particles.length; i++)
+		delete ind.particles[i];
+	ind.particles.length = 0;
+}
+function partParticlesCount(ind)
+{
+	return ind.particles.length;
 }
 
 function partTypeCreate()
 {
 	return new ParticleType();
+}
+function partTypeDestroy(ind)
+{
+	delete ind;
+}
+function partTypeExists(ind)
+{
+	return (ind != undefined && ind != null);
+}
+function partTypeClear(ind)
+{
+	ind.shape = ptShapePixel;
+	
+	ind.sizeMin = 1;
+	ind.sizeMax = 1;
+	ind.sizeIncr = 0;
+	ind.sizeWiggle = 0;
+	
+	ind.xscale = 1;
+	ind.yscale = 1;
+	
+	ind.angMin = 0;
+	ind.angMax = 0;
+	ind.angIncr = 0;
+	ind.angWiggle = 0;
+	ind.angRelative = 0;
+	
+	ind.color1 = cWhite;
+	ind.color2 = cWhite;
+	ind.color3 = cWhite;
+	
+	ind.colorMix = false;
+	
+	ind.rgb = false;
+	ind.rMin = 255;
+	ind.gMin = 255;
+	ind.bMin = 255;
+	ind.rMax = 255;
+	ind.gMax = 255;
+	ind.bMax = 255;
+	
+	ind.hsv = false;
+	ind.hMin = 255;
+	ind.sMin = 255;
+	ind.vMin = 255;
+	ind.hMax = 255;
+	ind.sMax = 255;
+	ind.vMax = 255;
+	
+	ind.alpha1 = 1;
+	ind.alpha2 = 1;
+	ind.alpha3 = 1;
+	
+	ind.blend = false;
+	
+	ind.lifeMin = 100;
+	ind.lifeMax = 100;
+	
+	ind.stepNumber = 0;
+	ind.stepType = null;
+	
+	ind.deathNumber = 0;
+	ind.deathType = null;
+	
+	ind.speedMin = 1;
+	ind.speedMax = 1;
+	ind.speedIncr = 0;
+	ind.speedWiggle = 0;
+	
+	ind.dirMin = 360;
+	ind.dirMax = 0;
+	ind.dirIncr = 0;
+	ind.dirWiggle = 0;
+	
+	ind.gravAmount = 0;
+	ind.gravDirection = 0;
+	
+	//Only used if it is a sprite
+	ind.animat = false;
+	ind.stretch = false;
+	ind.rand = false;
 }
 function partTypeShape(ind, shape)
 {
@@ -2386,6 +2762,13 @@ function partTypeShape(ind, shape)
 	ind.animat = false;
 	ind.stretch = false;
 	ind.rand = false;
+}
+function partTypeSprite(ind, sprite, animat, stretch, random)
+{
+	ind.shape = sprite;
+	ind.animat = animat;
+	ind.stretch = stretch;
+	ind.rand = random;
 }
 function partTypeSize(ind, sizeMin, sizeMax, sizeIncr, sizeWiggle)
 {
@@ -2407,6 +2790,24 @@ function partTypeOrientation(ind, angMin, angMax, angIncr, angWiggle, angRelativ
 	ind.angWiggle = angWiggle;
 	ind.angRelative = angRelative;
 }
+function partTypeColor1(ind, color1)
+{
+	ind.color1 = color1;
+	ind.color2 = color1;
+	ind.color3 = color1;
+	ind.colorMix = false;
+	ind.rgb = false;
+	ind.hsv = false;
+}
+function partTypeColor1(ind, color1, color2)
+{
+	ind.color1 = color1;
+	ind.color2 = mixColorAmount(color1, color2, .5, .5);
+	ind.color3 = color2;
+	ind.colorMix = false;
+	ind.rgb = false;
+	ind.hsv = false;
+}
 function partTypeColor3(ind, color1, color2, color3)
 {
 	ind.color1 = color1;
@@ -2415,6 +2816,50 @@ function partTypeColor3(ind, color1, color2, color3)
 	ind.colorMix = false;
 	ind.rgb = false;
 	ind.hsv = false;
+}
+function partTypeColorMix(ind, color1, color2)
+{
+	ind.color1 = color1;
+	ind.color2 = color2;
+	ind.colorMix = true;
+	ind.rgb = false;
+	ind.hsv = false;
+}
+function partTypeColorRGB(ind, rMin, rMax, gMin, gMax, bMin, bMax)
+{
+	ind.colorMix = false;
+	ind.rgb = true;
+	ind.hsv = false;
+	ind.rMin = rMin;
+	ind.rMax = rMax;
+	ind.gMin = gMin;
+	ind.gMax = gMax;
+	ind.bMin = bMin;
+	ind.bMax = bMax;
+}
+function partTypeHSV(ind, hMin, hMax, sMin, sMax, vMin, vMax)
+{
+	ind.colorMix = false;
+	ind.rgb = false;
+	ind.hsv = true;
+	ind.hMin = hMin;
+	ind.hMax = hMax;
+	ind.sMin = sMin;
+	ind.sMax = sMax;
+	ind.vMin = vMin;
+	ind.vMax = vMax;
+}
+function partTypeAlpha1(ind, alpha1)
+{
+	ind.alpha1 = alpha1;
+	ind.alpha2 = alpha1;
+	ind.alpha3 = alpha1;
+}
+function partTypeAlpha2(ind, alpha1, alpha2)
+{
+	ind.alpha1 = alpha1;
+	ind.alpha2 = (alpha1 + alpha2) / 2;
+	ind.alpha3 = alpha2;
 }
 function partTypeAlpha3(ind, alpha1, alpha2, alpha3)
 {
@@ -2430,6 +2875,16 @@ function partTypeLife(ind, lifeMin, lifeMax)
 {
 	ind.lifeMin = lifeMin;
 	ind.lifeMax = lifeMax;
+}
+function partTypeStep(ind, stepNumber, stepType)
+{
+	ind.stepNumber = stepNumber;
+	ind.stepType = stepType;
+}
+function partTypeDeath(ind, deathNumber, deathType)
+{
+	ind.deathNumber = deathNumber;
+	ind.deathType = deathType;
 }
 function partTypeSpeed(ind, speedMin, speedMax, speedIncr, speedWiggle)
 {

@@ -383,8 +383,8 @@ function ParticleChanger()
 	this.yMax = 0;
 	this.shape = psShapeRectangle;
 	this.kind = psChangeAll;
-	type1 = null;
-	type2 = null;
+	this.type1 = null;
+	this.type2 = null;
 }
 
 function ParticleDeflector()
@@ -487,6 +487,12 @@ function ParticleType()
 	this.gravAmount = 0;
 	this.gravDirection = 0;
 	
+	this.stepType = null;
+	this.stepNumber = 0;
+	
+	this.deathType = null;
+	this.deathNumber = 0;
+	
 	//Only used if it is a sprite
 	this.animat = false;
 	this.stretch = false;
@@ -499,6 +505,7 @@ function Particle()
 	this.size = null;
 	this.ang = null;
 	this.color = null;
+	this.overcolor = false;
 	this.alpha = null;
 	this.life = 0;
 	this.time = null;
@@ -507,6 +514,7 @@ function Particle()
 	this.x = null;
 	this.y = null;
 	this.subimg = null;
+	this.stepCount = 0;
 	
 	//If hit by a changer...
 	this.type2 = null;
