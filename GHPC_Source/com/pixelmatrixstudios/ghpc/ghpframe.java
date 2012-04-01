@@ -27,6 +27,7 @@ import org.lateralgm.resources.Path;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.Argument;
@@ -53,6 +54,8 @@ public class ghpframe extends JFrame implements ActionListener {
 	JCheckBox zc, dc;
 	Container con;
 	String lf;
+	//GML Helper scripts
+	String gmhescr = "addLink"+"drawText"+"drawGradientRect"+"drawGradientCircle"+"drawSetBackground";
 	ghpframe()	{
 		super("GHP Converter");
 		wr = new Rectangle(100, 100, 315, 152);
@@ -217,6 +220,8 @@ public class ghpframe extends JFrame implements ActionListener {
 			int bcknum = gmfile.backgrounds.size();
 			Iterator<org.lateralgm.resources.Font> fonts = gmfile.fonts.iterator();
 			//int fntnum = gmfile.fonts.size();
+			Iterator<Script> scripts = gmfile.scripts.iterator();
+			//int scrnum = gmfile.scripts.size();
 			Iterator<GmObject> gmobjects = gmfile.gmObjects.iterator(); 
 			int objnum = gmfile.gmObjects.size();
 			Iterator<Room> rooms = gmfile.rooms.iterator();
@@ -429,6 +434,20 @@ public class ghpframe extends JFrame implements ActionListener {
 									vars.write(buf);
 							}
 					}
+					line = "//Scripts\n";
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					while (scripts.hasNext()) {
+							org.lateralgm.resources.Script scr = scripts.next();
+							if (gmhescr.contains(scr.getName())) {continue;}
+							line = "function "+scr.getName()+"()\n{\n"+gmltoghp(scr.getCode(), "this", "	")+"}\n";
+							for (int e=0;e<line.length();e++) {
+									buf = (byte) line.toCharArray()[e];
+									vars.write(buf);
+							}
+					}
 					line = "\n//Objects\nfunction instanceCreate(inst, x, y)\n{\n	var i = inst.id.length;\n	inst.id[i] = new inst(i, x, y);\n	inst.Create(i, x, y);\n	return i;\n}\n";
 					boolean ie = false;
 					while (gmobjects.hasNext()) {
@@ -559,7 +578,7 @@ public class ghpframe extends JFrame implements ActionListener {
 													while (eab.hasNext()) {
 															Argument arg = eab.next();
 															if (arg.kind == Argument.ARG_STRING) {
-																	line += "	"+gmltoghp(arg.getVal(), objname)+"\n";
+																	line += gmltoghp(arg.getVal(), objname, "	")+"\n";
 															}
 															else if (arg.kind == Argument.ARG_EXPRESSION) {
 							//										line += "	"+arg.getVal().substring(0, arg.getVal().indexOf("\n"))+" = "+arg.getVal().substring(arg.getVal().indexOf("\n")+2)+"\n";
@@ -581,7 +600,7 @@ public class ghpframe extends JFrame implements ActionListener {
 													while (eab.hasNext()) {
 															Argument arg = eab.next();
 															if (arg.kind == Argument.ARG_STRING) {
-																	line += "	"+gmltoghp(arg.getVal(), objname)+"\n";
+																	line += gmltoghp(arg.getVal(), objname, "	")+"\n";
 															}
 															else if (arg.kind == Argument.ARG_EXPRESSION) {
 							//										line += "	"+arg.getVal().substring(0, arg.getVal().indexOf("\n"))+" = "+arg.getVal().substring(arg.getVal().indexOf("\n")+2)+"\n";
@@ -855,7 +874,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					System.out.println("Couldn't open zip "+dir+".zip.");
 			}
 	}
-	public String gmltoghp(String code, String obj) {
+	public String gmltoghp(String code, String obj, String indent) {
 			String[] cl = code.split("\n");
 			String cc = "";
 			BufferedInputStream gmlf = new BufferedInputStream(ghpc.class.getResourceAsStream("func/gmnames"));
@@ -897,10 +916,14 @@ public class ghpframe extends JFrame implements ActionListener {
 					}
 					if (gc > -1) {
 							String ac = gcl[gc].substring(gcl[gc].indexOf("(")+1);
+							if (ac.indexOf(")") == -1) {break;}
 							ac = ac.substring(0, ac.indexOf(")"));
 							String[] garg = gcl[gc].split(",");
 							if (garg.length > 0) {
-								String[] oarg = new String(nc).substring(new String(nc).indexOf("(")+1).split(",");
+								String[] oarg = new String(nc).substring(new String(nc).indexOf("(")+1, new String(nc).lastIndexOf(")")).split(",");
+								for (int e=0;e<oarg.length;e++) {
+										oarg[e] = gmltoghp(oarg[e], obj, "");
+								}
 								for (int e=0;e<garg.length;e++) {
 										if (garg[e].contains("%obj%")) {
 												ars += obj;
@@ -914,7 +937,7 @@ public class ghpframe extends JFrame implements ActionListener {
 										else if (garg[e].contains("%e%")) {
 												ars += oarg[2];
 										}
-										else if (garg[e].contains("rw%")) {
+										else if (garg[e].contains("%r%")) {
 												ars += oarg[3];
 										}
 										else if (garg[e].contains("%t%")) {
@@ -953,15 +976,19 @@ public class ghpframe extends JFrame implements ActionListener {
 										else if (garg[e].contains("%h%")) {
 												ars += oarg[15];
 										}
-										if (e < garg.length-2) {
+										if (e < garg.length-1) {
 												ars += ", ";
 										}
+										if (e == garg.length-1) {
+												if (!ars.contains(");")) {
+														ars += ");\n";
+												}
+										}
 								}
-								ars += ");";
 							}
 							nc = gcl[gc].substring(0, gcl[gc].indexOf("(")+1).toCharArray();
 					}
-					cc += new String(nc)+ars;
+					cc += indent+(new String(nc))+ars;
 			}
 			return cc;
 	}

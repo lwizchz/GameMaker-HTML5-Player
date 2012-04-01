@@ -26,6 +26,7 @@ mouseX = 0;
 mouseY = 0;
 pi = Math.PI;
 mpd = 1000*60*60*24; //Milliseconds per day
+all = -100;
 
 fps = 60;
 cfps = 0;
@@ -583,7 +584,7 @@ function drawCopyright()
 	var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
 	drawText(str, 0, 10);
 	drawText("FPS: "+tfps, 600, 10);
-	drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, false);
+	drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, true);
 }
 
 //Objects
@@ -637,9 +638,9 @@ objControl.Create = function(i, x, y)
   objControl.id[i]["surf"] = surfaceCreate(64, 64);
   surfaceSetTarget(objControl.id[i]["surf"]);
   drawSetColor(cRed);
-  drawCircle(32, 32, 16, 1);
+  drawCircle(32, 32, 16, false);
   drawSetColor(cBlue);
-  drawCircle(64, 64, 32, 0);
+  drawCircle(64, 64, 32, true);
   surfaceResetTarget();
   drawSetCursor(sprCursor);
   objControl.id[i]["ps1"] = partSystemCreate();
@@ -678,11 +679,11 @@ objControl.Draw = function()
 		{
 			drawCopyright();
 			drawSetColor(cBlack);
-			drawRect(50, 70, 300, 250, true);
-			drawRect(350, 70, 600, 250, true);
-			drawRect(50, 270, 300, 450, true);
-			drawRect(350, 270, 600, 450, true);
-			addLink(roomGoto, rmDraw, 50, 70, 300, 250, false);
+			drawRect(50, 70, 300, 250, false);
+			drawRect(350, 70, 600, 250, false);
+			drawRect(50, 270, 300, 450, false);
+			drawRect(350, 270, 600, 450, false);
+			addLink(roomGoto, rmDraw, 50, 70, 250, 180, false);
 			drawSetFont(fntBitmap);
 			drawSetColor(cRed);
 			drawText("Drawing", 100, 100);
@@ -698,14 +699,14 @@ objControl.Draw = function()
 			drawSetBackground(true, bckMain, cGray);
 			drawCopyright();
 			drawSetColor(cOrange);
-			drawRect(30, 30, 50, 50, true);
+			drawRect(30, 30, 50, 50, false);
 			drawSetColor(cBlue);
-			drawCircle(100, 40, 20, false);
+			drawCircle(100, 40, 20, true);
 			drawSprite(sprPie, 5, 70, 0);
 			drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
-			drawRect(100, 70, 200, 170, true);
+			drawRect(100, 70, 200, 170, false);
 			drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
-			drawCircle(275, 100, 50, true);
+			drawCircle(275, 100, 50, false);
 			drawSetColor(cBlue);
 			drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
 			drawSetFont(fntOther);
@@ -723,7 +724,7 @@ objControl.Draw = function()
 		if (rooms[room] != rmMain)
 		{
 			drawSetColor(cBlack);
-			drawRect(500, 10, 550, 30, true);
+			drawRect(500, 10, 550, 30, false);
 			addLink(roomGoto, rmMain, 500, 10, 550, 30, false);
 			drawSetFont(fntMain);
 			drawSetColor(cWhite);

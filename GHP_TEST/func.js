@@ -11,12 +11,20 @@
 ///////////////////
 //Drawing functions
 ///////////////////
+if (!window.requestAnimationFrame)
+{
+	window.requestAnimationFrame = ( function() {
+			return window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			function () {
+				setTimeout(eventDraw, 1000/fps);
+			};
+		} )();
+}
 function requestAnimFrame()
 {
-	return (window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame)(eventDraw); //Cross-browser support
+	return window.requestAnimationFrame(eventDraw);
 }
 function drawLine(x1, y1, x2, y2)
 {
@@ -29,9 +37,9 @@ function drawLine(x1, y1, x2, y2)
   curcon.lineTo(x2, y2);
   curcon.stroke();
 }
-function drawRect(x1, y1, x2, y2, fill)
+function drawRectangle(x1, y1, x2, y2, fill)
 {
-  if (fill === true)
+  if (fill === false)
   {
 	curcon.fillRect(x1, y1, x2-x1, y2-y1);
   }
@@ -61,7 +69,7 @@ function drawText(text, x, y)
 	drawText(text1, x, y);
 	drawText(text2, x, y+stringHeight(text1)+2);
   }
-  else if (text.indexOf("~a:") != -1) //Hyperlinks
+  else if (text.indexOf("~a:") > -1) //Hyperlinks
   {
 	var link = text.substr(text.indexOf("~a:")+3, text.length).indexOf("~");
 	var func = text.substr(text.indexOf("~a:")+3, link);
@@ -174,12 +182,12 @@ function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha
 	}
 	curcon.restore();
 }
-function drawCircle(x, y, r, fill)
+function drawCircle(x, y, r, outline)
 {
 	curcon.beginPath();
-	curcon.arc(x, y, r, 0, pi*2, fill);
+	curcon.arc(x, y, r, 0, pi*2, outline);
 	curcon.stroke();
-	if (fill === true)
+	if (outline === false)
 	{
 		curcon.fill();
 	}
@@ -1060,6 +1068,10 @@ function instanceOf(o) //Fixes instanceof cross-frame breakage
 	}
 	return s;
 }
+function windowSetCursor(c)
+{
+	drawSetCursor(c);
+}
 /////////////////
 //Sound functions
 /////////////////
@@ -1515,6 +1527,22 @@ function instanceDestroy(obj)
 		glin[obj["glin"]] = null;
 	}
 	return null;
+}
+function instanceFind(obj, n)
+{
+	return obj.id[n];
+}
+function instanceExists(obj)
+{
+	return (obj == null) ? false : true;
+}
+function instanceNumber(obj)
+{
+	if (obj == all)
+	{
+		return glin.length;
+	}
+	return obj.id.length;
 }
 
 ////////////////////
