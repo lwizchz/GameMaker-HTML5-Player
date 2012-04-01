@@ -203,7 +203,7 @@ function drawSetBackground(isback, back, fill)
   if (isback === true)
   {
     drawSetColor(fill);
-	drawRect(0, 0, canvas.width, canvas.height, true);
+	drawRectangle(0, 0, canvas.width, canvas.height, true);
 	curcon.drawImage(back, 0, 0);
   }
   else
@@ -1077,11 +1077,104 @@ function windowSetCursor(c)
 /////////////////
 function soundPlay(snd)
 {
-	var sound = new Audio();
-	sound.src = snd.src;
-	sound.load();
-	sound.play();
+	var i = sounds.length;
+	sounds[i] = new Audio();
+	sounds[i].src = snd.src;
+	sounds[i].volume = volume;
+	sounds[i].load();
+	sounds[i].play();
 }
+function soundLoop(snd)
+{
+	var i = sounds.length;
+	sounds[i] = new Audio();
+	sounds[i].src = snd.src;
+	sounds[i].volume = volume;
+	sounds[i].loop = true;
+	sounds[i].load();
+	sounds[i].play();
+}
+function soundStop(snd)
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			sounds[i].pause();
+			sounds.splice(i, 1);
+		}
+	}
+}
+function soundStopAll()
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		sounds[i].pause();
+	}
+	sounds = new Array();
+}
+function soundIsPlaying()
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+function soundVolume(snd, vol)
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			sounds[i].volume = vol;
+		}
+	}
+}
+function soundGlobalVolume(vol)
+{
+	volume = vol;
+	for (var i=0;i<sounds.length;i++)
+	{
+		sounds[i].volume = volume;
+	}
+}
+function soundFade(snd, v, t)
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			sounds[i].volume += (v-sounds[i].volume)/t;
+			setTimeout(soundFade, v, t--);
+		}
+	}
+}
+function soundPan(snd, v)
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			sounds[i].pan = v;
+			//HTML5 can't pan sounds yet
+		}
+	}
+}
+function soundBackgroundTempo(snd, f)
+{
+	for (var i=0;i<sounds.length;i++)
+	{
+		if (sounds[i].src == snd.src)
+		{
+			sounds[i].playbackRate *= f;
+		}
+	}
+}
+
 ///////////////////
 //Surface Functions
 ///////////////////

@@ -47,6 +47,9 @@ keys = new Array();
 pkey = new Array();
 cursor = new Image();
 
+sounds = new Array();
+volume = 1;
+
 glin = new Array();
 dolo = new Array();
 dldone = false;
@@ -584,7 +587,7 @@ function drawCopyright()
 	var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
 	drawText(str, 0, 10);
 	drawText("FPS: "+tfps, 600, 10);
-	drawRect(0, 0, stringWidth(str)+1, stringHeight(str)+3, true);
+	drawRectangle(0, 0, stringWidth(str)+1, stringHeight(str)+3, true);
 }
 
 //Objects
@@ -679,10 +682,10 @@ objControl.Draw = function()
 		{
 			drawCopyright();
 			drawSetColor(cBlack);
-			drawRect(50, 70, 300, 250, false);
-			drawRect(350, 70, 600, 250, false);
-			drawRect(50, 270, 300, 450, false);
-			drawRect(350, 270, 600, 450, false);
+			drawRectangle(50, 70, 300, 250, false);
+			drawRectangle(350, 70, 600, 250, false);
+			drawRectangle(50, 270, 300, 450, false);
+			drawRectangle(350, 270, 600, 450, false);
 			addLink(roomGoto, rmDraw, 50, 70, 250, 180, false);
 			drawSetFont(fntBitmap);
 			drawSetColor(cRed);
@@ -699,12 +702,12 @@ objControl.Draw = function()
 			drawSetBackground(true, bckMain, cGray);
 			drawCopyright();
 			drawSetColor(cOrange);
-			drawRect(30, 30, 50, 50, false);
+			drawRectangle(30, 30, 50, 50, false);
 			drawSetColor(cBlue);
 			drawCircle(100, 40, 20, true);
 			drawSprite(sprPie, 5, 70, 0);
 			drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
-			drawRect(100, 70, 200, 170, false);
+			drawRectangle(100, 70, 200, 170, false);
 			drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
 			drawCircle(275, 100, 50, false);
 			drawSetColor(cBlue);
@@ -724,7 +727,7 @@ objControl.Draw = function()
 		if (rooms[room] != rmMain)
 		{
 			drawSetColor(cBlack);
-			drawRect(500, 10, 550, 30, false);
+			drawRectangle(500, 10, 550, 30, false);
 			addLink(roomGoto, rmMain, 500, 10, 550, 30, false);
 			drawSetFont(fntMain);
 			drawSetColor(cWhite);
