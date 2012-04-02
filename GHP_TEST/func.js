@@ -275,6 +275,10 @@ function makeColorHSV(h, s, v)
 	this.g = null;
 	this.b = null;
 	
+	h /= 255;
+	s /= 255;
+	v /= 255;
+	
 	if (s == 0)
 	{
 		r = v * 255;
@@ -967,7 +971,32 @@ function dsListFindValue(id, pos)
 {
   return id[pos];
 }
-//Later add support for dsListSort. Javascript sorts purely alphabetically, not alphabetically and numerically.
+
+function dsListSort(id, ascending)
+{
+	for (this.index = 0; index < id.length - 1; index++)
+	{
+		this.min = index;
+		for (this.scan = index + 1; scan < id.length; scan++)
+			if (isNaN(id[min]))
+				if (isNaN(id[scan]))
+				{
+					if (id[min].compareTo(id[scan]) > 0)
+						min = scan;
+				}
+				else
+					min = scan;
+			else if (!isNaN(id[scan]))
+				if (id[scan] < id[min])
+					min = scan;
+		this.tmp = id[index];
+		id[index] = id[min];
+		id[min] = tmp;
+	}
+	
+	if (!acsending)
+		id.Reverse();
+}
 function dsListShuffle(id)
 {
   //This works by going through the array in order and switching the current value with a random one.
