@@ -600,313 +600,409 @@ function Particle()
 	//If hit by a changer...
 	this.type2 = null;
 	this.chtype = null;
-}spr_floor = new Image();
-spr_floor.src = "sprites/spr_floor.png";
-spr_pie = new Image();
-spr_pie.src = "sprites/spr_pie.png";
-spr_cursor = new Image();
-spr_cursor.src = "sprites/spr_cursor.png";
-spr_bitfont = new Image();
-spr_bitfont.src = "sprites/spr_bitfont.png";
+}
+
+//Sprites
+sprCursor = new Image();
+sprCursor.src = "sprites/sprCursor.png";
+sprCursor.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprCursor.onload = function(){dolo[sprCursor.dolo] = true};
+sprPie = new Image();
+sprPie.src = "sprites/sprPie.png";
+sprPie.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprPie.onload = function(){dolo[sprPie.dolo] = true};
+sprPlayer = new Image();
+sprPlayer.src = "sprites/sprPlayer.png";
+sprPlayer.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprPlayer.onload = function(){dolo[sprPlayer.dolo] = true};
+sprPlayer.siwidth = 32;
+sprPlayer.colors = new Array();
+sprFloor = new Image();
+sprFloor.src = "sprites/sprFloor.png";
+sprFloor.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprFloor.onload = function(){dolo[sprFloor.dolo] = true};
+sprBitFont = new Image();
+sprBitFont.src = "sprites/sprBitFont.png";
+sprBitFont.dolo = dolo.length;
+dolo[dolo.length] = false;
+sprBitFont.onload = function(){dolo[sprBitFont.dolo] = true};
+sprBitFont.siwidth = 32;
 
 //Sounds
-snd_click = new Audio();
-snd_click.src = "sounds/snd_click.wav";
-snd_click.load();
+sndClick = new Audio();
+sndClick.src = "sounds/sndClick.wav";
+sndClick.load();
 
 //Backgrounds
-bck_main = new Image();
-bck_main.src = "backgrounds/bck_main.png";
-bck_fore = new Image();
-bck_fore.src = "backgrounds/bck_fore.png";
+bckMain = new Image();
+bckMain.src = "backgrounds/bckMain.png";
+bckMain.dolo = dolo.length;
+dolo[dolo.length] = false;
+bckMain.onload = function(){dolo[bckMain.dolo] = true};
+bckFore = new Image();
+bckFore.src = "backgrounds/bckFore.png";
+bckFore.dolo = dolo.length;
+dolo[dolo.length] = false;
+bckFore.onload = function(){dolo[bckFore.dolo] = true};
+
 //Fonts
-function fontAdd(name, size, bold, italic)
-{
-	this.temp = new Font();
-	temp.style = bold + italic * 2;
-		this.str = "";
-	if (temp.style == 1)
-	{
-	str = "bold ";
-	}
-	if (temp.style == 2)
-	{
-		str = "italic ";
-	}
-	if (temp.style == 3)
-	{
-		str = "italic bold ";
-	}
-	str += size + "pt " + name;
-	temp.font = str;
-	temp.name = name;
-	temp.size = size;
-	return temp;
-}
-function fontAddSprite(sprite, first, prop, sep)
-{
-	this.temp = new SpriteFont();
-	temp.sprite = sprite;
-	temp.start = first;
-	temp.sep = sep;
-	return temp;
-}
-function Font() //jimn346
-{
-	this.font = null;
-	this.name = null;
-	this.size = null;
-	this.style = null;
-}
-function SpriteFont() //jimn346
-{
-	this.sprite = null;
-	this.start = null;
-	this.sep = null;
-}fnt_main = fontAdd("Calibri", 8, false, false);
-fnt_switch1 = fontAdd("Comic Sans MS", 16, true, true);
-fnt_switch2 = fontAdd("Verdana", 16, false, true);
+fntMain = fontAdd("Calibri", 8, false, false);
+fntSwitch1 = fontAdd("Comic Sans MS", 16, true, true);
+fntSwitch2 = fontAdd("Verdana", 16, false, true);
+fntOther = fntSwitch1;
+fntBitmap = fontAddSprite(sprBitFont, 33, false, -16);
+
 //Scripts
-function draw_copyright()
+function drawCopyright()
 {
-	drawSetColor(c_black);
-	drawSetFont(fnt_main);
-	var str;	str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";	drawText( str, 0,  10);
-	drawText( "FPS: "+string(fps), 600,  10);
-	drawRectangle(0,  0,  string_width(str)+1,  string_height(str)+3,  true);
+	drawSetColor(cBlack);
+	drawSetFont(fntMain);
+	var str = "Copyright (c) 2011-12 Pixel Matrix Studios, by piluke, see the commented license for more information.";
+	drawText(str, 0, 10);
+	drawText("FPS: "+tfps, 600, 10);
+	drawRectangle(0, 0, stringWidth(str)+1, stringHeight(str)+3, true);
 }
-function font_switch()
-{
-	if (fnt_other = fnt_switch1)	{	    fnt_other = fnt_switch2;	}	else	{	    fnt_other = fnt_switch1;	}}
 
 //Objects
 function instanceCreate(inst, x, y)
 {
-	var i = inst.id.length;
-	inst.id[i] = new inst(i, x, y);
-	inst.Create(i, x, y);
-	return i;
+  var i = inst.id.length;
+  inst.id[i] = new inst(i, x, y);
+  inst.Create(i, x, y);
+  return i;
 }
 function objDraw()
 {
-	obj_control.Draw();
+  objControl.Draw();
+  objPlayer.Draw();
+  objFloor.Draw();
+}
+function objStep()
+{
+  objPlayer.Step();
+}
+function objKeys(i)
+{
+  objPlayer.Keyboard(i);
+}
+function objKeyP(i)
+{
+  objPlayer.KeyboardPress(i);
+}
+function objMouseP()
+{
+  objControl.MousePress();
 }
 
-function objStep(){}
-
-//Objects
-function instanceCreate(inst, x, y)
+//ObjControl
+objControl = function()
 {
-	var i = inst.id.length;
-	inst.id[i] = new inst(i, x, y);
-	inst.Create(i, x, y);
-	return i;
+  //Do nothing
 }
-function objDraw()
+objControl.id = new Array();
+objControl.sprite = 0;
+objControl.Create = function(i, x, y)
 {
-	obj_control.Draw();
+  objControl.id[i] = new Array();
+  objControl.id[i]["glin"] = glin.length;
+  glin[glin.length] = objControl.id[i];
+  objControl.id[i]["x"] = x;
+  objControl.id[i]["y"] = y;
+  objControl.id[i]["sprite"] = 0;
+  objControl.id[i]["width"] = 0;
+  objControl.id[i]["height"] = 0;
+  objControl.id[i]["surf"] = surfaceCreate(64, 64);
+  surfaceSetTarget(objControl.id[i]["surf"]);
+  drawSetColor(cRed);
+  drawCircle(32, 32, 16, false);
+  drawSetColor(cBlue);
+  drawCircle(64, 64, 32, true);
+  surfaceResetTarget();
+  drawSetCursor(sprCursor);
+  objControl.id[i]["ps1"] = partSystemCreate();
+  partSystemAutomaticDraw(objControl.id[i]["ps1"], false);
+  partSystemAutomaticUpdate(objControl.id[i]["ps1"], false);
+  objControl.id[i]["type1"] = partTypeCreate();
+  partTypeShape(objControl.id[i]["type1"], ptShapeFlare);
+  partTypeSize(objControl.id[i]["type1"], .25, .5, .03125, 0);
+  partTypeOrientation(objControl.id[i]["type1"], 0, 360, 4, 0, 0);
+  partTypeColor3(objControl.id[i]["type1"], cRed, cGreen, cBlue);
+  partTypeAlpha3(objControl.id[i]["type1"], 1, .5, 0);
+  partTypeBlend(objControl.id[i]["type1"], true);
+  partTypeLife(objControl.id[i]["type1"], 5,10);
+  partTypeSpeed(objControl.id[i]["type1"], 1, 2, 0, 0);
+  partTypeDirection(objControl.id[i]["type1"], 0, 360, 0, 0);
+  partTypeGravity(objControl.id[i]["type1"], 0, 0);
+  objControl.id[i]["em1"] = partEmitterCreate(objControl.id[i]["ps1"]);
+  partEmitterRegion(objControl.id[i]["ps1"], objControl.id[i]["em1"], 192, 192, 288, 288, psShapeEllipse, psDistrGaussian);
+  partEmitterStream(objControl.id[i]["ps1"], objControl.id[i]["em1"], objControl.id[i]["type1"], 1);
 }
-
-function objStep(){}
-function objKeys(){}
-
-//Objects
-function instanceCreate(inst, x, y)
+objControl.MousePress = function(i)
 {
-	var i = inst.id.length;
-	inst.id[i] = new inst(i, x, y);
-	inst.Create(i, x, y);
-	return i;
-}
-function objDraw()
-{
-	obj_control.Draw();
-}
-
-function objStep(){}
-function objKeys(){}
-function objKeyP(){}
-
-//Objects
-function instanceCreate(inst, x, y)
-{
-	var i = inst.id.length;
-	inst.id[i] = new inst(i, x, y);
-	inst.Create(i, x, y);
-	return i;
-}
-function objDraw()
-{
-	obj_control.Draw();
-}
-
-function objStep(){}
-function objKeys(){}
-function objKeyP(){}
-function objKeyR(){}
-//obj_control
-obj_control = function()
-{
-	//Do nothing
-}
-obj_control.id = new Array();
-obj_control.Create = function(i, x, y)
-{
-	obj_control.id[i] = new Array();
-	obj_control.id[i]["x"] = x;
-	obj_control.id[i]["y"] = y;
-	obj_control.id[i]["startx"] = x;
-	obj_control.id[i]["starty"] = y;
-	surf = surface_create(64, 64);	surfaceSetTarget(surf);
-	drawSetColor(c_red);
-	drawCircle(32,  32,  16,  false);
-	drawSetColor(c_blue);
-	drawCircle(64,  64,  32,  true);
-	surfaceResetTarget();
-	windowSetCursor(spr_cursor);
-	fnt_other = fnt_switch1;	fnt_bitmap = font_add_sprite(spr_bitfont, 33, false, -16);	ps1 = part_system_create();	partSystemAutomaticDraw(ps1,  false);
-	partSystemAutomaticUpdate(ps1,  false);
-	type1 = part_type_create();	partTypeShape(type1,  pt_shape_ring);
-	partTypeSize(type1,  .25,  .5,  .03125,  0);
-	partTypeOrientation(type1,  0,  360,  4,  0,  0);
-	partTypeColor3(type1,  c_white,  c_white,  c_white);
-	partTypeAlpha3(type1,  1,  .5,  0);
-	partTypeBlend(type1,  false);
-	partTypeLife(type1,  5,  10);
-	partTypeSpeed(type1,  1,  2,  0,  0);
-	partTypeDirection(type1,  0,  360,  0,  0);
-	partTypeGravity(type1,  0,  0);
-	em1 = part_emitter_create(ps1);	partEmitterRegion(ps1,  em1,  240,  248,  240,  248,  ps_shape_ellipse,  ps_distr_gaussian);
-	partEmitterStream(ps1,  em1,  type1,  1);
-
-}
-obj_control.Draw = function()
-{
-		if (room = rm_main)	{	    draw_copyright();	    draw_set_color(c_black);	    draw_rectangle(50, 70, 300, 250, false);	    draw_rectangle(350, 70, 600, 250, false);	    draw_rectangle(50, 270, 300, 450, false);	    draw_rectangle(350, 270, 600, 450, false);	    addLink("room_goto", "rm_draw", 50, 70, 250, 180);	    draw_set_font(fnt_bitmap);	    draw_set_color(c_red);	    draw_text(100, 100, "Drawing");	    draw_set_color(c_orange);	    draw_text(400, 100, "Movement");	    draw_set_color(c_yellow);	    draw_text(100, 300, "Text#Embedding");	    draw_set_color(c_green);	    draw_text(400, 300, "Other");	}	else	{	    drawSetBackground(true, bck_main, c_gray);	    draw_copyright();	    draw_set_color(c_orange);	    draw_rectangle(30, 30, 50, 50, false);	    draw_set_color(c_blue);	    draw_circle(100, 40, 20, true);	    draw_sprite(spr_pie, 0, 5, 70);	    drawGradientRect(100, 70, mouse_x, mouse_y, 100, 70, 200, 170, c_green, c_yellow);	    drawGradientCircle(275, 100, mouse_x, mouse_y, 15, 275, 100, 50, c_blue, c_dkgray);	    draw_set_color(c_blue);	    draw_text(350, 100, "Radial gradients are actually cones.#They render differently in different browsers.");	    draw_set_font(fnt_other);	    drawText("Use fonts and ~a:font_switch();~links!~", 350, 300);	    draw_set_font(fnt_bitmap);	    draw_text(16, 176, "You can even use#sprite fonts!");	    drawSetBackground(false, bck_fore, c_black);	    draw_surface(surf, 12, 240);	    draw_set_font(fnt_main);	    draw_set_color(surface_getpixel(surf, 32, 32));	    draw_text(12, 312, "Surfaces can be#used too!");	    part_system_update(ps1);	    part_system_drawit(ps1);	}	if (room != rm_main)	{	    draw_set_color(c_black);	    draw_rectangle(500, 10, 550, 30, false);	    addLink("room_goto", "rm_main", 500, 10, 550, 30, false);	    draw_set_font(fnt_main);	    draw_set_color(c_white);	    draw_text(510, 25-string_height("Back")/2, "Back");	}
-}
-
-//obj_player
-obj_player = function()
-{
-	//Do nothing
-}
-obj_player.id = new Array();
-obj_player.Create = function(i, x, y)
-{
-	obj_player.id[i] = new Array();
-	obj_player.id[i]["x"] = x;
-	obj_player.id[i]["y"] = y;
-	obj_player.id[i]["startx"] = x;
-	obj_player.id[i]["starty"] = y;
-}
-obj_player.Draw = function()
-{
+	for (var e=0;e<objControl.id.length;e++)
+	{
+		if (rooms[room] == rmOther)
+		{
+			soundPlay(sndClick);
+		}
 	}
-
-//obj_floor
-obj_floor = function()
-{
-	//Do nothing
 }
-obj_floor.id = new Array();
-obj_floor.Create = function(i, x, y)
+objControl.Draw = function()
 {
-	obj_floor.id[i] = new Array();
-	obj_floor.id[i]["x"] = x;
-	obj_floor.id[i]["y"] = y;
-	obj_floor.id[i]["startx"] = x;
-	obj_floor.id[i]["starty"] = y;
-}
-obj_floor.Draw = function()
-{
+	for (var i=0;i<objControl.id.length;i++)
+	{
+		if (rooms[room] == rmMain)
+		{
+			drawCopyright();
+			drawSetColor(cBlack);
+			drawRectangle(50, 70, 300, 250, false);
+			drawRectangle(350, 70, 600, 250, false);
+			drawRectangle(50, 270, 300, 450, false);
+			drawRectangle(350, 270, 600, 450, false);
+			addLink(roomGoto, rmDraw, 50, 70, 250, 180, false);
+			drawSetFont(fntBitmap);
+			drawSetColor(cRed);
+			drawText("Drawing", 100, 100);
+			drawSetColor(cOrange);
+			drawText("Movement", 400, 100);
+			drawSetColor(cYellow);
+			drawText("Text~#embedding", 100, 300);
+			drawSetColor(cGreen);
+			drawText("Other", 400, 300);
+		}
+		else if (rooms[room] == rmDraw)
+		{
+			drawSetBackground(true, bckMain, cGray);
+			drawCopyright();
+			drawSetColor(cOrange);
+			drawRectangle(30, 30, 50, 50, false);
+			drawSetColor(cBlue);
+			drawCircle(100, 40, 20, true);
+			drawSprite(sprPie, 5, 70, 0);
+			drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
+			drawRectangle(100, 70, 200, 170, false);
+			drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
+			drawCircle(275, 100, 50, false);
+			drawSetColor(cBlue);
+			drawText("Radial gradients are actually cones.~#They render differently in different browsers.", 350, 100);
+			drawSetFont(fntOther);
+			drawText("Use fonts and ~a:fntOther=(fntOther==fntSwitch1)?fntSwitch2:fntSwitch1~links!~", 350, 300);
+			drawSetFont(fntBitmap);
+			drawText("You can even use~#sprite fonts!", 16, 176);
+			drawSetBackground(false, bckFore, cBlack);
+			drawSurface(objControl.id[i]["surf"], 12, 240);
+			drawSetFont(fntMain);
+			drawSetColor(surfaceGetPixel(objControl.id[i]["surf"], 32, 32));
+			drawText("Surfaces can be~#used too!", 12, 312);
+			partSystemUpdate(objControl.id[i]["ps1"]);
+			partSystemDrawit(objControl.id[i]["ps1"]);
+		}
+		if (rooms[room] != rmMain)
+		{
+			drawSetColor(cBlack);
+			drawRectangle(500, 10, 550, 30, false);
+			addLink(roomGoto, rmMain, 500, 10, 550, 30, false);
+			drawSetFont(fntMain);
+			drawSetColor(cWhite);
+			drawText("Back", 510, 25);
+		}
 	}
+}
+objControl.Destroy = function()
+{
+	for (var i=0;i<objControl.id.length;i++)
+	{
+		surfaceFree(objControl.id[i]["surf"]);
+	}
+}
+
+//ObjPlayer
+function objPlayer(i)
+{
+  //Do nothing
+}
+objPlayer.id = new Array();
+objPlayer.sprite = sprPlayer;
+objPlayer.subimg = 0;
+objPlayer.sid = 0;
+objPlayer.imgnumb = 8;
+objPlayer.Create = function(i, x, y)
+{
+  objPlayer.id[i] = new Array();
+  objPlayer.id[i]["glin"] = glin.length;
+  glin[glin.length] = objPlayer.id[i];
+  objPlayer.id[i]["x"] = x;
+  objPlayer.id[i]["y"] = y;
+  objPlayer.id[i]["startx"] = x;
+  objPlayer.id[i]["starty"] = y;
+  objPlayer.id[i]["face"] = 1;
+  objPlayer.id[i]["sprite"] = sprPlayer;
+  objPlayer.id[i]["width"] = 32;
+  objPlayer.id[i]["height"] = 32;
+  objPlayer.id[i]["self"] = objPlayer.id[i];
+  objPlayer.id[i]["name"] = objPlayer.name;
+}
+objPlayer.Keyboard = function(i)
+{
+  for (var e=0;e<objPlayer.id.length;e++)
+  {
+	if ((keys[vkLeft] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]-1, objPlayer.id[e]["y"])))
+    {
+      objPlayer.id[e]["x"] -= 1;
+      objPlayer.id[e]["face"] = -1;
+    }
+    if ((keys[vkRight] == 1)&&(placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"]+objPlayer.id[e]["width"]+1, objPlayer.id[e]["y"])))
+    {
+      objPlayer.id[e]["x"] += 1;
+  	  objPlayer.id[e]["face"] = 1;
+    }
+  }
+}
+objPlayer.KeyboardPress = function(i)
+{
+	for (var e=0;e<objPlayer.id.length;e++)
+	{
+		if (keys[vkUp] == 1)
+		{
+		for (var a=25;a>0;a--)
+		{
+			if (placeEmpty(objPlayer.id[e], objPlayer.id[e]["x"], objPlayer.id[e]["y"]-a))
+			{
+			objPlayer.id[e]["y"] -= a;
+			break;
+			}
+		}
+		}
+		if (keys[ord("R")] == 1)
+		{
+			roomRestart();
+		}
+	}
+}
+objPlayer.Step = function()
+{
+  for (var i=0;i<objPlayer.id.length;i++)
+  {
+    //Gravity
+    if ((placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"]))&&(placeEmpty(objPlayer.id[i], objPlayer.id[i]["x"]+objPlayer.id[i]["width"], objPlayer.id[i]["y"]+objPlayer.id[i]["height"])))
+    {
+      objPlayer.id[i]["y"] += 1;
+    }
+  }
+}
+objPlayer.Draw = function()
+{
+  objPlayer.sid = objPlayer.sid+(1000/fps);
+  objPlayer.subimg = objPlayer.sid % objPlayer.imgnumb;
+  for (var i=0;i<objPlayer.id.length;i++)
+  {
+	if (keys[vkLeft])
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cYellow, 1);
+	}
+	else if (keys[vkRight])
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, 1, 1, 0, cWhite, 1);
+	}
+	else
+	{
+	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], 0, 1, 1, 0, cWhite, 1);
+	}
+	drawSetFont(fntMain);
+    drawText("Move and click the mouse!~#Move around with the arrow keys!~#Press \"R\" to reset.", 100, 250);
+  }
+}
+objPlayer.Collision = function(obj)
+{
+  if (obj == "objFloor")
+  {
+    alert("Collision!");
+  }
+}
+
+//ObjFloor
+function objFloor(i)
+{
+  //Do nothing
+}
+objFloor.id = new Array();
+objFloor.sprite = 0;
+objFloor.Create = function(i, x, y)
+{
+  objFloor.id[i] = new Array();
+  objFloor.id[i]["glin"] = glin.length;
+  glin[glin.length] = objFloor.id[i];
+  objFloor.id[i]["x"] = x;
+  objFloor.id[i]["y"] = y;
+  objFloor.id[i]["width"] = 32;
+  objFloor.id[i]["height"] = 32;
+  objFloor.id[i]["sprite"] = sprFloor;
+}
+objFloor.Draw = function()
+{
+  for (var i=0;i<objFloor.id.length;i++)
+  {
+    drawSprite(objFloor.id[i]["sprite"], objFloor.id[i]["x"], objFloor.id[i]["y"], 0);
+  }
+}
 
 //Rooms
-var rooms = new Array();
-rooms[0] = rm_main;
+rooms = new Array();
+rooms[0] = rmMain;
+rooms[1] = rmDraw;
 function roomOpen(i)
 {
-	for (var e=0;e<rooms[i].inst.length;e++)
-	{
-	instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
-	}
-	room_width = rooms[i].width;
-	room_height = rooms[i].height;
+  if (rooms[i] == undefined)
+  {
+	return;
+  }
+  for (var e=0;e<rooms[i].inst.length;e++)
+  {
+    instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
+  }
+  roomWidth = rooms[i].width;
+  roomHeight = rooms[i].height;
+  canvas.width = roomWidth;
+  canvas.height = roomHeight;
+  room = i;
+  clearDraw();
 }
 
-//rm_main
-function rm_main(i)
+//rmMain
+function rmMain(i)
 {
-	//Do nothing
+  //Do nothing
 }
-rm_main.inst = new Array();
-rm_main.rmCrCode = function()
+rmMain.inst = new Array();
+rmMain.rmCrCode = false;
+rmMain.objCrCode = false;
+rmMain.width = 640;
+rmMain.height = 480;
+rmMain.Create = function()
 {
-
+  rmMain.inst[0] = new Array();
+  rmMain.inst[0][0] = objControl;
+  rmMain.inst[0][1] = 0;
+  rmMain.inst[0][2] = 0;
 }
-rm_main.objCrCode = function()
+//rmDraw
+function rmDraw(i)
 {
-	with(100003)
-	{
-		
-	}
+  //Do nothing
 }
-rm_main.width = 640;
-rm_main.height = 480;
-rm_main.Create = function()
+rmDraw.inst = new Array();
+rmDraw.rmCrCode = false;
+rmDraw.objCrCode = false;
+rmDraw.width = 640;
+rmDraw.height = 480;
+rmDraw.Create = function()
 {
-	rm_main.inst[0] = new Array();
-	rm_main.inst[0][0] = obj_control;
-	rm_main.inst[0][1] = 0;
-	rm_main.inst[0][2] = 0;
-}//rm_draw
-function rm_draw(i)
-{
-	//Do nothing
-}
-rm_draw.inst = new Array();
-rm_draw.rmCrCode = function()
-{
-
-}
-rm_draw.objCrCode = function()
-{
-	with(100005)
-	{
-		
-	}
-}
-rm_draw.width = 640;
-rm_draw.height = 480;
-rm_draw.Create = function()
-{
-	rm_draw.inst[0] = new Array();
-	rm_draw.inst[0][0] = obj_control;
-	rm_draw.inst[0][1] = 0;
-	rm_draw.inst[0][2] = 0;
-}//rm_other
-function rm_other(i)
-{
-	//Do nothing
-}
-rm_other.inst = new Array();
-rm_other.rmCrCode = function()
-{
-
-}
-rm_other.objCrCode = function()
-{
-	with(100006)
-	{
-		
-	}
-}
-rm_other.width = 640;
-rm_other.height = 480;
-rm_other.Create = function()
-{
-	rm_other.inst[0] = new Array();
-	rm_other.inst[0][0] = obj_control;
-	rm_other.inst[0][1] = 0;
-	rm_other.inst[0][2] = 0;
+  rmDraw.inst[0] = new Array();
+  rmDraw.inst[0][0] = objControl;
+  rmDraw.inst[0][1] = 0;
+  rmDraw.inst[0][2] = 0;
 }
