@@ -976,6 +976,9 @@ public class ghpframe extends JFrame implements ActionListener {
 										else if (garg[e].contains("%h%")) {
 												ars += oarg[15];
 										}
+										else if (garg[e].contains("%j%")) {
+											ars += oarg[16];
+										}
 										if (e < garg.length-1) {
 												ars += ", ";
 										}

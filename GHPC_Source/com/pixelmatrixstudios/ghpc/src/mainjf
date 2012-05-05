@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011 piluke <pikingqwerty@gmail.com>
+* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
 * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
 * 
 * This file is part of GameMaker HTML5 Player (GHP).
@@ -23,38 +23,32 @@ function gameStart()
 }
 function mainStep()
 {
-  if (fnd != fod)
-  {
-    tfps = cfps+1;
-    cfps = 0;
-	fod = fnd;
-  }
-  cfps += 1;
-  eventStepBegin();
-  eventAlarm();
-  eventKeyboard();
-  eventMouse();
-  eventKeyboardPress();
-  eventMousePress();
-  eventKeyboardRelease();
-  eventMouseRelease();
-  eventStep();
-  eventPathEnd();
-  eventOutsideRoom();
-  eventIntersectBoundary();
-  eventCollision();
-  eventStepEnd();
-  eventDraw();
-  eventAnimationEnd();
-  eventCleanup();
-  fnd = new Date();
-  fnd = fnd.getSeconds();
+	if (fnd != fod)
+	{
+		tfps = cfps+1;
+		cfps = 0;
+		fod = fnd;
+	}
+	cfps += 1;
+	eventStepBegin();
+	eventAlarm();
+	eventKeyboard();
+	eventMouse();
+	eventKeyboardPress();
+	eventMousePress();
+	eventKeyboardRelease();
+	eventMouseRelease();
+	eventStep();
+	eventPathEnd();
+	eventOutsideRoom();
+	eventIntersectBoundary();
+	eventCollision();
+	eventStepEnd();
+	eventAnimationEnd();
+	eventCleanup();
+	fnd = new Date();
+	fnd = fnd.getSeconds();
+	setTimeout(mainStep, 1000/fps);
 }
-if (ie)
-{
-	setInterval("mainStep()", 10);
-}
-else
-{
-	setInterval("mainStep();", 1000/fps);
-}
+mainStep();
+eventDraw();

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 piluke <pikingqwerty@gmail.com>
+ * Copyright (C) 2011-12 piluke <pikingqwerty@gmail.com>
  * 
  * This file is part of GHPC.
  * GHPC is free software and comes with ABSOLUTELY NO WARRANTY.

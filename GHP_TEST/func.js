@@ -308,6 +308,7 @@ function makeColorHSV(h, s, v)
 	}
 	return "#" + toHex(r) + toHex(g) + toHex(b);
 }
+
 ////////////////
 //Font functions
 ////////////////
@@ -3054,4 +3055,52 @@ function partTypeGravity(ind, gravAmount, gravDir)
 {
 	ind.gravAmount = gravAmount;
 	ind.gravDir = gravDir;
+}
+
+////////////////////
+//Resource functions
+////////////////////
+function spriteExists(ind)
+{
+	if (resource[0][ind] != null)
+	{
+		return true;
+	}
+	return false;
+}
+function spriteGetName(ind)
+{
+	return resource[0][ind].name;
+}
+function spriteGetNumber(ind)
+{
+	return resource[0][ind].numb;
+}
+function spriteGetWidth(ind)
+{
+	return resource[0][ind].width;
+}
+function spriteGetHeight(ind)
+{
+	return resource[0][ind].height;
+}
+function spriteGetTransparent(ind)
+{
+	return false; //For now just change with drawSpriteExt
+}
+function spriteGetSmooth(ind)
+{
+	return resource[0][ind].smooth;
+}
+function spriteGetPreload(ind)
+{
+	return true; //Sprites are always automatically loaded
+}
+function spriteGetXoffset(ind)
+{
+	return resource[0][ind].xorig;
+}
+function spriteGetYoffset(ind)
+{
+	return resource[0][ind].yorig;
 }

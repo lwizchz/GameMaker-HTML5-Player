@@ -7,6 +7,12 @@
 * See LICENSE for more details.
 */
 
+//If mobile
+if (navigator.userAgent.match(/(alcatel|amoi|android|avantgo|blackberry|benq|cell|cricket|docomo|elaine|htc|iemobile|iphone|ipad|ipaq|ipod|j2me|java|midp|mini|mmp|mobi|motorola|nec-|nokia|palm|panasonic|philips|phone|sagem|sharp|sie-|smartphone|sony|symbian|t-mobile|telus|up\.browser|up\.link|vodafone|wap|webos|wireless|xda|xoom|zte)/i))
+{
+	throw "No debugging for mobile.";
+}
+
 var de = document.createElement("div");
 de.setAttribute("id", "de");
 de.setAttribute("style", "border: 3px solid black; border-radius: 4px; background: #336699; position: fixed; top: 9px; left: 10px;");
