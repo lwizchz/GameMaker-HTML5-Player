@@ -603,51 +603,19 @@ function Particle()
 }
 
 //Sprites
-sprCursor = new Image();
-sprCursor.src = "sprites/sprCursor.png";
-sprCursor.dolo = dolo.length;
-dolo[dolo.length] = false;
-sprCursor.onload = function(){dolo[sprCursor.dolo] = true};
-sprPie = new Image();
-sprPie.src = "sprites/sprPie.png";
-sprPie.dolo = dolo.length;
-dolo[dolo.length] = false;
-sprPie.onload = function(){dolo[sprPie.dolo] = true};
-sprPlayer = new Image();
-sprPlayer.src = "sprites/sprPlayer.png";
-sprPlayer.dolo = dolo.length;
-dolo[dolo.length] = false;
-sprPlayer.onload = function(){dolo[sprPlayer.dolo] = true};
-sprPlayer.siwidth = 32;
+sprCursor = new Sprite("sprites/sprCursor.png", 1, true, false, 0, 0);
+sprPie = new Sprite("sprites/sprPie.png", 1, false, false, 0, 0);
+sprPlayer = new Sprite("sprites/sprPlayer.png", 8, true, false, 0, 0);
 sprPlayer.colors = new Array();
-sprFloor = new Image();
-sprFloor.src = "sprites/sprFloor.png";
-sprFloor.dolo = dolo.length;
-dolo[dolo.length] = false;
-sprFloor.onload = function(){dolo[sprFloor.dolo] = true};
-sprBitFont = new Image();
-sprBitFont.src = "sprites/sprBitFont.png";
-sprBitFont.dolo = dolo.length;
-dolo[dolo.length] = false;
-sprBitFont.onload = function(){dolo[sprBitFont.dolo] = true};
-sprBitFont.siwidth = 32;
+sprFloor = new Sprite("sprites/sprFloor.png", 1, false, false, 0, 0);
+sprBitFont = new Sprite("sprites/sprBitFont.png", 144, true, false, 0, 0);
 
 //Sounds
-sndClick = new Audio();
-sndClick.src = "sounds/sndClick.wav";
-sndClick.load();
+sndClick = new Sound("sounds/sndClick.wav", 0, true);
 
 //Backgrounds
-bckMain = new Image();
-bckMain.src = "backgrounds/bckMain.png";
-bckMain.dolo = dolo.length;
-dolo[dolo.length] = false;
-bckMain.onload = function(){dolo[bckMain.dolo] = true};
-bckFore = new Image();
-bckFore.src = "backgrounds/bckFore.png";
-bckFore.dolo = dolo.length;
-dolo[dolo.length] = false;
-bckFore.onload = function(){dolo[bckFore.dolo] = true};
+bckMain = new Background("backgrounds/bckMain.png", false, false);
+bckFore = new Background("backgrounds/bckFore.png", false, false);
 
 //Fonts
 fntMain = fontAdd("Calibri", 8, false, false);

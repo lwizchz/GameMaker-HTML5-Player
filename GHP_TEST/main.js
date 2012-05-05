@@ -9,13 +9,6 @@
 
 function gameStart()
 {
-  for (var i=0;i<dolo.length;i++)
-  {
-	if (!dolo[i])
-	{
-		return;
-	}
-  }
   canvas.focus();
   for (var i=0;i<rooms.length;i++)
   {
@@ -30,20 +23,6 @@ function gameStart()
 }
 function mainStep()
 {
-	if (dldone)
-	{
-		for (var i=0;i<dolo.length;i++)
-		{
-			if (!dolo[i])
-			{
-				fnd = new Date();
-				fnd = fnd.getSeconds();
-				return;
-			}
-		}
-		dldone = true;
-		delete window.dolo;
-	}
 	if (fnd != fod)
 	{
 		tfps = cfps+1;
