@@ -93,7 +93,7 @@ function drawText(text, x, y)
 	    {
 	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
 		  {
-			drawSpriteExt(globalFont.sprite, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y, ord(stringCharAt(text, i)) - globalFont.start);
+			drawSpriteExt(globalFont.sprite, ord(stringCharAt(text, i)) - globalFont.start, x + (globalFont.sprite.siwidth + globalFont.sep) * i, y);
 		  }
 	    }
 	  }
@@ -105,7 +105,7 @@ function drawText(text, x, y)
 	      if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth)
 		  {
 			curx -= globalFont.propx[ord(stringCharAt(text, i)) - globalFont.start];
-			drawSpriteExt(globalFont.sprite, curx, y, ord(stringCharAt(text, i)) - globalFont.start);
+			drawSpriteExt(globalFont.sprite, ord(stringCharAt(text, i)) - globalFont.start, curx, y);
 			curx += globalFont.propwidth[ord(stringCharAt(text, i)) - globalFont.start] + globalFont.sep;
 		  }
 	    }
@@ -129,7 +129,7 @@ function drawSetGradient(linear, x1, y1, x2, y2, col1, col2, r1, r2)
   gradient.addColorStop(1, col2);
   curcon.fillStyle = gradient;
 }
-function drawSprite(sprite, x, y, subimg)
+function drawSprite(sprite, subimg, x, y)
 {
     this.xx = 0;
 	this.yy = 0;
@@ -150,7 +150,7 @@ function drawSprite(sprite, x, y, subimg)
 	curcon.restore();
 }
 
-function drawSpriteExt(sprite, x, y, subimg, xscale, yscale, angle, color, alpha)
+function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha)
 {
     this.xx = 0;
 	this.yy = 0;

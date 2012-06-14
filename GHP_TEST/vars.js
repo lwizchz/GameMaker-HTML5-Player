@@ -750,7 +750,7 @@ objControl.Draw = function()
 			drawRectangle(30, 30, 50, 50, false);
 			drawSetColor(cBlue);
 			drawCircle(100, 40, 20, true);
-			drawSprite(sprPie, 5, 70, 0);
+			drawSprite(sprPie, 0, 5, 70);
 			drawSetGradient(true, 100, 70, mouseX, mouseY, cGreen, cYellow);
 			drawRectangle(100, 70, 200, 170, false);
 			drawSetGradient(false, 275, 100, mouseX, mouseY, cBlue, cDkgray, 15, 50);
@@ -870,15 +870,15 @@ objPlayer.Draw = function()
   {
 	if (keys[vkLeft])
 	{
-	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cYellow, 1);
+	  drawSpriteExt(objPlayer.id[i]["sprite"], 1, objPlayer.id[i]["x"] + objPlayer.id[i]["sprite"]["siwidth"], objPlayer.id[i]["y"], objPlayer.subimg, -1, 1, 0, cYellow);
 	}
 	else if (keys[vkRight])
 	{
-	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, 1, 1, 0, cWhite, 1);
+	  drawSpriteExt(objPlayer.id[i]["sprite"], 1, objPlayer.id[i]["x"], objPlayer.id[i]["y"], objPlayer.subimg, 1, 1, 0, cWhite);
 	}
 	else
 	{
-	  drawSpriteExt(objPlayer.id[i]["sprite"], objPlayer.id[i]["x"], objPlayer.id[i]["y"], 0, 1, 1, 0, cWhite, 1);
+	  drawSpriteExt(objPlayer.id[i]["sprite"], 1, objPlayer.id[i]["x"], objPlayer.id[i]["y"], 0, 1, 1, 0, cWhite);
 	}
 	drawSetFont(fntMain);
     drawText("Move and click the mouse!~#Move around with the arrow keys!~#Press \"R\" to reset.", 100, 250);
@@ -914,7 +914,7 @@ objFloor.Draw = function()
 {
   for (var i=0;i<objFloor.id.length;i++)
   {
-    drawSprite(objFloor.id[i]["sprite"], objFloor.id[i]["x"], objFloor.id[i]["y"], 0);
+    drawSprite(objFloor.id[i]["sprite"], 0, objFloor.id[i]["x"], objFloor.id[i]["y"]);
   }
 }
 

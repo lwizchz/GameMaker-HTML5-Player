@@ -453,7 +453,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					varf[1].close();
 					while (sprites.hasNext()) {
 							Sprite spr = sprites.next();
-							line = spr.getName()+" = new Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+");\n";
+							line = spr.getName()+" = new Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+", false, false, 0, 0);\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
@@ -638,7 +638,8 @@ public class ghpframe extends JFrame implements ActionListener {
 							if (curobj.get(GmObject.PGmObject.SPRITE) != null)	{
 									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	"+"	"+objname+".id[i][\"width\"] = ";
 									ResourceReference<Sprite> r = curobj.get(GmObject.PGmObject.SPRITE);
-									line += deRef(r).getDisplayImage().getWidth()+";\n	"+"	"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getWidth()+";\n";
+									line += deRef(r).getDisplayImage().getWidth()+";\n	"+"	"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getHeight()+";\n\t";
+									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n";
 							}
 							if (curobj.mainEvents.get(MainEvent.EV_CREATE).events.size() > 0) {
 									Iterator<org.lateralgm.resources.sub.Event> ev_create = curobj.mainEvents.get(MainEvent.EV_CREATE).events.iterator();
@@ -748,7 +749,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									spr.close();
 									continue;
 							}
-							Image img = createImage(sprname.getDisplayImage().getWidth()*sprname.subImages.size(), sprname.getDisplayImage().getHeight());
+							BufferedImage img = new BufferedImage(sprname.getDisplayImage().getWidth()*sprname.subImages.size(), sprname.getDisplayImage().getHeight(), BufferedImage.TYPE_INT_ARGB);
 							Graphics g = img.getGraphics();
 							g.drawImage(sprname.subImages.get(0), 0, 0, this);
 							for (int e=1;e<sprname.subImages.size();e++) {
