@@ -1,0 +1,56 @@
+">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+<style type="text/css">
+canvas {
+	border: 3px solid black;
+	display: block;
+	margin: auto;
+	border-radius: 4px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#000033), to(#000011));
+	background: -moz-linear-gradient(top,  #000033,  #000011);
+}
+body {
+	background: gray;
+}
+.nocan {
+	width: 640px;
+	height: 480px;
+	border: 3px solid black;
+	display: block;
+	margin: auto;
+	border-radius: 4px;
+	background: white;
+}
+img {
+	border: none;
+}
+</style>
+
+</head>
+
+<body onload="gameStart();" onunload="eventGameEnd();">
+
+<canvas id="maincan" width="640" height="480" tabindex="1" style="cursor:url(invis.png),auto;" onkeydown="eventKeyboardPress(event);" onkeyup="eventKeyboardRelease(event);" onmousemove="eventMouseMove(event);" onmousedown="eventMousePress(event);" onmouseup="eventMouseRelease(event);">
+<center class="nocan">
+<div style="margin-top:30%;">
+Sorry your browser doesn't support HTML5.
+<br>
+<br>
+<a href="http://chrome.google.com/" title="Google Chrome"><img src="chrome.png"></img></a>
+<a href="http://www.mozilla.com/" title="Mozilla Firefox"><img src="firefox.png"></img></a>
+<a href="http://www.apple.com/safari" title="Apple Safari"><img src="safari.png"></img></a>
+<a href="http://www.opera.com/" title="Opera"><img src="opera.png"></img></a>
+<br>
+<br>
+Or try <a href="http://www.google.com/chromeframe" target="_blank">Google Chrome Frame</a> to increase support for Internet Explorer.
+</div>
+</center>
+</canvas>
+
+<script type="text/javascript" src="vars.js"></script>
+<script type="text/javascript" src="func.js"></script>
+<script type="text/javascript" src="event.js"></script>
+<script type="text/javascript" src="main.js"></script>
