@@ -54,7 +54,7 @@ pathEndaction
 %id%
 %solid%
 %persistent%
-mask_index
+%obj%["mask"]
 %instcnt%
 %glin%
 

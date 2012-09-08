@@ -32,6 +32,8 @@ import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Sprite.MaskShape;
+import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
@@ -453,7 +455,16 @@ public class ghpframe extends JFrame implements ActionListener {
 					varf[1].close();
 					while (sprites.hasNext()) {
 							Sprite spr = sprites.next();
-							line = spr.getName()+" = new Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+", false, false, 0, 0);\n";
+							String sh = "";
+							if (spr.get(PSprite.SHAPE).equals(MaskShape.PRECISE))
+								sh = "PRECISE";
+							if (spr.get(PSprite.SHAPE).equals(MaskShape.RECTANGLE))
+								sh = "RECTANGLE";
+							if (spr.get(PSprite.SHAPE).equals(MaskShape.DISK))
+								sh = "ELLIPSE";
+							if (spr.get(PSprite.SHAPE).equals(MaskShape.DIAMOND))
+								sh = "DIAMOND";
+							line = spr.getName()+" = new Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+", " + spr.get(PSprite.TRANSPARENT) + ", " + spr.get(PSprite.SMOOTH_EDGES) + ", " + spr.get(PSprite.ORIGIN_X) + ", " + spr.get(PSprite.ORIGIN_Y) + ", " + spr.get(PSprite.BB_LEFT) + ", " + spr.get(PSprite.BB_RIGHT) + ", " + spr.get(PSprite.BB_TOP) + ", " + spr.get(PSprite.BB_BOTTOM) + ", " + sh + ", " + spr.get(PSprite.ALPHA_TOLERANCE) + ");\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
@@ -513,17 +524,18 @@ public class ghpframe extends JFrame implements ActionListener {
 							}
 					}
 					proBar(14);
-					line = "\n//Objects\nfunction instanceCreate(inst, x, y)\n{\n	var i = inst.id.length;\n	inst.id[i] = new inst(i, x, y);\n	inst.Create(i, x, y);\n	return i;\n}\n";
+					line = "\n//Objects\nfunction instanceCreate(inst, x, y)\n{\n\tvar i = inst.id.length;\n	inst.id[i] = new inst(i, x, y);\n\tinst.Create(i, x, y);\n	return i;\n}\n";
 					boolean ie = false;
 					while (gmobjects.hasNext()) {
 							GmObject curobj = gmobjects.next();
-							if (curobj.mainEvents.get(MainEvent.EV_DRAW).events.size() > 0) {
+							//I'm adding automatic drawing.
+							//if (curobj.mainEvents.get(MainEvent.EV_DRAW).events.size() > 0) {
 									if (!ie) {
 											line += "function objDraw()\n{\n";
 									}
 									line += "	"+curobj.getName()+".Draw();\n";
 									ie = true;
-							}
+							//}
 					}
 					if (ie) {
 							line += "}\n\n";
@@ -639,7 +651,12 @@ public class ghpframe extends JFrame implements ActionListener {
 									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	"+"	"+objname+".id[i][\"width\"] = ";
 									ResourceReference<Sprite> r = curobj.get(GmObject.PGmObject.SPRITE);
 									line += deRef(r).getDisplayImage().getWidth()+";\n	"+"	"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getHeight()+";\n\t";
-									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n";
+									if (curobj.get(GmObject.PGmObject.MASK) != null)
+										line += "	"+objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.MASK)).get().getName()+";\n	";
+									else
+										line += "	"+objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	";
+									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n\t";
+									line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n";
 							}
 							if (curobj.mainEvents.get(MainEvent.EV_CREATE).events.size() > 0) {
 									Iterator<org.lateralgm.resources.sub.Event> ev_create = curobj.mainEvents.get(MainEvent.EV_CREATE).events.iterator();
@@ -661,6 +678,8 @@ public class ghpframe extends JFrame implements ActionListener {
 											}
 									}
 							}
+							line += "\t" + objname + ".id[i][\"glin\"] = glin.length;\n";
+							line += "\tglin[glin.length] = " + objname + ".id[i];\n";
 							line += "}\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
@@ -1137,55 +1156,55 @@ public class ghpframe extends JFrame implements ActionListener {
 										if (garg[e].contains("%obj%")) {
 												ars += obj + ".id[i]";
 										}
-										else if (garg[e].contains("%q%")) {
+										else if (garg[e].contains("%q%") && oarg.length >= 1) {
 												ars += oarg[0];
 										}
-										else if (garg[e].contains("%w%")) {
+										else if (garg[e].contains("%w%") && oarg.length >= 2) {
 												ars += oarg[1];
 										}
-										else if (garg[e].contains("%e%")) {
+										else if (garg[e].contains("%e%") && oarg.length >= 3) {
 												ars += oarg[2];
 										}
-										else if (garg[e].contains("%r%")) {
+										else if (garg[e].contains("%r%") && oarg.length >= 4) {
 												ars += oarg[3];
 										}
-										else if (garg[e].contains("%t%")) {
+										else if (garg[e].contains("%t%") && oarg.length >= 5) {
 												ars += oarg[4];
 										}
-										else if (garg[e].contains("%y%")) {
+										else if (garg[e].contains("%y%") && oarg.length >= 6) {
 												ars += oarg[5];
 										}
-										else if (garg[e].contains("%u%")) {
+										else if (garg[e].contains("%u%") && oarg.length >= 7) {
 												ars += oarg[6];
 										}
-										else if (garg[e].contains("%i%")) {
+										else if (garg[e].contains("%i%") && oarg.length >= 8) {
 												ars += oarg[7];
 										}
-										else if (garg[e].contains("%o%")) {
+										else if (garg[e].contains("%o%") && oarg.length >= 9) {
 												ars += oarg[8];
 										}
-										else if (garg[e].contains("%p%")) {
+										else if (garg[e].contains("%p%") && oarg.length >= 10) {
 												ars += oarg[9];
 										}
-										else if (garg[e].contains("%a%")) {
+										else if (garg[e].contains("%a%") && oarg.length >= 11) {
 												ars += oarg[10];
 										}
-										else if (garg[e].contains("%s%")) {
+										else if (garg[e].contains("%s%") && oarg.length >= 12) {
 												ars += oarg[11];
 										}
-										else if (garg[e].contains("%d%")) {
+										else if (garg[e].contains("%d%") && oarg.length >= 13) {
 												ars += oarg[12];
 										}
-										else if (garg[e].contains("%f%")) {
+										else if (garg[e].contains("%f%") && oarg.length >= 14) {
 												ars += oarg[13];
 										}
-										else if (garg[e].contains("%g%")) {
+										else if (garg[e].contains("%g%") && oarg.length >= 15) {
 												ars += oarg[14];
 										}
-										else if (garg[e].contains("%h%")) {
+										else if (garg[e].contains("%h%") && oarg.length >= 16) {
 												ars += oarg[15];
 										}
-										else if (garg[e].contains("%j%")) {
+										else if (garg[e].contains("%j%") && oarg.length >= 17) {
 												ars += oarg[16];
 										}
 										if (e < garg.length-1) {
@@ -1247,6 +1266,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							if (ev_cur.toString().compareTo("Create") != 0) {
 									line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";
 							}
+							
 							while (ev_actions.hasNext()) {
 									org.lateralgm.resources.sub.Action action = ev_actions.next();
 									Iterator<Argument> eab = action.getArguments().iterator();
@@ -1261,6 +1281,22 @@ public class ghpframe extends JFrame implements ActionListener {
 									}
 							}
 					}
+					line += "\t}\n}\n\n";
+					try {
+							for (int e=0;e<line.length();e++) {
+								byte buf = (byte) line.toCharArray()[e];
+								vars.write(buf);
+							}
+					}
+					catch (IOException e) {
+							System.out.println("Could not write object event.");
+					}
+					return true;
+			}
+			else if (evt == MainEvent.EV_DRAW) {
+					line += objname+".Draw = function()\n{\n	";
+					line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";
+					line += "drawSelf(" + objname + ".id[i]);";
 					line += "\t}\n}\n\n";
 					try {
 							for (int e=0;e<line.length();e++) {

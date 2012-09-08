@@ -87,6 +87,10 @@ function eventStep()
 	{
 		rayPoint(glin[i]["glin"], glin[i]["direction"], glin[i]["speed"]);
 	}
+	var n = glin[i]["sprite"].numb;
+	glin[i]["imgIndex"] = (glin[i]["imgIndex"] + glin[i]["imgSpeed"]) % n;
+	while(glin[i]["imgIndex"] < 0)
+		glin[i]["imgIndex"] += n;
   }
   objStep();
   

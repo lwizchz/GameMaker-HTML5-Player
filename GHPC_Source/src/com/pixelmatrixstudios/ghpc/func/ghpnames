@@ -161,9 +161,9 @@ dateIsToday(%q%)
 %obj%["gravity_direction"]
 motionSet(%q%,%w%)
 motionAdd(%q%,%w%)
-placeFree(%q%,%w%)
-placeEmpty(%q%,%w%)
-placeMeeting(%q%,%w%,%e%)
+placeFree(%q%,%w%,%obj%)
+placeEmpty(%q%,%w%,%obj%)
+placeMeeting(%obj%,%q%,%w%,%e%)
 placeSnapped(%q%,%w%)
 moveRandom(%q%,%w%)
 moveSnap(%q%,%w%)
@@ -228,7 +228,7 @@ collisionLine(%q%,%w%,%e%,%r%,%t%,%y%,%u%)
 %id%
 %solid%
 %persistent%
-mask_index
+%obj%["mask"]
 %instcnt%
 %glin%
 instanceFind(%q%, %w%)
@@ -607,7 +607,7 @@ backgroundAlpha[%q%]
 
 // section 5.3
 
-drawSelf()
+drawSelf(%obj%)
 getPlatform()
 drawSprite(%q%,%w%,%e%,%r%)
 drawSpritePos(%q%,%w%,%e%,%r%,%t%,%y%,%u%,%i%,%o%,%p%,%a%)

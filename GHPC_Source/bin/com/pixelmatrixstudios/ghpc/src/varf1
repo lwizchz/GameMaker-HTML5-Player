@@ -244,8 +244,13 @@ function imageBlend(img, col)
   
   return temp;
 }
+
+var RECTANGLE = 0;
+var ELLIPSE = 1;
+var DIAMOND = 2;
+var PRECISE = 3;
 //Resources
-function Sprite(fname, imgn, rmback, sm, xo, yo)
+function Sprite(fname, imgn, rmback, sm, xo, yo, l, r, t, b, s, a)
 {
 	var img = new Image();
 	img.src = fname;
@@ -257,6 +262,11 @@ function Sprite(fname, imgn, rmback, sm, xo, yo)
 	img.smooth = sm;
 	img.xorig = xo;
 	img.yorig = yo;
+	img.left = l;
+	img.right = r;
+	img.top = t;
+	img.bottom = b;
+	img.alpha = a; //This is to be used for precise collision checking.
 	img.onload = function() {
 		this.siwidth = this.width/this.numb;
 		resource[0][resource[0].length] = this;

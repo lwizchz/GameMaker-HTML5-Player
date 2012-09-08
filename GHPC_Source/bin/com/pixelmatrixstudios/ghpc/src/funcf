@@ -182,6 +182,11 @@ function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha
 	}
 	curcon.restore();
 }
+
+function drawSelf(o) {
+	drawSpriteExt(o["sprite"], o["imgIndex"], o["x"], o["y"], o["imgXscale"], o["imgYscale"], o["imgAngle"], o["imgBlend"], o["imgAlpha"]);
+}
+
 function drawCircle(x, y, r, outline)
 {
 	curcon.beginPath();
@@ -1767,71 +1772,44 @@ function moveTowardsPoint(obj, x, y, spd)
 	motionSet(obj, pointDirection(obj["x"], obj["y"], x, y), spd);
 }
 //Fix
-function placeFree(obj, x, y, main)
+function placeFree(x, y, obj)
 {
-  inst = glin[obj["glin"]];
-  if (inst !== null)
-  {
-    for (var i=0;i<glin.length;i++)
-    {
-  	  if (glin[i] !== inst)
-	  {
- 	    if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
-	    {
-		  if (main !== undefined)
-		  {
+	for (var i = 0; i < glin.length; i++) {
+		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0 || glin[i]["solid"] == false)
+			break;
+		if (checkCollision(obj, x, y, glin[i]))
 			return false;
-		  }
-		  else if (glin[i]["solid"] !== undefined)
-		  {
-			if (glin[i]["solid"] == true)
-			{
-				return false;
-			}
-		  }
-	    }
-	  }
-    }
-  }
-  else
-  {
-    for (var i=0;i<glin.length;i++)
-	{
-	  if ((glin[i]["x"] < x)&&(glin[i]["x"]+glin[i]["width"] >= x)&&(glin[i]["y"] < y)&&(glin[i]["y"]+glin[i]["height"] >= y))
-	  {
-		if (main !== undefined)
-		  {
+	}
+	
+	return true;
+}
+function placeEmpty(x, y, o) {
+	for (var i = 0; i < glin.length; i++) {
+		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0)
+			break;
+		if (checkCollision(obj, x, y, glin[i]))
 			return false;
-		  }
-		  else if (glin[i]["solid"] !== undefined)
-		  {
-			if (glin[i]["solid"] == true)
-			{
-				return false;
-			}
-		  }
-	  }
 	}
-  }
-  return true;
+	
+	return true;
 }
-function placeEmpty(obj, x, y)
-{
-	return placeFree(obj, x, y, false);
-}
-function placeMeeting(x, y, obj)
-{
-	for (var i=0;i<glin.length;i++)
-	{
-		if ((glin[i]["x"] == x)&&(glin[i]["y"] == y))
-		{
-			if ((glin[i]["x"] < obj["x"])&&(glin[i]["x"]+glin[i]["width"] >= obj["x"])&&(glin[i]["y"] < obj["y"])&&(glin[i]["y"]+glin[i]["height"] >= obj["y"]))
-			{
-				return true;
-			}
-		}
-	}
+function placeMeeting(o, x, y, obj) {
+	for (var i = 0; i < obj.id.length; i++)
+		if (checkCollision(o, x, y, obj.id[i]))
+			return true;
 	return false;
+}
+function positionMeeting(x, y, obj) {
+	for (var i = 0; i < obj.id.length; i++)
+		if (checkPoint(x, y, obj.id[i]))
+			return true;
+	return false;
+}
+function positionEmpty(x, y) {
+	for (var i = 0; i < glin.length; i++)
+		if (checkPoint(x, y, glin[i]))
+			return false;
+	return true;
 }
 
 ////////////////
@@ -1893,86 +1871,170 @@ function roomRestart()
 //It calculates the distance from the center to the edge of each shape in the respective direction, adds those, and checks if
 //that distance is less than the distance from the center of one shape to the center of the next.
 
-//Rectangle
-function lengthRectangle(w, h, dir)
-{
-	if (dir >= 180)
-		dir -= 180;
+function lengthRectangle(w, h, dir) {
+	dir *= Math.PI / 180;
+	
+	if (dir >= Math.PI)
+		dir -= Math.PI;
 
-	if (!(dir > Math.atan(h / w)) * 180 / Math.PI || dir > (180 - Math.atan(h / w)) * 180 / Math.PI)
-		return Math.abs(w / 2 / Math.cos(dir * Math.PI / 180));
-	else
-		return Math.abs(h / 2 / Math.cos((90 - dir) * Math.PI / 180));
+	if (dir >= Math.PI / 2)
+		dir = Math.PI - dir;
+
+	if (!(dir > Math.atan(h / w)) || dir > (Math.PI - Math.atan(h / w))) {
+		this.l = Math.sqrt(Math.pow(w / 2 * Math.tan(dir), 2) + Math.pow(w / 2, 2));
+	}
+	else {
+		this.l = Math.sqrt(Math.pow(h / 2 / Math.tan(dir), 2) + Math.pow(h / 2, 2));
+	}
+	
+	if (l > Math.sqrt(Math.pow(w / 2, 2) + Math.pow(h / 2, 2)))
+		l = w / 2;
+	
+	return l;
 }
 
-//Ellipse
-function lengthEllipse(w, h, dir)
-{
-	dir = dir * Math.PI / 180;
+function lengthEllipse(w, h, dir) {
+	dir *= Math.PI / 180;
+	
 	return (w * h) / (Math.sqrt(Math.pow(h * Math.cos(dir), 2) + Math.pow(w * Math.sin(dir), 2))) / 2;
 }
 
-//Diamond
-function lengthDiamond(w, h, dir)
-{
-	if (dir > 180)
-		dir -= 180;
+function lengthDiamond(w, h, dir) {
+	dir *= Math.PI / 180;
+	
+	if (dir > Math.PI)
+		dir -= Math.PI;
 
-	if (dir > 90)
-		dir = 90 - (dir - 90);
+	if (dir > Math.PI / 2)
+		dir = Math.PI - dir;
 
-	this.sl1 = Math.tan(dir * pi / 180);
+	this.sl1 = Math.tan(dir);
 	this.sl2 = -(h / 2) / (w / 2);
 
-	this.xx = (h / 2) / (sl1 - s2l);
+	this.xx = (h / 2) / (sl1 - sl2);
 	this.yy = xx * sl1;
 
 	return Math.sqrt(Math.pow(xx, 2) + Math.pow(yy, 2));
 }
 
 //This function checks of collisions.
-//The character codes for different shapes are:
-//r - rectangle
-//e - ellipse
-//d - diamond
-//p - precise (not yet supported)
-function checkCollision(sh1, centX1, centY1, w1, h1, rot1, sh2, centX2, centY2, w2, h2, rot2)
-{
-  //Calculate the direction the line from the center should be based on direction from one mask to the other and rotation.
-  this.dir1 = (centY2 - centY1) / (centX2 - centX1) * 180 / Math.PI + rot1;
-  this.dir2 = (centY1 - centY2) / (centX1 - centX2) * 180 / Math.PI + rot2;
-  
-  //Fix the directions so that they are usable.
-  while (dir1 >= 360)
-    dir1 -= 360;
-  while (dir1 < 0)
-    dir1 += 360;
-
-  while (dir2 >= 360)
-    dir2 -= 360;
-  while (dir2 < 0)
-    dir2 += 360;
-  
-  //Find the distance from center to edge for each mask.
-  if (sh1 == "r")
-    this.l1 = lengthRectangle(w1, h1, dir1);
-  if (sh1 == "e")
-    this.l1 = lengthEllipse(w1, h1, dir1);
-  if (sh1 == "d")
-    this.l1 = lengthDiamond(w1, h1, dir1);
-  
-  if (sh2 == "r")
-    this.l2 = lengthRectangle(w2, h2, dir2);
-  if (sh2 == "e")
-    this.l2 = lengthEllipse(w2, h2, dir2);
-  if (sh2 == "d")
-    this.l2 = lengthDiamond(w2, h2, dir2);
+function checkCollision(start, xx, yy, o) {
+	if (o == start)
+		return false;
 	
-  //Check if the masks are close enough to collide.
-  if (Math.sqrt(Math.pow(centX1 - centX2, 2) + Math.pow(centY1 - centY2, 2)) < l1 + l2)
-    return true;
-  else
-    return false;
+	if (start["imgXscale"] == 0 || start["imgYscale"] == 0)
+		return false;
+	
+	if (o["imgXscale"] == 0 || o["imgYscale"] == 0)
+		return false;
+	
+	var xs = start["imgXscale"];
+	var xo = start["mask"].xorig;
+	if (xs < 0) {
+		xs = -xs;
+		xo = start["mask"].siwidth - xo;
+	}
+	var ys = start["imgYscale"];
+	var yo = start["mask"].yorig;
+	if (ys < 0) {
+		ys = -ys;
+		yo = (start["mask"].bottom - start["mask"].top + 1) - yo;
+	}
+	var centX = xx - ((xo * xs - (start["mask"].right - start["mask"].left + 1) * xs / 2) * Math.cos(start["imgAngle"] * Math.PI / 180) - (yo * ys - (start["mask"].bottom - start["mask"].top + 1) * ys / 2) * Math.sin(start["imgAngle"] * Math.PI / 180));
+	var centY = yy - ((xo * xs - (start["mask"].right - start["mask"].left + 1) * xs / 2) * Math.sin(start["imgAngle"] * Math.PI / 180) + (yo * ys - (start["mask"].bottom - start["mask"].top + 1) * ys / 2) * Math.cos(start["imgAngle"] * Math.PI / 180));
+	
+	var mask2 = o["mask"];
+	
+	xs = o["imgXscale"];
+	xo = mask2.xorig;
+	if (xs < 0) {
+		xs = -xs;
+		xo = mask2.siwidth - xo;
+	}
+	ys = o["imgYscale"];
+	yo = mask2.yorig;
+	if (ys < 0) {
+		ys = -ys;
+		yo = (mask2.bottom - mask2.top + 1) - yo;
+	}
+	var centX2 = o["x"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180) - (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180));
+	var centY2 = o["y"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180) + (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180));
+	var dir = Math.atan2(centY - centY2, centX2 - centX);
+	var dir2 = ((((dir - Math.PI) % Math.PI * 2) + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+	
+	var dist = Math.sqrt(Math.pow(centX - centX2, 2) + Math.pow(centY - centY2, 2));
+	
+	var l = 0;
+	switch(start["mask"].shape) {
+		case RECTANGLE:
+			l = lengthRectangle(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+			break;
+			
+		case ELLIPSE:
+			l = lengthEllipse(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+			break;
+			
+		case DIAMOND:
+			l = lengthDiamond(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+	}
+	
+	var l2 = 0;
+	switch(mask2.shape) {
+		case RECTANGLE:
+			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			break;
+			
+		case ELLIPSE:
+			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			break;
+			
+		case DIAMOND:
+			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+	}
+	
+	return (l2 + l > dist)
+}
+
+function checkPoint(xx, yy, o) {
+	if (o["imgXscale"] == 0 || o["imgYscale"] == 0)
+		return false;
+	
+	var mask2 = o["mask"];
+	
+	xs = o["imgXscale"];
+	xo = mask2.xorig;
+	if (xs < 0) {
+		xs = -xs;
+		xo = mask2.siwidth - xo;
+	}
+	ys = o["imgYscale"];
+	yo = mask2.yorig;
+	if (ys < 0) {
+		ys = -ys;
+		yo = (mask2.bottom - mask2.top + 1) - yo;
+	}
+	var centX2 = o["x"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180) - (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180));
+	var centY2 = o["y"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180) + (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180));
+	var dir = Math.atan2(yy - centY2, centX2 - xx);
+	var dir2 = ((((dir - Math.PI) % Math.PI * 2) + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+	
+	var dist = Math.sqrt(Math.pow(xx - centX2, 2) + Math.pow(yy - centY2, 2));
+	
+	var l2 = 0;
+	switch(mask2.shape) {
+		case RECTANGLE:
+			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			break;
+			
+		case ELLIPSE:
+			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			break;
+			
+		case DIAMOND:
+			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+	}
+	
+	return (l2 > dist)
 }
 
 /////////////////
