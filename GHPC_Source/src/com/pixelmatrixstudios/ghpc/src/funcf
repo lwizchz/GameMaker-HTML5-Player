@@ -2045,7 +2045,18 @@ function checkPoint(xx, yy, o) {
 
 function sortDepth(a, b)
 {
-	return b.depth - a.depth;
+	var d1, d2;
+	if (a instanceof ParticleSystem)
+		d1 = a.depth;
+	else
+		d1 = a["depth"];
+	
+	if (b instanceof ParticleSystem)
+		d2 = b.depth;
+	else
+		d2 = b["depth"];
+	
+	return d2 - d1;
 }
 
 function sortNum(a, b)

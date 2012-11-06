@@ -55,21 +55,31 @@ function eventCreate()
 }
 function eventDraw()
 {
-  clearDraw();
-  requestAnimFrame();
-  objDraw();
-  
-  //Draw particle systems.
-  if (systems.length > 0)
-  {
-	systems.sort(sortDepth);
-	for (var g = 0; g < systems.length; g++)
-		if (systems[g].autoDraw)
-			partSystemDrawit(systems[g]);
-  }
-  drawForegrounds();
-  drawLinks();
-  drawCursor();
+	clearDraw();
+	requestAnimFrame();
+	//objDraw();
+	var drawList = glin.concat(systems);
+	drawList.sort(sortDepth);
+	for (var g = 0; g < drawList.length; g++) {
+		if (drawList[g] instanceof ParticleSystem) {
+			if (drawList[g].autoDraw)
+				partSystemDrawit(drawList[g]);
+		} else {
+			if (drawList[g]["visible"])
+				drawList[g]["objectIndex"].Draw(drawList[g]["objectIndex"].id.indexOf(drawList[g]));
+		}
+	}
+	
+	//Draw particle systems.
+	/*if (systems.length > 0) {
+		systems.sort(sortDepth);
+		for (var g = 0; g < systems.length; g++)
+			if (systems[g].autoDraw)
+				partSystemDrawit(systems[g]);
+	}*/
+	drawForegrounds();
+	drawLinks();
+	drawCursor();
 }
 function eventStepBegin()
 {

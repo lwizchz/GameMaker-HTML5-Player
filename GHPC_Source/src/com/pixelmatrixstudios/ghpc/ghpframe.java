@@ -646,7 +646,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							i++;
 							String objname = curobj.getName();
-							line = "//"+objname+"\n"+objname+" = function()\n{\n	//Do nothing\n}\n"+objname+".id = new Array();\n"+objname+".Create = function(i, x, y)\n{\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n";
+							line = "//"+objname+"\n"+objname+" = function()\n{\n	//Do nothing\n}\n"+objname+".id = new Array();\n"+objname+".Create = function(i, x, y)\n{\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n\t"+objname+".id[i][\"depth\"] = "+curobj.get(GmObject.PGmObject.DEPTH)+";\n\t"+objname+".id[i][\"visible\"] = "+curobj.get(GmObject.PGmObject.VISIBLE)+";\n\t"+objname+".id[i][\"objectIndex\"] = "+objname+";\n";
 							if (curobj.get(GmObject.PGmObject.SPRITE) != null)	{
 									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	"+"	"+objname+".id[i][\"width\"] = ";
 									ResourceReference<Sprite> r = curobj.get(GmObject.PGmObject.SPRITE);
@@ -657,6 +657,7 @@ public class ghpframe extends JFrame implements ActionListener {
 										line += "	"+objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	";
 									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n\t";
 									line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n";
+									line += objname+".id[i][\"imgAngle\"] = 0;\n";
 							}
 							if (curobj.mainEvents.get(MainEvent.EV_CREATE).events.size() > 0) {
 									Iterator<org.lateralgm.resources.sub.Event> ev_create = curobj.mainEvents.get(MainEvent.EV_CREATE).events.iterator();
@@ -1260,10 +1261,13 @@ public class ghpframe extends JFrame implements ActionListener {
 							else if (ev_cur.toString().compareTo("Normal Step") == 0) {
 									line += objname+".Step = function()\n{\n	";
 							}
+							else if (ev_cur.toString().compareTo("Draw") == 0) {
+									line += objname+".Draw = function(i)\n{\n	";
+							}
 							else	{
 									line += objname+"."+ev_cur.toString()+" = function()\n{\n	";
 							}
-							if (ev_cur.toString().compareTo("Create") != 0) {
+							if (ev_cur.toString().compareTo("Create") != 0 && ev_cur.toString().compareTo("Draw") != 0) {
 									line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";
 							}
 							
@@ -1280,8 +1284,10 @@ public class ghpframe extends JFrame implements ActionListener {
 											}
 									}
 							}
+							if (ev_cur.toString().compareTo("Draw") != 0)
+								line += "\t}";
+						line += "\n}\n\n";
 					}
-					line += "\t}\n}\n\n";
 					try {
 							for (int e=0;e<line.length();e++) {
 								byte buf = (byte) line.toCharArray()[e];
@@ -1294,10 +1300,9 @@ public class ghpframe extends JFrame implements ActionListener {
 					return true;
 			}
 			else if (evt == MainEvent.EV_DRAW) {
-					line += objname+".Draw = function()\n{\n	";
-					line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";
-					line += "drawSelf(" + objname + ".id[i]);";
-					line += "\t}\n}\n\n";
+					line += objname+".Draw = function(i)\n{\n	";
+					line += "drawSelf("+objname+".id[i]);";
+					line += "\n}\n\n";
 					try {
 							for (int e=0;e<line.length();e++) {
 								byte buf = (byte) line.toCharArray()[e];
