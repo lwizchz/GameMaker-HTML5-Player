@@ -19,6 +19,7 @@ function gameStart()
   eventGameStart();
   eventRoomCrCode();
   eventRoomStart(room);
+  mainStep();
   eventDraw();
 }
 function mainStep()
@@ -50,5 +51,4 @@ function mainStep()
 	fnd = fnd.getSeconds();
 	setTimeout(mainStep, 1000/fps);
 }
-mainStep();
-eventDraw();
+window.onload = gameStart;

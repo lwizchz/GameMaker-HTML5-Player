@@ -139,6 +139,33 @@ blankImage = new Image();
 blankImage.src = "invis.png";
 
 //Required functions
+function surfaceCreate(w, h)
+{
+  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
+  this.temps = document.createElement("canvas");
+  temps.setAttribute("width", w);
+  temps.setAttribute("height", h);
+  temps.setAttribute("style", "visibility: hidden;");
+  return temps;
+}
+function Font()
+{
+  this.font = null;
+  this.name = null;
+  this.size = null;
+  this.style = null;
+}
+function SpriteFont()
+{
+  this.sprite = null;
+  this.start = null;
+  this.sep = null;
+  this.prop = null;
+  
+  //These two variables are used for proportional sprite fonts.
+  this.propx = null;
+  this.propwidth = null;
+}
 function fontAdd(name, size, bold, italic)
 {
   this.temp = new Font();
@@ -161,15 +188,6 @@ function fontAdd(name, size, bold, italic)
   temp.name = name;
   temp.size = size;
   return temp;
-}
-function surfaceCreate(w, h)
-{
-  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
-  this.temps = document.createElement("canvas");
-  temps.setAttribute("width", w);
-  temps.setAttribute("height", h);
-  temps.setAttribute("style", "visibility: hidden;");
-  return temps;
 }
 function fontAddSprite(sprite, first, prop, sep)
 {
@@ -215,24 +233,6 @@ function fontAddSprite(sprite, first, prop, sep)
 	}
   }
   return temp;
-}
-function Font()
-{
-  this.font = null;
-  this.name = null;
-  this.size = null;
-  this.style = null;
-}
-function SpriteFont()
-{
-  this.sprite = null;
-  this.start = null;
-  this.sep = null;
-  this.prop = null;
-  
-  //These two variables are used for proportional sprite fonts.
-  this.propx = null;
-  this.propwidth = null;
 }
 
 //Stuff to make color blending possible
@@ -609,6 +609,7 @@ sprPlayer = new Sprite("sprites/sprPlayer.png", 8, true, false, 0, 0);
 sprPlayer.colors = new Array();
 sprFloor = new Sprite("sprites/sprFloor.png", 1, false, false, 0, 0);
 sprBitFont = new Sprite("sprites/sprBitFont.png", 144, true, false, 0, 0);
+sprBitFont.colors = new Array();
 
 //Sounds
 sndClick = new Sound("sounds/sndClick.wav", 0, true);
