@@ -159,7 +159,7 @@ function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha
 	if (sprite.yorig != undefined)
 	    yy = sprite.yorig;
 	image = sprite;
-	if (sprite.colors != undefined && stringUpper(color) != cWhite)
+	if ((isDefined(color))&&(sprite.colors != undefined)&&(stringUpper(color) != cWhite))
 	{
 		if (sprite.colors.indexOf(stringUpper(color)) == -1)
 		{
