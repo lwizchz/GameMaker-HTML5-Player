@@ -64,7 +64,7 @@ function drawText(text, x, y)
 {
   if (text.indexOf("~#") != -1)
   {
-    var text1 = text.substr(0, text.indexOf("~#"));
+	var text1 = text.substr(0, text.indexOf("~#"));
 	var text2 = text.substr(text.indexOf("~#")+2, text.length);
 	drawText(text1, x, y);
 	drawText(text2, x, y+stringHeight(text1)+2);
@@ -80,7 +80,7 @@ function drawText(text, x, y)
   }
   else
   {
-    if ((instanceOf(globalFont) == "Font") || (globalFont === null))
+	if ((instanceOf(globalFont) == "Font")||(globalFont == null))
 	{
 		curcon.font = globalFont.font;
 		curcon.fillText(text, x, y);
@@ -159,7 +159,7 @@ function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha
 	if (sprite.yorig != undefined)
 	    yy = sprite.yorig;
 	image = sprite;
-	if (sprite.colors != undefined && color.toUpperCase() != cWhite)
+	if ((isDefined(color))&&(sprite.colors != undefined)&&(stringUpper(color) != cWhite))
 	{
 		if (sprite.colors.indexOf(stringUpper(color)) == -1)
 		{
@@ -312,7 +312,7 @@ function makeColorHSV(h, s, v)
 ////////////////
 //Font functions
 ////////////////
-function fontAdd(name, size, bold, italic)
+/*function fontAdd(name, size, bold, italic)
 {
   this.temp = new Font();
   temp.font = name;
@@ -364,7 +364,7 @@ function fontAddSprite(sprite, first, prop, sep)
 	}
   }
   return temp;
-}
+}*/
 function fontExists(ind)
 {
   if (instanceOf(ind) == "Font" || instanceOf(ind) == "SpriteFont")
@@ -751,11 +751,19 @@ function stringHeight(str)
 }
 function stringLower(str)
 {
-  return str.toLowerCase();
+	if (str == undefined)
+	{
+		return undefined;
+	}
+	return str.toLowerCase();
 }
 function stringUpper(str)
 {
-  return str.toUpperCase();
+	if (str == undefined)
+	{
+		return undefined;
+	}
+	return str.toUpperCase();
 }
 function stringCharAt(str, ind)
 {
@@ -1087,6 +1095,17 @@ function variableLocalArray2Set(a, i1, i2, val)
 function setApplicationTitle(t)
 {
   document.title = t;
+}
+if ((Function.prototype.name === undefined)&&(Object.defineProperty !== undefined)) //Fix instanceOf() for IE9
+{
+    Object.defineProperty(Function.prototype, 'name', {
+        get: function() {
+            var funcNameRegex = /function\s([^(]{1,})\(/;
+            var results = (funcNameRegex).exec((this).toString());
+            return (results && results.length > 1) ? results[1].trim() : "";
+        },
+        set: function(value) {}
+    });
 }
 function instanceOf(o) //Fixes instanceof cross-frame breakage
 {
