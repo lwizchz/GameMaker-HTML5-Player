@@ -15,6 +15,7 @@ links = new Array();
 foreground = new Array();
 keys = new Array();
 pkey = new Array();
+rkey = new Array();
 cursor = new Image();
 
 sounds = new Array();
@@ -103,6 +104,14 @@ vkDivide = 111;
 vkAdd = 107;
 vkSubtract = 109;
 vkDecimal = 110;
+
+//Alignment
+faLeft = "left";
+faCenter = "center";
+faRight = "right";
+faTop = "top";
+faMiddle = "middle";
+faBottom = "bottom";
 
 //Invisible image (used for surfaceExists)
 blankImage = new Image();
@@ -193,6 +202,7 @@ function Font()
   this.size = null;
   this.style = null;
 }
+
 function SpriteFont()
 {
   this.sprite = null;

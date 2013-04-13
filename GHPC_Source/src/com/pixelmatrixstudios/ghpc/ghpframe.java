@@ -54,16 +54,21 @@ public class ghpframe extends JFrame implements ActionListener {
 	JProgressBar pb;
 	Rectangle wr, pr;
 	FileChooser lfc;
-	JComboBox el;
+	JComboBox<String> el;
 	JCheckBox zc, dc;
 	Container con;
 	String lf;
+	String[] gml, gcl, gmc, gcc;
 	//GML Helper scripts
 	String gmhescr = "initGHP"+"addLink"+"drawText"+"drawGradientRect"+"drawGradientCircle"+"drawSetBackground";
 	ghpframe()	{
 		super("GHP Converter");
 		wr = new Rectangle(100, 100, 315, 152);
 		setBounds(wr);
+		
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation((int) (dim.getWidth() - getWidth()) / 2, (int) (dim.getHeight() - getHeight()) / 2);
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		con = this.getContentPane();
 		pane.setLayout(null);
@@ -106,7 +111,7 @@ public class ghpframe extends JFrame implements ActionListener {
 		cb.setBounds(200, 75, 100, 40);
 		pane.add(cb);
 		String[] export = {"HTML5"};
-		el = new JComboBox(export);
+		el = new JComboBox<String>(export);
 		if (prop.getProperty("default_export") == null) {
 				el.setSelectedIndex(0);
 		}
@@ -143,14 +148,52 @@ public class ghpframe extends JFrame implements ActionListener {
 				}
 		});
 		setVisible(true);
+		
+		DataInputStream gmlf = new DataInputStream(ghpc.class.getResourceAsStream("func/gmnames"));
+		DataInputStream gclf = new DataInputStream(ghpc.class.getResourceAsStream("func/ghpnames"));
+		DataInputStream gmcf = new DataInputStream(ghpc.class.getResourceAsStream("func/gmcon"));
+		DataInputStream gccf = new DataInputStream(ghpc.class.getResourceAsStream("func/ghpcon"));
+		String gmls = "";
+		String gcls = "";
+		String gmcs = "";
+		String gccs = "";
+		byte[] buf = new byte[2048];
+		try {
+				while (gmlf.read(buf) != -1) {
+						gmls += new String(buf);
+				}
+				gmlf.close();
+				buf = new byte[2048];
+				while (gclf.read(buf) != -1) {
+						gcls += new String(buf);
+				}
+				gclf.close();
+				buf = new byte[2048];
+				while (gmcf.read(buf) != -1) {
+						gmcs += new String(buf);
+				}
+				gmcf.close();
+				buf = new byte[2048];
+				while (gccf.read(buf) != -1) {
+						gccs += new String(buf);
+				}
+				gccf.close();
+		} catch (IOException e) {
+				System.out.println("Can't read fnames.");
+		}
+		gml = gmls.split("\n");
+		gcl = gcls.split("\n");
+		gmc = gmcs.split("\n");
+		gcc = gccs.split("\n");
 	}
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == ob) { 
-				if (getBounds().height == wr.height) {
-						setBounds(wr.x, wr.y, wr.width, wr.height+100);
+		if (e.getSource() == ob) {
+				Rectangle bounds = getBounds();
+				if (bounds.height == wr.height) {
+						setBounds(bounds.x, bounds.y, wr.width, wr.height+100);
 				}
 				else {
-						setBounds(wr);
+						setBounds(bounds.x, bounds.y, wr.width, wr.height);
 				}
 		}
 		else if (e.getSource() == bb) {
@@ -249,6 +292,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) lif.read();
 							li.write(buf);
 					}
+					li.close();
 					lif.close();
 					//README
 					File resf = new File(tmpdir+"/README");
@@ -259,6 +303,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) ref.read();
 							re.write(buf);
 					}
+					re.close();
 					lif.close();
 					//main.html
 					File mainsf = new File(tmpdir+"/main.html");
@@ -400,6 +445,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) eventf.read();
 							event.write(buf);
 					}
+					event.close();
 					eventf.close();
 					File funcsf = new File(tmpdir+"/func.js");
 					funcsf.createNewFile();
@@ -409,6 +455,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) funcf.read();
 							func.write(buf);
 					}
+					func.close();
 					funcf.close();
 					File mainjsf = new File(tmpdir+"/main.js");
 					mainjsf.createNewFile();
@@ -418,6 +465,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							buf = (byte) mainjf.read();
 							mainjs.write(buf);
 					}
+					mainjs.close();
 					mainjf.close();
 					if (dc.isSelected()) {
 							File debugsf = new File(tmpdir+"/debug.js");
@@ -667,7 +715,20 @@ public class ghpframe extends JFrame implements ActionListener {
 											while (ev_actions.hasNext()) {
 													org.lateralgm.resources.sub.Action action = ev_actions.next();
 													Iterator<Argument> eab = action.getArguments().iterator();
-													while (eab.hasNext()) {
+													switch (action.getLibAction().name) {
+															case "Execute Code":
+																	while (eab.hasNext()) {
+																			Argument arg = eab.next();
+																			if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
+																					line += gmltoghp(arg.getVal(), objname, "	")+"\n";
+																			}
+																			else {
+																					line += "	//Sorry no DnD support yet\n";
+																			}
+																	}
+																	break;
+													}
+													/*while (eab.hasNext()) {
 															Argument arg = eab.next();
 															if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
 																	line += gmltoghp(arg.getVal(), objname, "	")+"\n";
@@ -675,7 +736,7 @@ public class ghpframe extends JFrame implements ActionListener {
 															else {
 																	line += "	//Sorry no DnD support yet\n";
 															}
-													}
+													}*/
 											}
 									}
 							}
@@ -967,52 +1028,60 @@ public class ghpframe extends JFrame implements ActionListener {
 					System.out.println("Couldn't open zip "+dir+".zip.");
 			}
 	}
+	
 	String[] vr = new String[512];
 	int vn = 0;
+	
 	public String gmltoghp(String code, String obj, String indent) {
+	
 			String[] cl = code.split("\n");
 			for (int i=0;i<cl.length;i++) {
 					cl[i] = cl[i].trim();
 			}
 			String cc = "";
-			DataInputStream gmlf = new DataInputStream(ghpc.class.getResourceAsStream("func/gmnames"));
-			DataInputStream gclf = new DataInputStream(ghpc.class.getResourceAsStream("func/ghpnames"));
-			DataInputStream gmcf = new DataInputStream(ghpc.class.getResourceAsStream("func/gmcon"));
-			DataInputStream gccf = new DataInputStream(ghpc.class.getResourceAsStream("func/ghpcon"));
-			String gmls = "";
-			String gcls = "";
-			String gmcs = "";
-			String gccs = "";
-			byte[] buf = new byte[2048];
-			try {
-					while (gmlf.read(buf) != -1) {
-							gmls += new String(buf);
-					}
-					gmlf.close();
-					buf = new byte[2048];
-					while (gclf.read(buf) != -1) {
-							gcls += new String(buf);
-					}
-					gclf.close();
-					buf = new byte[2048];
-					while (gmcf.read(buf) != -1) {
-							gmcs += new String(buf);
-					}
-					gmcf.close();
-					buf = new byte[2048];
-					while (gccf.read(buf) != -1) {
-							gccs += new String(buf);
-					}
-					gccf.close();
-			} catch (IOException e) {
-					System.out.println("Can't read fnames.");
-			}
-			String[] gml = gmls.split("\n");
-			String[] gcl = gcls.split("\n");
-			String[] gmc = gmcs.split("\n");
-			String[] gcc = gccs.split("\n");
 			for (int i=0;i<cl.length;i++) {
+			
+					//Replace key words.
+					String word = "";
+					String clCur = "";
+					String quoteType = "";
+					for (int w = 0; w < cl[i].length(); w++) {
+							char cChar = cl[i].charAt(w);
+							if (cChar == ' ' || w == cl[i].length() - 1) {
+									if (cChar != ' ')
+											word += cChar;
+									if (quoteType == "")
+											switch (word) {
+													case "and": word = "&&";
+															break;
+													
+													case "or": word = "||";
+															break;
+															
+													case "not": word = "!";
+															break;
+															
+													case "globalvar": word = "var";
+															break;
+											}
+									clCur += word + " ";
+									word = "";
+									continue;
+							
+							} else if (cChar == '"' || cChar == '\'') {
+									if (quoteType == "")
+											quoteType = "" + cChar;
+									else if (quoteType == "" + cChar)
+											quoteType = "";
+							}
+							
+							word += cChar;
+					}
+					cl[i] = clCur;
+			
 					char[] nc = cl[i].toCharArray();
+					
+					//I don't know what this does, so I can't document it.
 					String ars = new String();
 					if ((cl[i].indexOf('=') > -1)&&(cl[i].indexOf("if (") == -1)&&(obj != "this")) {
 							boolean iv = false;
@@ -1032,6 +1101,54 @@ public class ghpframe extends JFrame implements ActionListener {
 									}
 							}
 					}
+					
+					//Handle things like if statements and loops.
+					String[] sts = {"for", "if", "repeat", "while", "with"};
+					String type = cl[i].trim().split("[\\s(]")[0];
+					if (Arrays.binarySearch(sts, type) > -1) {
+							//The part in parentheses and the part after that.
+							String inp = "", end = "";
+							
+							//The first meaningful character after the statement word.
+							char firstChar = cl[i].substring(cl[i].indexOf(type) + type.length()).trim().charAt(0);
+							
+							//Not already in parentheses.
+							if (firstChar != '(')
+									inp = cl[i].substring(cl[i].indexOf(type) + type.length());
+							else {
+									//Find the part in parenthesis.
+									int in = cl[i].indexOf('(');
+									int pnum = 1;
+									while (pnum > 0 && ++in < cl[i].length()) {
+											char ch = cl[i].charAt(in);
+											if (ch == '(')
+												pnum++;
+											else if (ch == ')')
+												pnum--;
+											if (pnum > 0)
+												inp += ch;
+									}
+									
+									if (in < cl[i].length())
+										end = cl[i].substring(in + 1);
+							}
+							
+							//Convert to JavaScript.
+							inp = gmltoghp(inp, obj, "").trim();
+							if (!type.equals("for"))
+								inp = inp.replace(";","");
+							end = gmltoghp(end, obj, "").trim();
+							
+							if (type.equals("repeat"))
+								cl[i] = "for (var __repvar = 0; __repvar < (" + inp + "); __repvar++) " + end;
+							else
+								cl[i] = type + " (" + inp + ") " + end;
+							
+							cc += cl[i];
+							continue;
+					}
+					
+					//Convert simple statements without parentheses
 					int pap = cl[i].indexOf("(");
 					if (pap == -1) {
 							String[] cla = cl[i].split(" ");
@@ -1041,14 +1158,8 @@ public class ghpframe extends JFrame implements ActionListener {
 											continue;
 									}
 									for (int o=0;o<gmc.length;o++) {
-											if (cla[e].trim().replace(",", "").replace(";", "").equals(gmc[o].trim())) {
+											if (cla[e].trim().replace(",", "").replace(";", "").equals(gmc[o].trim()))
 													cla[e] = cla[e].replace(gmc[o].trim(), gcc[o].trim().replace("%obj%", obj + ".id[i]"));
-													
-													//Needs fixing
-													//if (e < cla.length-1) {
-													//		cla[e] += ",";
-													//}
-											}
 									}
 									if (e > 0) {
 											cl[i] += " ";
@@ -1058,9 +1169,12 @@ public class ghpframe extends JFrame implements ActionListener {
 							cc += cl[i];
 							continue;
 					}
-					if ((cl[i].indexOf(" ") > -1)&&(cl[i].indexOf(" ") < pap)) {
+					
+					//I don't know what this is either.
+					if (cl[i].indexOf(" ") > -1 && cl[i].indexOf(" ") < pap) {
 							int est = 0, fn = 0;
 							boolean ifu = false;
+							int unum = 0;
 							String[] fl = new String[cl[i].split(" ").length];
 							for (int e=0;e<cl[i].length();e++) {
 									if ((cl[i].charAt(e) == ' ')&&(!ifu)) {
@@ -1074,8 +1188,9 @@ public class ghpframe extends JFrame implements ActionListener {
 									}
 									else if (cl[i].charAt(e) == '(') {
 											ifu = true;
+											unum++;
 									}
-									else if (cl[i].charAt(e) == ')') {
+									else if (cl[i].charAt(e) == ')' && --unum <= 0) {
 											ifu = false;
 									}
 							}
@@ -1096,12 +1211,18 @@ public class ghpframe extends JFrame implements ActionListener {
 							cc += cl[i].trim();
 							continue;
 					}
+					
+					//Ignore stuff added for GM compatibility with strictly GHP functions.
 					if (new String(nc).contains("initGHP")) {
 							continue;
 					}
+					
+					//Rename GML names to GHP names.
 					int gc = -1;
 					for (int e=0;e<gml.length;e++) {
-							String gmlc = gml[e].toString();
+							String gmlc = gml[e];
+							
+							//If it is a function, rename only the function part.
 							int gmlp = gmlc.indexOf("(");
 							gmlc = gmlc.substring(0, (gmlp == -1) ? gmlc.length() : gmlp);
 							if (new String(nc).substring(0, pap).equals(gmlc)) {
@@ -1109,29 +1230,58 @@ public class ghpframe extends JFrame implements ActionListener {
 									break;
 							}
 					}
+					
+					//Stuff with functions
 					if (gc > -1) {
+							//The string containing all of the arguments
 							String ac = gcl[gc].substring(gcl[gc].indexOf("(")+1);
+							
+							//Exit if there is no closing parenthesis
 							if (ac.indexOf(")") == -1) {break;}
+							
 							ac = ac.substring(0, ac.indexOf(")"));
+							
+							//The array of arguments for the function as required for GHP
 							String[] garg = gcl[gc].split(",");
+							
+							//Replace the arguments.
 							if (garg.length > 0) {
+							
+								//The array of arguments as provided by GM
 								String[] oarg = new String[17];
+								
+								//Put the arguments in the array.
 								if (new String(nc).indexOf("(") > -1) {
 										String as = new String(nc).substring(new String(nc).indexOf("(")+1, new String(nc).lastIndexOf(")"));
 										if (as.indexOf(")") > -1) {
-												int ai = 0, ast = 0;
-												boolean ip = false;
-												for (int e=0;e<as.length();e++) {
-														if ((as.charAt(e) == ',')&&(!ip)) {
-																oarg[ai++] = as.substring(ast, e);
-																ast = e+1;
+												int curArg = 0;
+												int pNum = 0;
+												String arg = "";
+												String strType = "";
+												for (int ind = 0; ind < as.length(); ind++) {
+														char ch = as.charAt(ind);
+														
+														if (!strType.equals("")) {
+															if (ch == strType.charAt(0))
+																strType = "";
+														} else {
+															if (ch == '"')
+																strType = "\"";
+															else if (ch == '\'')
+																strType = "'";
+															else if (ch == '(')
+																pNum++;
+															else if (ch == ')')
+																pNum--;
+															if (ch == ',' && pNum == 0 || ind == as.length() - 1) {
+																if (ch != ',')
+																	arg += ch;
+																oarg[curArg++] = arg;
+																arg = "";
+																continue;
+															}
 														}
-														else if (as.charAt(e) == '(') {
-																ip = true;
-														}
-														else if (as.charAt(e) == ')') {
-																ip = false;
-														}
+														arg += ch;
 												}
 										}
 										else {
@@ -1141,18 +1291,23 @@ public class ghpframe extends JFrame implements ActionListener {
 								else {
 										oarg = new String(nc).split(",");
 								}
+								
+								//Fix disordered arguments.
 								for (int e=0;e<oarg.length;e++) {
 										if ((e+1 < oarg.length)&&(oarg[e] == null)) {
 												oarg[e] = oarg[e+1];
 										}
 								}
+								
+								//Convert the arguments to GHP code.
 								for (int e=0;e<oarg.length;e++) {
-										if (oarg[e] == null) {
+										if (oarg[e] == null)
 												break;
-										}
 										oarg[e] = oarg[e].trim();
 										oarg[e] = gmltoghp(oarg[e], obj, "");
 								}
+								
+								//Put the arguments together in the function.
 								for (int e=0;e<garg.length;e++) {
 										if (garg[e].contains("%obj%")) {
 												ars += obj + ".id[i]";
@@ -1229,12 +1384,19 @@ public class ghpframe extends JFrame implements ActionListener {
 					}
 					for (int e=0;e<vn;e++) {
 							if (cl[i].indexOf(' ') > -1) {
-									cc.replaceAll(vr[e], obj+".id[i][\""+cl[i].substring(0, cl[i].indexOf(' '))+"\"]");
+									try {
+											cc.replace(vr[e], obj+".id[i][\""+cl[i].substring(0, cl[i].indexOf(' '))+"\"]");
+									} catch (Exception ex) {
+											System.out.println(vr[e]);
+											ex.printStackTrace();
+									}
 							}
 					}
 			}
+			
 			return cc;
 	}
+	
 	public boolean delDir(File dir) {
 			if (dir.isDirectory()) {
 					String[] df = dir.list();
@@ -1248,6 +1410,7 @@ public class ghpframe extends JFrame implements ActionListener {
 			}
 			return dir.delete();
 	}
+
 	public boolean processEvent(GmObject curobj, String objname, byte evt, FileOutputStream vars) {
 			String line = "";
 			if (curobj.mainEvents.get(evt).events.size() > 0) {
@@ -1262,10 +1425,10 @@ public class ghpframe extends JFrame implements ActionListener {
 									line += objname+".Step = function()\n{\n	";
 							}
 							else if (ev_cur.toString().compareTo("Draw") == 0) {
-									line += objname+".Draw = function(i)\n{\n	";
+									line += objname+".Draw = function(i)\n{\n";
 							}
 							else	{
-									line += objname+"."+ev_cur.toString()+" = function()\n{\n	";
+									line += objname+"."+ev_cur.toString().replace(" ", "")+" = function()\n{\n	";
 							}
 							if (ev_cur.toString().compareTo("Create") != 0 && ev_cur.toString().compareTo("Draw") != 0) {
 									line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";

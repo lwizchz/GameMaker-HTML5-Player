@@ -97,10 +97,14 @@ function eventStep()
 	{
 		rayPoint(glin[i]["glin"], glin[i]["direction"], glin[i]["speed"]);
 	}
-	var n = glin[i]["sprite"].numb;
-	glin[i]["imgIndex"] = (glin[i]["imgIndex"] + glin[i]["imgSpeed"]) % n;
-	while(glin[i]["imgIndex"] < 0)
-		glin[i]["imgIndex"] += n;
+	if (glin[i]["sprite"] == null)
+		glin[i]["imgIndex"] = 0;
+	else {
+		var n = glin[i]["sprite"].numb;
+		glin[i]["imgIndex"] = (glin[i]["imgIndex"] + glin[i]["imgSpeed"]) % n;
+		while(glin[i]["imgIndex"] < 0)
+			glin[i]["imgIndex"] += n;
+	}
   }
   objStep();
   
@@ -109,6 +113,8 @@ function eventStep()
 	for (var g = 0; g < systems.length; g++)
 		if (systems[g].autoUpdate)
 			partSystemUpdate(systems[g]);
+
+	rkey = new Array();
 }
 function eventStepEnd()
 {
@@ -180,6 +186,7 @@ function eventKeyboardRelease(e)
   {
     //Any key
 	keys[e.keyCode] = 0;
+	rkey[e.keyCode] = 1;
   }
   else
   {
