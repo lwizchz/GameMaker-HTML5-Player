@@ -573,15 +573,15 @@ function random(x) {
 }
 
 function randomRange(x1, x2) {
-	return (Math.random() * (max(x1, x2) - min(x1, x2))) + min(x1, x2);
+	return Math.random() * (x1 - x2) + x2;
 }
 
 function irandom(x) {
 	return round(random(x));
 }
 
-function irandomRange(x) {
-	return round(randomRange(x));
+function irandomRange(x, x2) {
+	return floor(randomRange(x, x2 + 1));
 }
 
 function power(x, n) {
@@ -1717,7 +1717,7 @@ function placeFree(x, y, obj) {
 
 function placeEmpty(x, y, o) {
 	for (var i = 0; i < glin.length; i++) {
-		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0) break;
+		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0) continue;
 		if (checkCollision(obj, x, y, glin[i])) return false;
 	}
 
@@ -1725,20 +1725,31 @@ function placeEmpty(x, y, o) {
 }
 
 function placeMeeting(o, x, y, obj) {
-	for (var i = 0; i < obj.id.length; i++)
-	if (checkCollision(o, x, y, obj.id[i])) return true;
-	return false;
+	if (obj instanceof Array) {
+		for (var i = 0; i < obj.id.length; i++)
+			if (checkCollision(o, x, y, obj.id[i]))
+				return true;
+		return false;
+	}
+	
+	return checkCollision(o, x, y, obj);
 }
 
 function positionMeeting(x, y, obj) {
-	for (var i = 0; i < obj.id.length; i++)
-	if (checkPoint(x, y, obj.id[i])) return true;
-	return false;
+	if (obj instanceof Array) {
+		for (var i = 0; i < obj.id.length; i++)
+			if (checkPoint(x, y, obj.id[i]))
+				return true;
+		return false;
+	}
+			
+	return checkPoint(x, y, obj);
 }
 
 function positionEmpty(x, y) {
-	for (var i = 0; i < glin.length; i++)
-	if (checkPoint(x, y, glin[i])) return false;
+	if (obj instanceof Array)
+		for (var i = 0; i < glin.length; i++)
+			if (checkPoint(x, y, glin[i])) return false;
 	return true;
 }
 
@@ -2981,4 +2992,12 @@ function keyboardCheckReleased(key) {
 	}
 
 	return rkey[key] == 1;
+}
+
+///////////////////
+//Event Functions//
+///////////////////
+
+function eventInherited() {
+	//Implement
 }

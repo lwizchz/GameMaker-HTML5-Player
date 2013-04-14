@@ -51,7 +51,7 @@ pathOrientation
 pathEndaction
 
 %objid%
-%id%
+%obj%
 %solid%
 %persistent%
 %obj%["mask"]

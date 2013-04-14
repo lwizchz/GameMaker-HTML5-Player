@@ -225,7 +225,7 @@ collisionLine(%q%,%w%,%e%,%r%,%t%,%y%,%u%)
 // section 3.5
 
 %objid%
-%id%
+%obj%
 %solid%
 %persistent%
 %obj%["mask"]

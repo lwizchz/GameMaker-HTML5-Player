@@ -23,6 +23,7 @@ import org.lateralgm.main.Util;
 import static org.lateralgm.main.Util.deRef;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Path;
@@ -34,6 +35,7 @@ import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
@@ -43,6 +45,8 @@ import com.pixelmatrixstudios.ghpc.FileChooser;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.*;
 
 public class ghpframe extends JFrame implements ActionListener {
@@ -59,6 +63,8 @@ public class ghpframe extends JFrame implements ActionListener {
 	Container con;
 	String lf;
 	String[] gml, gcl, gmc, gcc;
+	String[] resourceNames;
+	
 	//GML Helper scripts
 	String gmhescr = "initGHP"+"addLink"+"drawText"+"drawGradientRect"+"drawGradientCircle"+"drawSetBackground";
 	ghpframe()	{
@@ -250,11 +256,44 @@ public class ghpframe extends JFrame implements ActionListener {
 				proBar(0, "File doesn't exist.");
 				return;
 			}
+			
 			String dir = d.getName();
 			proBar(7);
 			GmFile gmfile = lfc.openFile(d);
 			int rsnum = gmfile.sprites.size()+gmfile.sounds.size()+gmfile.backgrounds.size()+gmfile.paths.size()+gmfile.scripts.size()+gmfile.fonts.size()+gmfile.timelines.size()+gmfile.gmObjects.size()+gmfile.rooms.size();
 			proBar(10);
+			
+			resourceNames = new String[rsnum];
+			int ind = 0;
+			
+			for (GmObject o : gmfile.gmObjects)
+				resourceNames[ind++] = o.getName();
+			
+			for (Sprite s : gmfile.sprites)
+				resourceNames[ind++] = s.getName();
+			
+			for (Background b : gmfile.backgrounds)
+				resourceNames[ind++] = b.getName();
+			
+			for (Sound s : gmfile.sounds)
+				resourceNames[ind++] = s.getName();
+			
+			for (Room r : gmfile.rooms)
+				resourceNames[ind++] = r.getName();
+			
+			for (Timeline t : gmfile.timelines)
+				resourceNames[ind++] = t.getName();
+			
+			for (Path p : gmfile.paths)
+				resourceNames[ind++] = p.getName();
+			
+			for (Script s : gmfile.scripts)
+				resourceNames[ind++] = s.getName();
+			
+			for (Font f : gmfile.fonts)
+				resourceNames[ind++] = f.getName();
+			
+			Arrays.sort(resourceNames);
 			
 			//Get settings and other variables
 			String descr = gmfile.gameSettings.get(GameSettings.PGameSettings.DESCRIPTION);
@@ -544,7 +583,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									vars.write(buf);
 							}
 					}
-					line = "\n//Fonts\nfunction fontAdd(name, size, bold, italic)\n{\n	this.temp = new Font();\n	temp.style = bold + italic * 2;\n		this.str = \"\";\n	if (temp.style == 1)\n	{\n	str = \"bold \";\n	}\n	if (temp.style == 2)\n	{\n		str = \"italic \";\n	}\n	if (temp.style == 3)\n	{\n		str = \"italic bold \";\n	}\n	str += size + \"pt \" + name;\n	temp.font = str;\n	temp.name = name;\n	temp.size = size;\n	return temp;\n}\nfunction fontAddSprite(sprite, first, prop, sep)\n{\n	this.temp = new SpriteFont();\n	temp.sprite = sprite;\n	temp.start = first;\n	temp.sep = sep;\n	return temp;\n}\nfunction Font() //jimn346\n{\n	this.font = null;\n	this.name = null;\n	this.size = null;\n	this.style = null;\n}\nfunction SpriteFont() //jimn346\n{\n	this.sprite = null;\n	this.start = null;\n	this.sep = null;\n}";
+					line = "\n//Fonts\nfunction fontAdd(name, size, bold, italic)\n{\n	this.temp = new Font();\n	temp.style = bold + italic * 2;\n		this.str = \"\";\n	if (temp.style == 1)\n	{\n	str = \"bold \";\n	}\n	if (temp.style == 2)\n	{\n		str = \"italic \";\n	}\n	if (temp.style == 3)\n	{\n		str = \"italic bold \";\n	}\n	str += size + \"pt \" + name;\n	temp.font = str;\n	temp.name = name;\n	temp.size = size;\n	return temp;\n}\nfunction fontAddSprite(sprite, first, prop, sep)\n{\n	this.temp = new SpriteFont();\n	temp.sprite = sprite;\n	temp.start = first;\n	temp.sep = sep;\n	return temp;\n}\nfunction Font() //jimn346\n{\n	this.font = null;\n	this.name = null;\n	this.size = null;\n	this.style = null;\n}\nfunction SpriteFont() //jimn346\n{\n	this.sprite = null;\n	this.start = null;\n	this.sep = null;\n}\n\n";
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
@@ -575,15 +614,12 @@ public class ghpframe extends JFrame implements ActionListener {
 					line = "\n//Objects\nfunction instanceCreate(inst, x, y)\n{\n\tvar i = inst.id.length;\n	inst.id[i] = new inst(i, x, y);\n\tinst.Create(i, x, y);\n	return i;\n}\n";
 					boolean ie = false;
 					while (gmobjects.hasNext()) {
-							GmObject curobj = gmobjects.next();
-							//I'm adding automatic drawing.
-							//if (curobj.mainEvents.get(MainEvent.EV_DRAW).events.size() > 0) {
-									if (!ie) {
-											line += "function objDraw()\n{\n";
-									}
-									line += "	"+curobj.getName()+".Draw();\n";
-									ie = true;
-							//}
+						GmObject curobj = gmobjects.next();
+								if (!ie) {
+										line += "function objDraw()\n{\n";
+								}
+								line += "	"+curobj.getName()+".Draw();\n";
+								ie = true;
 					}
 					if (ie) {
 							line += "}\n\n";
@@ -715,28 +751,21 @@ public class ghpframe extends JFrame implements ActionListener {
 											while (ev_actions.hasNext()) {
 													org.lateralgm.resources.sub.Action action = ev_actions.next();
 													Iterator<Argument> eab = action.getArguments().iterator();
-													switch (action.getLibAction().name) {
-															case "Execute Code":
-																	while (eab.hasNext()) {
-																			Argument arg = eab.next();
-																			if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
-																					line += gmltoghp(arg.getVal(), objname, "	")+"\n";
-																			}
-																			else {
-																					line += "	//Sorry no DnD support yet\n";
-																			}
-																	}
-																	break;
-													}
-													/*while (eab.hasNext()) {
-															Argument arg = eab.next();
-															if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
-																	line += gmltoghp(arg.getVal(), objname, "	")+"\n";
-															}
-															else {
-																	line += "	//Sorry no DnD support yet\n";
-															}
-													}*/
+													String name = action.getLibAction().name;
+													if (name != null)
+														switch (name) {
+																case "Execute Code":
+																		while (eab.hasNext()) {
+																				Argument arg = eab.next();
+																				if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
+																						line += gmltoghp(arg.getVal(), objname, "	")+"\n";
+																				}
+																				else {
+																						line += "	//Sorry no DnD support yet\n";
+																				}
+																		}
+																		break;
+														}
 											}
 									}
 							}
@@ -1029,12 +1058,30 @@ public class ghpframe extends JFrame implements ActionListener {
 			}
 	}
 	
+	public boolean isValidVarName(String s) {
+		if (s.length() == 0)
+			return false;
+	
+		if (!("" + s.charAt(0)).matches("[_A-Za-z]"))
+			return false;
+		
+		if (!s.matches("[A-Za-z0-9_]*"))
+			return false;
+		
+		return true;
+	}
+	
 	String[] vr = new String[512];
 	int vn = 0;
 	
 	public String gmltoghp(String code, String obj, String indent) {
-	
+			
 			String[] cl = code.split("\n");
+			
+			String endl = "";
+			if (cl.length > 1)
+				endl = "\n";
+			
 			for (int i=0;i<cl.length;i++) {
 					cl[i] = cl[i].trim();
 			}
@@ -1135,7 +1182,10 @@ public class ghpframe extends JFrame implements ActionListener {
 							
 							//Convert to JavaScript.
 							inp = gmltoghp(inp, obj, "").trim();
-							if (!type.equals("for"))
+							if (type.equals("for")) {
+								if (inp.charAt(inp.length() - 1) == ';')
+									inp = inp.substring(0,inp.length() - 1);
+							} else
 								inp = inp.replace(";","");
 							end = gmltoghp(end, obj, "").trim();
 							
@@ -1144,7 +1194,9 @@ public class ghpframe extends JFrame implements ActionListener {
 							else
 								cl[i] = type + " (" + inp + ") " + end;
 							
-							cc += cl[i];
+							cc += cl[i] + endl;
+							if (i < cl.length - 1)
+								cc += indent;
 							continue;
 					}
 					
@@ -1157,59 +1209,140 @@ public class ghpframe extends JFrame implements ActionListener {
 									if (cla[e].trim().equals("")) {
 											continue;
 									}
+									boolean found = false;
 									for (int o=0;o<gmc.length;o++) {
-											if (cla[e].trim().replace(",", "").replace(";", "").equals(gmc[o].trim()))
+											if (cla[e].trim().replace(",", "").replace(";", "").equals(gmc[o].trim())) {
 													cla[e] = cla[e].replace(gmc[o].trim(), gcc[o].trim().replace("%obj%", obj + ".id[i]"));
+													found = true;
+													break;
+											}
 									}
+									
+									//Handle custom variables.
+									if (!found) {
+										String v = cla[e].trim().replace(",", "").replace(";", "");
+										if (isValidVarName(v)) {
+											String[] exclude = {"and", "begin", "break", "case", "continue", "default", "div", "do", "else", "end", "exit", "for", "globalvar", "if", "mod", "not", "or", "repeat", "return", "switch", "then", "until", "var", "while", "with", "xor"};
+											found = Arrays.binarySearch(resourceNames,v) >= 0 || Arrays.binarySearch(exclude,v) >= 0;
+											
+										if (!found)
+											cla[e] = cla[e].replace(v, obj + ".id[i][\"" + v + "\"]");
+										}
+									}
+									
+									
+									
 									if (e > 0) {
 											cl[i] += " ";
 									}
 									cl[i] += cla[e];
 							}
-							cc += cl[i];
+							cc += cl[i] + endl;
+							if (i < cl.length - 1)
+								cc += indent;
 							continue;
 					}
 					
-					//I don't know what this is either.
-					if (cl[i].indexOf(" ") > -1 && cl[i].indexOf(" ") < pap) {
-							int est = 0, fn = 0;
-							boolean ifu = false;
-							int unum = 0;
-							String[] fl = new String[cl[i].split(" ").length];
-							for (int e=0;e<cl[i].length();e++) {
-									if ((cl[i].charAt(e) == ' ')&&(!ifu)) {
-											fl[fn] = cl[i].substring(est, e);
-											fn += 1;
-											est = e+1;
-									}
-									else if (e+1 == cl[i].length()) {
-											fl[fn] = cl[i].substring(est, e+1);
-											fn += 1;
-									}
-									else if (cl[i].charAt(e) == '(') {
-											ifu = true;
-											unum++;
-									}
-									else if (cl[i].charAt(e) == ')' && --unum <= 0) {
-											ifu = false;
-									}
+					//Separate the code into different parts and convert them.
+					
+					//The different characters that separate code pieces.
+					String regex = "[\\s+-/*\\[{]";
+					
+					//This part allows two functions to be used in the same line of
+					//code without one being inside an argument of the other.
+					boolean cont = false;
+					int pCount = 1;
+					for (int in = pap + 1; in < cl[i].lastIndexOf(')'); in++)
+						if (cl[i].charAt(in) == '(')
+							pCount++;
+						else if (cl[i].charAt(in) == ')')
+							if (--pCount == 0) {
+								cont = true;
+								break;
 							}
-							cl[i] = "";
-							boolean instr = false;
-							for (int e=0;e<fn;e++) {
-									if ((!instr)&&(fl[e].indexOf('"') > -1)) {
-											instr = true;
-											cl[i] += fl[e];
-									}
-									else if (instr) {
-											cl[i] += fl[e];
-									}
-									else {
-											cl[i] += gmltoghp(fl[e], obj, "	")+" ";
-									}
+					
+					Matcher m = Pattern.compile(regex).matcher(cl[i]);
+					if (m.find() && (m.start() < pap || cont)) {
+						//The different pieces of code
+						String[] parts = new String[cl[i].split(regex).length];
+						String strType = "";
+						int pNum = 0;
+						int curPart = 0;
+						
+						//Some strings use double quotes while other use single quotes. This method handles both.
+						String str = "";
+						
+						//Go through every character in the string.
+						for (int in2 = 0; in2 < cl[i].length(); in2++) {
+							char ch = cl[i].charAt(in2);
+							
+							//If in a string and the end quote is found, get out of the string.
+							if (strType.length() > 0 && ch == strType.charAt(0)) {
+								strType = "";
+								str += ch;
+								continue;
 							}
-							cc += cl[i].trim();
-							continue;
+							
+							//If not in a string.
+							if (strType.equals("")) {
+								//In parentheses
+								if (ch == '(' || ch == '[')
+									pNum++;
+								else if (ch == ')' || ch == ']')
+									pNum--;
+								//Quote stuff
+								else if (ch =='"')
+									strType = "\"";
+								else if (ch =='\'')
+									strType = "'";
+								//If a separating character is found, separate the pieces of code.
+								else if (("" + ch).matches(regex) && pNum == 0) {
+									str += ch;
+									parts[curPart++] = str;
+									str = "";
+									continue;
+								}
+							}
+							
+							str += ch;
+							
+							if (in2 == cl[i].length() - 1)
+								parts[curPart] = str;
+						}
+						
+						//Put the parts together.
+						String fStr = indent;
+						for (String part : parts) {
+							if (part == null)
+								break;
+							
+							if (part.equals(""))
+								continue;
+							
+							//Convert to JavaScript
+							
+							//If in parentheses, convert only the inner part.
+							if (part.charAt(0) == '(' || part.charAt(0) == '[') {
+								char start = part.charAt(0);
+								int endi = -1;
+								if (start == '[')
+									endi = part.lastIndexOf(']');
+								else
+									endi = part.lastIndexOf(')');
+								String end = part.substring(endi);
+								part = start + gmltoghp(part.substring(1, endi), obj, "") + end;
+							}
+							else if (!part.equals(cl[i]))
+								part = gmltoghp(part, obj, "");
+							
+							fStr += part;
+						}
+						
+						cl[i] = fStr;
+						cc += cl[i] + endl;
+						if (i < cl.length - 1)
+							cc += indent;
+						continue;
 					}
 					
 					//Ignore stuff added for GM compatibility with strictly GHP functions.
@@ -1300,72 +1433,131 @@ public class ghpframe extends JFrame implements ActionListener {
 								}
 								
 								//Convert the arguments to GHP code.
+								int numargs = oarg.length;
 								for (int e=0;e<oarg.length;e++) {
-										if (oarg[e] == null)
+										if (oarg[e] == null) {
+												numargs = e;
 												break;
+										}
 										oarg[e] = oarg[e].trim();
 										oarg[e] = gmltoghp(oarg[e], obj, "");
 								}
 								
 								//Put the arguments together in the function.
+								boolean added = false;
 								for (int e=0;e<garg.length;e++) {
+										boolean thisadded = false;
 										if (garg[e].contains("%obj%")) {
+												if (added)
+													ars += ", ";
 												ars += obj + ".id[i]";
+												thisadded = true;
 										}
-										else if (garg[e].contains("%q%") && oarg.length >= 1) {
+										else if (garg[e].contains("%q%") && numargs >= 1) {
+												if (added)
+													ars += ", ";
 												ars += oarg[0];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%w%") && oarg.length >= 2) {
+										else if (garg[e].contains("%w%") && numargs >= 2) {
+												if (added)
+													ars += ", ";
 												ars += oarg[1];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%e%") && oarg.length >= 3) {
+										else if (garg[e].contains("%e%") && numargs >= 3) {
+												if (added)
+													ars += ", ";
 												ars += oarg[2];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%r%") && oarg.length >= 4) {
+										else if (garg[e].contains("%r%") && numargs >= 4) {
+												if (added)
+													ars += ", ";
 												ars += oarg[3];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%t%") && oarg.length >= 5) {
+										else if (garg[e].contains("%t%") && numargs >= 5) {
+												if (added)
+													ars += ", ";
 												ars += oarg[4];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%y%") && oarg.length >= 6) {
+										else if (garg[e].contains("%y%") && numargs >= 6) {
+												if (added)
+													ars += ", ";
 												ars += oarg[5];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%u%") && oarg.length >= 7) {
+										else if (garg[e].contains("%u%") && numargs >= 7) {
+												if (added)
+													ars += ", ";
 												ars += oarg[6];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%i%") && oarg.length >= 8) {
+										else if (garg[e].contains("%i%") && numargs >= 8) {
+												if (added)
+													ars += ", ";
 												ars += oarg[7];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%o%") && oarg.length >= 9) {
+										else if (garg[e].contains("%o%") && numargs >= 9) {
+												if (added)
+													ars += ", ";
 												ars += oarg[8];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%p%") && oarg.length >= 10) {
+										else if (garg[e].contains("%p%") && numargs >= 10) {
+												if (added)
+													ars += ", ";
 												ars += oarg[9];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%a%") && oarg.length >= 11) {
+										else if (garg[e].contains("%a%") && numargs >= 11) {
+												if (added)
+													ars += ", ";
 												ars += oarg[10];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%s%") && oarg.length >= 12) {
+										else if (garg[e].contains("%s%") && numargs >= 12) {
+												if (added)
+													ars += ", ";
 												ars += oarg[11];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%d%") && oarg.length >= 13) {
+										else if (garg[e].contains("%d%") && numargs >= 13) {
+												if (added)
+													ars += ", ";
 												ars += oarg[12];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%f%") && oarg.length >= 14) {
+										else if (garg[e].contains("%f%") && numargs >= 14) {
+												if (added)
+													ars += ", ";
 												ars += oarg[13];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%g%") && oarg.length >= 15) {
+										else if (garg[e].contains("%g%") && numargs >= 15) {
+												if (added)
+													ars += ", ";
 												ars += oarg[14];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%h%") && oarg.length >= 16) {
+										else if (garg[e].contains("%h%") && numargs >= 16) {
+												if (added)
+													ars += ", ";
 												ars += oarg[15];
+												thisadded = true;
 										}
-										else if (garg[e].contains("%j%") && oarg.length >= 17) {
+										else if (garg[e].contains("%j%") && numargs >= 17) {
+												if (added)
+													ars += ", ";
 												ars += oarg[16];
+												thisadded = true;
 										}
-										if (e < garg.length-1) {
-												ars += ", ";
-										}
+										
+										added = thisadded;
+										
 										if (e == garg.length-1) {
 												if (cl[i].indexOf(")") != -1) {
 														ars += ")";
