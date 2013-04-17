@@ -24,6 +24,13 @@ undefined
 global["
 %obj%["
 
+&&
+||
+!
+!=
+
+/
+
 true
 false
 pi

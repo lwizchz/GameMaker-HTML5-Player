@@ -1,31 +1,28 @@
 /*
-* Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
-* You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
-* 
-* This file is part of GameMaker HTML5 Player (GHP).
-* GHP is free software and comes with ABSOLUTELY NO WARANTY.
-* See LICENSE for more details.
-*/
+ * Copyright (c) 2011-12 piluke <pikingqwerty@gmail.com>
+ * You can find the GitHub repository at https://github.com/piluke/GameMaker-HTML5-Player
+ *
+ * This file is part of GameMaker HTML5 Player (GHP).
+ * GHP is free software and comes with ABSOLUTELY NO WARANTY.
+ * See LICENSE for more details.
+ */
+function gameStart() {
+	canvas.focus();
 
-function gameStart()
-{
-  canvas.focus();
-  for (var i=0;i<rooms.length;i++)
-  {
-    rooms[i].Create();
-  }
-  eventInstCrCode();
-  eventCreate();
-  eventGameStart();
-  eventRoomCrCode();
-  eventRoomStart(room);
-  eventDraw();
+	for (var i = 0; i < rooms.length; i++)
+		rooms[i].Create();
+
+	eventInstCrCode();
+	eventCreate();
+	eventGameStart();
+	eventRoomCrCode();
+	eventRoomStart(room);
+	eventDraw();
 }
-function mainStep()
-{
-	if (fnd != fod)
-	{
-		tfps = cfps+1;
+
+function mainStep() {
+	if (fnd != fod) {
+		tfps = cfps + 1;
 		cfps = 0;
 		fod = fnd;
 	}
@@ -48,7 +45,8 @@ function mainStep()
 	eventCleanup();
 	fnd = new Date();
 	fnd = fnd.getSeconds();
-	setTimeout(mainStep, 1000/fps);
+	setTimeout(mainStep, 1000 / fps);
 }
+
 mainStep();
 eventDraw();

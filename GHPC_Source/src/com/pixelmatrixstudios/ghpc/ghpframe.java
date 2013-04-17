@@ -37,6 +37,8 @@ import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Argument;
+import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
@@ -348,7 +350,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					File mainsf = new File(tmpdir+"/main.html");
 					mainsf.createNewFile();
 					main = new FileOutputStream(mainsf);
-					InputStreamReader[] mainf = new InputStreamReader[3];
+					InputStreamReader[] mainf = new InputStreamReader[4];
 					mainf[0] = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainf0"));
 					while (mainf[0].ready()) {
 							buf = (byte) mainf[0].read();
@@ -375,14 +377,25 @@ public class ghpframe extends JFrame implements ActionListener {
 							main.write(buf);
 					}
 					mainf[2].close();
+					line = "<canvas id=\"maincan\" width=\"" + gmfile.rooms.first().get(PRoom.WIDTH) + "\" height=\"" + gmfile.rooms.first().get(PRoom.HEIGHT) + "\" tabindex=\"1\" style=\"cursor:url(invis.png),auto;\" onkeydown=\"eventKeyboardPress(event);\" onkeyup=\"eventKeyboardRelease(event);\" onmousemove=\"eventMouseMove(event);\" onmousedown=\"eventMousePress(event);\" onmouseup=\"eventMouseRelease(event);\">";
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							main.write(buf);
+					}
+					mainf[3] = new InputStreamReader(ghpc.class.getResourceAsStream("src/mainf3"));
+					while (mainf[3].ready()) {
+							buf = (byte) mainf[3].read();
+							main.write(buf);
+					}
+					mainf[3].close();
 					if (dc.isSelected()) {
-							line = "<script type=\"text/javascript\" src=\"debug.js\"></script>\n";
+							line = "\t\t<script type=\"text/javascript\" src=\"debug.js\"></script>\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									main.write(buf);
 							}
 					}
-					line = "\n</body>\n</html>";
+					line = "\n\t</body>\n</html>";
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							main.write(buf);
@@ -412,6 +425,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					bric[4] = ImageIO.read(ghpc.class.getResourceAsStream("src/invis"));
 					ImageIO.write((RenderedImage) bric[4], "png", brics);
 					brics.close();
+
 					
 					//Particles
 					BufferedImage[] part = new BufferedImage[16];
@@ -583,7 +597,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									vars.write(buf);
 							}
 					}
-					line = "\n//Fonts\nfunction fontAdd(name, size, bold, italic)\n{\n	this.temp = new Font();\n	temp.style = bold + italic * 2;\n		this.str = \"\";\n	if (temp.style == 1)\n	{\n	str = \"bold \";\n	}\n	if (temp.style == 2)\n	{\n		str = \"italic \";\n	}\n	if (temp.style == 3)\n	{\n		str = \"italic bold \";\n	}\n	str += size + \"pt \" + name;\n	temp.font = str;\n	temp.name = name;\n	temp.size = size;\n	return temp;\n}\nfunction fontAddSprite(sprite, first, prop, sep)\n{\n	this.temp = new SpriteFont();\n	temp.sprite = sprite;\n	temp.start = first;\n	temp.sep = sep;\n	return temp;\n}\nfunction Font() //jimn346\n{\n	this.font = null;\n	this.name = null;\n	this.size = null;\n	this.style = null;\n}\nfunction SpriteFont() //jimn346\n{\n	this.sprite = null;\n	this.start = null;\n	this.sep = null;\n}\n\n";
+					line = "\n//Fonts\n";
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
@@ -604,33 +618,33 @@ public class ghpframe extends JFrame implements ActionListener {
 					while (scripts.hasNext()) {
 							org.lateralgm.resources.Script scr = scripts.next();
 							if (gmhescr.contains(scr.getName())) {continue;}
-							line = "function "+scr.getName()+"()\n{\n"+gmltoghp(scr.getCode(), "this", "	")+"}\n";
+							line = "function "+scr.getName()+"()\n{\n"+gmltoghp(scr.getCode(), "this", "\t")+"}\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
 							}
 					}
 					proBar(14);
-					line = "\n//Objects\nfunction instanceCreate(inst, x, y)\n{\n\tvar i = inst.id.length;\n	inst.id[i] = new inst(i, x, y);\n\tinst.Create(i, x, y);\n	return i;\n}\n";
+					line = "\n//Objects\n";
 					boolean ie = false;
 					while (gmobjects.hasNext()) {
 						GmObject curobj = gmobjects.next();
-								if (!ie) {
-										line += "function objDraw()\n{\n";
-								}
+								if (!ie)
+										line += "function objDraw() {\n";
+
 								line += "	"+curobj.getName()+".Draw();\n";
 								ie = true;
 					}
-					if (ie) {
+					if (ie)
 							line += "}\n\n";
-					}
-					else {
+					else
 							line += "function objDraw(){}\n";
-					}
+
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
 					}
+					
 					line = "";
 					ie = false;
 					gmobjects = gmfile.gmObjects.iterator();
@@ -638,7 +652,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							if (curobj.mainEvents.get(MainEvent.EV_STEP).events.size() > 0) {
 									if (!ie) {
-											line += "function objStep()\n{\n";
+											line += "function objStep() {\n";
 									}
 									line += "	"+curobj.getName()+".Step();\n";
 									ie = true;
@@ -661,7 +675,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							if (curobj.mainEvents.get(MainEvent.EV_KEYBOARD).events.size() > 0) {
 									if (!ie) {
-											line += "function objKeys(i)\n{\n";
+											line += "function objKeys(i) {\n";
 									}
 									line += "	"+curobj.getName()+".Keyboard(i);\n";
 									ie = true;
@@ -684,7 +698,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							if (curobj.mainEvents.get(MainEvent.EV_KEYPRESS).events.size() > 0) {
 									if (!ie) {
-											line += "function objKeyP(i)\n{\n";
+											line += "function objKeyP(i) {\n";
 									}
 									line += "	"+curobj.getName()+".KeyboardPress(i);\n";
 									ie = true;
@@ -707,7 +721,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							if (curobj.mainEvents.get(MainEvent.EV_KEYRELEASE).events.size() > 0) {
 									if (!ie) {
-											line += "function objKeyR()\n{\n";
+											line += "function objKeyR() {\n";
 									}
 									line += "	"+curobj.getName()+".KeyboardRelease();\n";
 									ie = true;
@@ -730,17 +744,17 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							i++;
 							String objname = curobj.getName();
-							line = "//"+objname+"\n"+objname+" = function()\n{\n	//Do nothing\n}\n"+objname+".id = new Array();\n"+objname+".Create = function(i, x, y)\n{\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n\t"+objname+".id[i][\"depth\"] = "+curobj.get(GmObject.PGmObject.DEPTH)+";\n\t"+objname+".id[i][\"visible\"] = "+curobj.get(GmObject.PGmObject.VISIBLE)+";\n\t"+objname+".id[i][\"objectIndex\"] = "+objname+";\n";
+							line = "//"+objname+"\n"+objname+" = function() {\n	//Do nothing\n}\n\n"+objname+".id = new Array();\n\n"+objname+".Create = function(i, x, y) {\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n\t"+objname+".id[i][\"depth\"] = "+curobj.get(GmObject.PGmObject.DEPTH)+";\n\t"+objname+".id[i][\"visible\"] = "+curobj.get(GmObject.PGmObject.VISIBLE)+";\n\t"+objname+".id[i][\"objectIndex\"] = "+objname+";\n";
 							if (curobj.get(GmObject.PGmObject.SPRITE) != null)	{
-									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	"+"	"+objname+".id[i][\"width\"] = ";
+									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n\t"+objname+".id[i][\"width\"] = ";
 									ResourceReference<Sprite> r = curobj.get(GmObject.PGmObject.SPRITE);
-									line += deRef(r).getDisplayImage().getWidth()+";\n	"+"	"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getHeight()+";\n\t";
+									line += deRef(r).getDisplayImage().getWidth()+";\n\t"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getHeight()+";\n\t";
 									if (curobj.get(GmObject.PGmObject.MASK) != null)
-										line += "	"+objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.MASK)).get().getName()+";\n	";
+										line += objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.MASK)).get().getName()+";\n	";
 									else
-										line += "	"+objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	";
+										line += objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	";
 									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n\t";
-									line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n";
+									line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n\t";
 									line += objname+".id[i][\"imgAngle\"] = 0;\n";
 							}
 							if (curobj.mainEvents.get(MainEvent.EV_CREATE).events.size() > 0) {
@@ -751,21 +765,15 @@ public class ghpframe extends JFrame implements ActionListener {
 											while (ev_actions.hasNext()) {
 													org.lateralgm.resources.sub.Action action = ev_actions.next();
 													Iterator<Argument> eab = action.getArguments().iterator();
-													String name = action.getLibAction().name;
-													if (name != null)
-														switch (name) {
-																case "Execute Code":
-																		while (eab.hasNext()) {
-																				Argument arg = eab.next();
-																				if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
-																						line += gmltoghp(arg.getVal(), objname, "	")+"\n";
-																				}
-																				else {
-																						line += "	//Sorry no DnD support yet\n";
-																				}
-																		}
-																		break;
-														}
+													while (eab.hasNext()) {
+															Argument arg = eab.next();
+															if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
+																	line += "\t" + gmltoghp(arg.getVal(), objname, "\t").trim() + "\n";
+															}
+															else {
+																	line += "	//Sorry no DnD support yet\n";
+															}
+													}
 											}
 									}
 							}
@@ -789,7 +797,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							processEvent(curobj, objname, MainEvent.EV_DRAW, vars);
 							processEvent(curobj, objname, MainEvent.EV_TRIGGER, vars);
 					}
-					line = "//Rooms\nvar rooms = new Array();\nrooms[0] = "+gmfile.rooms.toArray()[0].toString()+";\nfunction roomOpen(i)\n{\n	for (var e=0;e<rooms[i].inst.length;e++)\n	{\n	instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);\n	}\n	room_width = rooms[i].width;\n	room_height = rooms[i].height;\n}\n\n";
+					line = "//Rooms\nvar rooms = new Array();\nrooms[0] = "+gmfile.rooms.toArray()[0].toString()+";\n\n";
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
@@ -797,12 +805,12 @@ public class ghpframe extends JFrame implements ActionListener {
 					i = 0;
 					while (rooms.hasNext()) {
 							Room rm = rooms.next();
-							line = "//"+rm.getName()+"\nfunction "+rm.getName()+"(i)\n{\n	//Do nothing\n}\n"+rm.getName()+".inst = new Array();\n"+rm.getName()+".rmCrCode = ";
+							line = "//"+rm.getName()+"\nfunction "+rm.getName()+"(i) {\n	//Do nothing\n}\n\n"+rm.getName()+".inst = new Array();\n\n"+rm.getName()+".rmCrCode = ";
 							if ((rm.get(PRoom.CREATION_CODE) == null)||(rm.get(PRoom.CREATION_CODE) == "")) {
-									line += "false;\n";
+									line += "false;\n\n";
 							}
 							else {
-									line += "function()\n{\n"+rm.get(PRoom.CREATION_CODE).toString()+"\n}\n";
+									line += "function() {\n"+gmltoghp(rm.get(PRoom.CREATION_CODE).toString(), "", "")+"\n}\n\n";
 							}
 							Iterator<Instance> rmi = rm.instances.iterator();
 							boolean icc = false;
@@ -814,18 +822,44 @@ public class ghpframe extends JFrame implements ActionListener {
 													line += inst.getCreationCode();
 											}
 											else {
-													line += "function()\n{\n	with("+inst.properties.get(PInstance.ID)+")\n	{\n		"+inst.getCreationCode().replace("\n", "\n		")+"\n	}\n";
+													line += "function() {\n	with ("+inst.properties.get(PInstance.ID)+") {\n		"+inst.getCreationCode().replace("\n", "\n		")+"\n	}\n";
 											}
 											icc = true;
 									}
 							}
 							if (!icc) {
-									line += "false;\n";
+									line += "false;\n\n";
 							}
 							else {
-									line += "}\n";
+									line += "}\n\n";
 							}
-							line += rm.getName()+".width = "+rm.get(PRoom.WIDTH)+";\n"+rm.getName()+".height = "+rm.get(PRoom.HEIGHT)+";\n"+rm.getName()+".Create = function()\n{\n";
+							
+							line += rm.getName()+".width = "+rm.get(PRoom.WIDTH)+";\n"+rm.getName()+".height = "+rm.get(PRoom.HEIGHT)+";\n"+rm.getName()+".backgroundColor = "+colorToJS((Color)rm.get(PRoom.BACKGROUND_COLOR))+";\n"+rm.getName()+".drawBackgroundColor = "+rm.get(PRoom.DRAW_BACKGROUND_COLOR)+";\n\n";
+							
+							//Backgrounds
+							line += rm.getName() + ".backgrounds = new Array();\n";
+							for (int e = 0; e < rm.backgroundDefs.size(); e++) {
+								BackgroundDef def = rm.backgroundDefs.get(e);
+								ResourceReference ref2 = (ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND);
+								
+								if (ref2 == null)
+									continue;
+								
+								String bkg = ((ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND)).get().getName();
+								boolean vis = def.properties.get(PBackgroundDef.VISIBLE);
+								boolean fore = def.properties.get(PBackgroundDef.FOREGROUND);
+								int x = def.properties.get(PBackgroundDef.X);
+								int y = def.properties.get(PBackgroundDef.Y);
+								boolean tileH = def.properties.get(PBackgroundDef.TILE_HORIZ);
+								boolean tileV = def.properties.get(PBackgroundDef.TILE_VERT);
+								boolean stretch = def.properties.get(PBackgroundDef.STRETCH);
+								int hsp = def.properties.get(PBackgroundDef.H_SPEED);
+								int vsp = def.properties.get(PBackgroundDef.V_SPEED);
+								line += rm.getName() + ".backgrounds[" + e + "] = new RoomBackground(" + bkg + ", " + vis + ", " + fore + ", " + x + ", " + y + ", " + tileH + ", " + tileV + ", " + stretch + ", " + hsp + ", " + vsp + ");\n";
+							}
+							line += "\n";
+							
+							line += rm.getName()+".Create = function() {\n";
 							rmi = rm.instances.iterator();
 							int e = 0;
 							while (rmi.hasNext()) {
@@ -833,7 +867,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									line += "	"+rm.getName()+".inst["+e+"] = new Array();\n	"+rm.getName()+".inst["+e+"][0] = "+deRef((ResourceReference<?>) inst.properties.get(PInstance.OBJECT))+";\n	"+rm.getName()+".inst["+e+"][1] = "+inst.getPosition().x+";\n	"+rm.getName()+".inst["+e+"][2] = "+inst.getPosition().y+";\n";
 									e++;
 							}
-							line += "}";
+							line += "}" + (rooms.hasNext() ? "\n\n" : "");
 							for (e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
@@ -1071,6 +1105,23 @@ public class ghpframe extends JFrame implements ActionListener {
 		return true;
 	}
 	
+	public String colorToJS(Color c) {
+		String rString = Integer.toHexString(c.getRed());
+		String gString = Integer.toHexString(c.getGreen());
+		String bString = Integer.toHexString(c.getBlue());
+		
+		if (rString.length() < 2)
+			rString = "0" + rString;
+		
+		if (gString.length() < 2)
+			gString = "0" + gString;
+		
+		if (bString.length() < 2)
+			bString = "0" + bString;
+		
+		return "\"#" + rString + gString + bString + "\"";
+	}
+	
 	String[] vr = new String[512];
 	int vn = 0;
 	
@@ -1080,123 +1131,109 @@ public class ghpframe extends JFrame implements ActionListener {
 			
 			String endl = "";
 			if (cl.length > 1)
-				endl = "\n";
-			
-			for (int i=0;i<cl.length;i++) {
-					cl[i] = cl[i].trim();
-			}
+				endl = "\n" + indent;
+
 			String cc = "";
 			for (int i=0;i<cl.length;i++) {
+					String before = cl[i].substring(0,cl[i].indexOf(cl[i].trim()));
+					cl[i] = cl[i].trim();
 			
-					//Replace key words.
-					String word = "";
-					String clCur = "";
-					String quoteType = "";
-					for (int w = 0; w < cl[i].length(); w++) {
-							char cChar = cl[i].charAt(w);
-							if (cChar == ' ' || w == cl[i].length() - 1) {
-									if (cChar != ' ')
-											word += cChar;
-									if (quoteType == "")
-											switch (word) {
-													case "and": word = "&&";
-															break;
-													
-													case "or": word = "||";
-															break;
-															
-													case "not": word = "!";
-															break;
-															
-													case "globalvar": word = "var";
-															break;
-											}
-									clCur += word + " ";
-									word = "";
-									continue;
-							
-							} else if (cChar == '"' || cChar == '\'') {
-									if (quoteType == "")
-											quoteType = "" + cChar;
-									else if (quoteType == "" + cChar)
-											quoteType = "";
-							}
-							
-							word += cChar;
-					}
-					cl[i] = clCur;
-			
-					char[] nc = cl[i].toCharArray();
+					String nc = new String(cl[i]);
 					
 					//I don't know what this does, so I can't document it.
 					String ars = new String();
-					if ((cl[i].indexOf('=') > -1)&&(cl[i].indexOf("if (") == -1)&&(obj != "this")) {
-							boolean iv = false;
-							for (int e=0;e<vn;e++) {
-									if (cl[i].indexOf(' ') == -1) {
-											continue;
-									}
-									if (vr[e].equals(cl[i].substring(0, cl[i].indexOf(' ')))) {
-											iv = true;
-											break;
-									}
-							}
-							if ((!iv)&&(cl[i].indexOf(' ') > -1)&&(cl[i].indexOf('=') == cl[i].lastIndexOf('='))) {
-									if ((cl[i].indexOf('!') == -1)) {
-											vr[vn] = cl[i].substring(0, cl[i].indexOf(' '));
-											vn += 1;
-									}
-							}
-					}
 					
 					//Handle things like if statements and loops.
-					String[] sts = {"for", "if", "repeat", "while", "with"};
+					String[] sts = {"else", "for", "if", "repeat", "while", "with"};
 					String type = cl[i].trim().split("[\\s(]")[0];
 					if (Arrays.binarySearch(sts, type) > -1) {
 							//The part in parentheses and the part after that.
 							String inp = "", end = "";
 							
-							//The first meaningful character after the statement word.
-							char firstChar = cl[i].substring(cl[i].indexOf(type) + type.length()).trim().charAt(0);
+							String str = cl[i].substring(cl[i].indexOf(type) + type.length()).trim();
 							
-							//Not already in parentheses.
-							if (firstChar != '(')
-									inp = cl[i].substring(cl[i].indexOf(type) + type.length());
-							else {
-									//Find the part in parenthesis.
-									int in = cl[i].indexOf('(');
-									int pnum = 1;
-									while (pnum > 0 && ++in < cl[i].length()) {
-											char ch = cl[i].charAt(in);
-											if (ch == '(')
-												pnum++;
-											else if (ch == ')')
-												pnum--;
-											if (pnum > 0)
-												inp += ch;
+							if (str.length() > 0) {
+								if (type.equals("else")) {
+									cl[i] = "else " + gmltoghp(str, obj, "").trim();
+									cc += cl[i] + (i < cl.length - 1 ? endl : "");
+									continue;
+								}
+							
+								//The first meaningful character after the statement word.
+								char firstChar = str.charAt(0);
+								
+								//Not already in parentheses.
+								if (firstChar != '(')
+										inp = cl[i].substring(cl[i].indexOf(type) + type.length());
+								else {
+										//Find the part in parenthesis.
+										int in = cl[i].indexOf('(');
+										int pnum = 1;
+										while (pnum > 0 && ++in < cl[i].length()) {
+												char ch = cl[i].charAt(in);
+												if (ch == '(')
+													pnum++;
+												else if (ch == ')')
+													pnum--;
+												if (pnum > 0)
+													inp += ch;
+										}
+										
+										if (in < cl[i].length())
+											end = cl[i].substring(in + 1);
+								}
+								
+								//Convert to JavaScript.
+								inp = gmltoghp(inp, obj, "").trim();
+								if (type.equals("for")) {
+									if (inp.charAt(inp.length() - 1) == ';')
+										inp = inp.substring(0,inp.length() - 1);
+								} else
+									inp = inp.replace(";","");
+	
+								//Replace single quotes with double quotes.
+								if (!type.equals("repeat") && !type.equals("with")) {
+									String boolPart = "";
+									if (type.equals("for"))
+										boolPart = inp.substring(inp.indexOf(';') + 1, inp.indexOf(';', inp.indexOf(';') + 1));
+									else
+										boolPart = inp;
+									int eq = 0;
+									while (boolPart.indexOf('=', eq) > -1 && eq < boolPart.length()) {
+										int eInd = boolPart.indexOf('=', eq);
+										
+										char prevChar = ' ';
+										char nextChar = ' ';
+										
+										if (eInd > 0)
+											prevChar = boolPart.charAt(eInd - 1);
+										
+										if (eInd < boolPart.length() - 1)
+											nextChar = boolPart.charAt(eInd + 1);
+										
+										if ((eInd == boolPart.length() - 1 || nextChar != '=') && prevChar != '<' && prevChar != '>' && prevChar != '!')
+											boolPart = boolPart.substring(0, ++eInd) + '=' + boolPart.substring(eInd);
+										
+										eq = eInd + 1;
 									}
-									
-									if (in < cl[i].length())
-										end = cl[i].substring(in + 1);
+	
+									if (type.equals("for"))
+										inp = inp.substring(0, inp.indexOf(';') + 1) + boolPart + inp.substring(inp.indexOf(';', inp.indexOf(';') + 1));
+									else
+										inp = boolPart;
+								}
+								
+								end = gmltoghp(end, obj, "").trim();
+								
+								if (type.equals("repeat"))
+									cl[i] = "for (var __repvar = 0; __repvar < (" + inp + "); __repvar++) " + end;
+								else
+									cl[i] = type + " (" + inp + ") " + end;
 							}
 							
-							//Convert to JavaScript.
-							inp = gmltoghp(inp, obj, "").trim();
-							if (type.equals("for")) {
-								if (inp.charAt(inp.length() - 1) == ';')
-									inp = inp.substring(0,inp.length() - 1);
-							} else
-								inp = inp.replace(";","");
-							end = gmltoghp(end, obj, "").trim();
-							
-							if (type.equals("repeat"))
-								cl[i] = "for (var __repvar = 0; __repvar < (" + inp + "); __repvar++) " + end;
-							else
-								cl[i] = type + " (" + inp + ") " + end;
-							
-							cc += cl[i] + endl;
+							cc += cl[i] + (i < cl.length - 1 ? endl : "");
 							if (i < cl.length - 1)
-								cc += indent;
+								cc += indent + before;
 							continue;
 					}
 					
@@ -1222,7 +1259,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									if (!found) {
 										String v = cla[e].trim().replace(",", "").replace(";", "");
 										if (isValidVarName(v)) {
-											String[] exclude = {"and", "begin", "break", "case", "continue", "default", "div", "do", "else", "end", "exit", "for", "globalvar", "if", "mod", "not", "or", "repeat", "return", "switch", "then", "until", "var", "while", "with", "xor"};
+											String[] exclude = {"begin", "break", "case", "continue", "default", "do", "else", "end", "exit", "for", "globalvar", "if", "repeat", "return", "switch", "then", "until", "var", "while", "with", "xor"};
 											found = Arrays.binarySearch(resourceNames,v) >= 0 || Arrays.binarySearch(exclude,v) >= 0;
 											
 										if (!found)
@@ -1237,9 +1274,9 @@ public class ghpframe extends JFrame implements ActionListener {
 									}
 									cl[i] += cla[e];
 							}
-							cc += cl[i] + endl;
+							cc += cl[i] + (i < cl.length - 1 ? endl : "");
 							if (i < cl.length - 1)
-								cc += indent;
+								cc += indent + before;
 							continue;
 					}
 					
@@ -1311,7 +1348,7 @@ public class ghpframe extends JFrame implements ActionListener {
 						}
 						
 						//Put the parts together.
-						String fStr = indent;
+						String fStr = indent + before;
 						for (String part : parts) {
 							if (part == null)
 								break;
@@ -1339,14 +1376,14 @@ public class ghpframe extends JFrame implements ActionListener {
 						}
 						
 						cl[i] = fStr;
-						cc += cl[i] + endl;
+						cc += cl[i] + (i < cl.length - 1 ? endl : "");
 						if (i < cl.length - 1)
-							cc += indent;
+							cc += indent + before;
 						continue;
 					}
 					
 					//Ignore stuff added for GM compatibility with strictly GHP functions.
-					if (new String(nc).contains("initGHP")) {
+					if (nc.contains("initGHP")) {
 							continue;
 					}
 					
@@ -1358,7 +1395,7 @@ public class ghpframe extends JFrame implements ActionListener {
 							//If it is a function, rename only the function part.
 							int gmlp = gmlc.indexOf("(");
 							gmlc = gmlc.substring(0, (gmlp == -1) ? gmlc.length() : gmlp);
-							if (new String(nc).substring(0, pap).equals(gmlc)) {
+							if (nc.substring(0, pap).equals(gmlc)) {
 									gc = e;
 									break;
 							}
@@ -1384,8 +1421,8 @@ public class ghpframe extends JFrame implements ActionListener {
 								String[] oarg = new String[17];
 								
 								//Put the arguments in the array.
-								if (new String(nc).indexOf("(") > -1) {
-										String as = new String(nc).substring(new String(nc).indexOf("(")+1, new String(nc).lastIndexOf(")"));
+								if (nc.indexOf("(") > -1) {
+										String as = nc.substring(nc.indexOf("(")+1, nc.lastIndexOf(")"));
 										if (as.indexOf(")") > -1) {
 												int curArg = 0;
 												int pNum = 0;
@@ -1422,17 +1459,17 @@ public class ghpframe extends JFrame implements ActionListener {
 										}
 								}
 								else {
-										oarg = new String(nc).split(",");
+										oarg = nc.split(",");
 								}
 								
-								//Fix disordered arguments.
+								//Fix unordered arguments.
 								for (int e=0;e<oarg.length;e++) {
 										if ((e+1 < oarg.length)&&(oarg[e] == null)) {
 												oarg[e] = oarg[e+1];
 										}
 								}
 								
-								//Convert the arguments to GHP code.
+								//Convert the arguments to JavaScript.
 								int numargs = oarg.length;
 								for (int e=0;e<oarg.length;e++) {
 										if (oarg[e] == null) {
@@ -1568,22 +1605,11 @@ public class ghpframe extends JFrame implements ActionListener {
 										}
 								}
 							}
-							nc = gcl[gc].substring(0, gcl[gc].indexOf("(")+1).toCharArray();
+							nc = new String(gcl[gc].substring(0, gcl[gc].indexOf("(")+1));
 					}
-					cc += indent+(new String(nc))+ars;
-					if (!indent.equals("")) {
+					cc += indent + before + nc + ars;
+					if (!indent.equals("") && i < cl.length - 1)
 							cc += "\n";
-					}
-					for (int e=0;e<vn;e++) {
-							if (cl[i].indexOf(' ') > -1) {
-									try {
-											cc.replace(vr[e], obj+".id[i][\""+cl[i].substring(0, cl[i].indexOf(' '))+"\"]");
-									} catch (Exception ex) {
-											System.out.println(vr[e]);
-											ex.printStackTrace();
-									}
-							}
-					}
 			}
 			
 			return cc;
@@ -1610,21 +1636,17 @@ public class ghpframe extends JFrame implements ActionListener {
 					while (ev.hasNext()) {
 							org.lateralgm.resources.sub.Event ev_cur = ev.next();
 							Iterator<org.lateralgm.resources.sub.Action> ev_actions = ev_cur.actions.iterator();
-							if (ev_cur.toString().compareTo("Global Left Pressed") == 0) {
-									line += objname+".MousePress = function()\n{\n	";
-							}
-							else if (ev_cur.toString().compareTo("Normal Step") == 0) {
-									line += objname+".Step = function()\n{\n	";
-							}
-							else if (ev_cur.toString().compareTo("Draw") == 0) {
-									line += objname+".Draw = function(i)\n{\n";
-							}
-							else	{
-									line += objname+"."+ev_cur.toString().replace(" ", "")+" = function()\n{\n	";
-							}
-							if (ev_cur.toString().compareTo("Create") != 0 && ev_cur.toString().compareTo("Draw") != 0) {
-									line += "for (var i=0;i<" + objname + ".id.length;i++)\n\t{\n\t\t";
-							}
+							if (ev_cur.toString().equals("Global Left Pressed"))
+									line += objname+".MousePress = function() {\n	";
+							else if (ev_cur.toString().equals("Normal Step"))
+									line += objname+".Step = function() {\n	";
+							else if (ev_cur.toString().equals("Draw"))
+									line += objname+".Draw = function(i) {\n";
+							else
+									line += objname+"."+ev_cur.toString().replace(" ", "")+" = function() {\n	";
+							
+							if (!ev_cur.toString().equals("Create") && !ev_cur.toString().equals("Draw"))
+									line += "for (var i = 0; i < " + objname + ".id.length; i++) {\n\t\t";
 							
 							while (ev_actions.hasNext()) {
 									org.lateralgm.resources.sub.Action action = ev_actions.next();
@@ -1632,14 +1654,14 @@ public class ghpframe extends JFrame implements ActionListener {
 									while (eab.hasNext()) {
 											Argument arg = eab.next();
 											if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
-													line += gmltoghp(arg.getVal(), objname, "	")+"\n";
+													line += "\t" + gmltoghp(arg.getVal(), objname, "\t").trim() + "\n";
 											}
 											else {
 													line += "	//Sorry no DnD support yet\n";
 											}
 									}
 							}
-							if (ev_cur.toString().compareTo("Draw") != 0)
+							if (!ev_cur.toString().equals("Draw"))
 								line += "\t}";
 						line += "\n}\n\n";
 					}

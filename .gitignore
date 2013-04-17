@@ -4,3 +4,4 @@ Thumbs.db
 *.pnproj
 *.pnps
 *.class
+GHPC_Source/bin/*

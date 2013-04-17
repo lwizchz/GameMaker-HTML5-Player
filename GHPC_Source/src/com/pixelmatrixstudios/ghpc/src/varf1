@@ -35,302 +35,206 @@ resource[7] = new Array(); //Objects
 resource[8] = new Array(); //Rooms
 
 //Colors
-cAqua = "#00FFFF";
-cBlack = "#000000";
-cBlue = "#0000FF";
-cDkgray = "#404040";
+cAqua    = "#00FFFF";
+cBlack   = "#000000";
+cBlue    = "#0000FF";
+cDkgray  = "#404040";
 cFuchsia = "#FF00FF";
-cGray = "#808080";
-cGreen = "#008000";
-cLime = "#00FF00";
-cLtgray = "#C0C0C0";
-cMaroon = "#800000";
-cNavy = "#000080";
-cOlive = "#808000";
-cOrange = "#FFA000";
-cPurple = "#800080";
-cRed = "#FF0000";
-cSilver = "#C0C0C0";
-cTeal = "#008080";
-cWhite = "#FFFFFF";
-cYellow = "#FFFF00";
+cGray    = "#808080";
+cGreen   = "#008000";
+cLime    = "#00FF00";
+cLtgray  = "#C0C0C0";
+cMaroon  = "#800000";
+cNavy    = "#000080";
+cOlive   = "#808000";
+cOrange  = "#FFA000";
+cPurple  = "#800080";
+cRed     = "#FF0000";
+cSilver  = "#C0C0C0";
+cTeal    = "#008080";
+cWhite   = "#FFFFFF";
+cYellow  = "#FFFF00";
 
 //Keys
-vkNokey = undefined;
-vkAnykey = 0;
-vkLeft = 37;
-vkRight = 39;
-vkUp = 38;
-vkDown = 40;
-vkEnter = 13;
-vkEscape = 27;
-vkShift = 16;
-vkControl = 17;
-vkAlt = 18;
-vkBackspace = 8;
-vkTab = 9;
-vkHome = 36;
-vkEnd = 35;
-vkDelete = 46;
-vkInsert = 45;
-vkPageup = 33;
-vkPagedown = 34;
-vkPause = 19;
-vkPrintscreen = 44;
-vkF1 = 112;
-vkF2 = 113;
-vkF3 = 114;
-vkF4 = 115;
-vkF5 = 116;
-vkF6 = 117;
-vkF7 = 118;
-vkF8 = 119;
-vkF9 = 120;
-vkF10 = 121;
-vkF11 = 122;
-vkF12 = 123;
-vkNumpad0 = 96;
-vkNumpad1 = 97;
-vkNumpad2 = 98;
-vkNumpad3 = 99;
-vkNumpad4 = 100;
-vkNumpad5 = 101;
-vkNumpad6 = 102;
-vkNumpad7 = 103;
-vkNumpad8 = 104;
-vkNumpad9 = 105;
-vkMultiply = 106;
-vkDivide = 111;
-vkAdd = 107;
-vkSubtract = 109;
-vkDecimal = 110;
+vkNokey       = undefined;
+vkAnykey      =   0;
+vkLeft        =  37;
+vkRight       =  39;
+vkUp          =  38;
+vkDown        =  40;
+vkEnter       =  13;
+vkEscape      =  27;
+vkShift       =  16;
+vkControl     =  17;
+vkAlt         =  18;
+vkBackspace   =   8;
+vkTab         =   9;
+vkHome        =  36;
+vkEnd         =  35;
+vkDelete      =  46;
+vkInsert      =  45;
+vkPageup      =  33;
+vkPagedown    =  34;
+vkPause       =  19;
+vkPrintscreen =  44;
+vkF1          = 112;
+vkF2          = 113;
+vkF3          = 114;
+vkF4          = 115;
+vkF5          = 116;
+vkF6          = 117;
+vkF7          = 118;
+vkF8          = 119;
+vkF9          = 120;
+vkF10         = 121;
+vkF11         = 122;
+vkF12         = 123;
+vkNumpad0     =  96;
+vkNumpad1     =  97;
+vkNumpad2     =  98;
+vkNumpad3     =  99;
+vkNumpad4     = 100;
+vkNumpad5     = 101;
+vkNumpad6     = 102;
+vkNumpad7     = 103;
+vkNumpad8     = 104;
+vkNumpad9     = 105;
+vkMultiply    = 106;
+vkDivide      = 111;
+vkAdd         = 107;
+vkSubtract    = 109;
+vkDecimal     = 110;
 
 //Alignment
-faLeft = "left";
+faLeft   = "left";
 faCenter = "center";
-faRight = "right";
-faTop = "top";
+faRight  = "right";
+faTop    = "top";
 faMiddle = "middle";
 faBottom = "bottom";
 
-//Invisible image (used for surfaceExists)
-blankImage = new Image();
-blankImage.src = "invis.png";
-
-//Required functions
-function fontAdd(name, size, bold, italic)
-{
-  this.temp = new Font();
-  temp.style = bold + italic * 2;
-  this.str = "";
-  if (temp.style == 1)
-  {
-    str = "bold ";
-  }
-  if (temp.style == 2)
-  {
-    str = "italic ";
-  }
-  if (temp.style == 3)
-  {
-    str = "italic bold ";
-  }
-  str += size + "pt " + name;
-  temp.font = str;
-  temp.name = name;
-  temp.size = size;
-  return temp;
-}
-function surfaceCreate(w, h)
-{
-  //temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
-  this.temps = document.createElement("canvas");
-  temps.setAttribute("width", w);
-  temps.setAttribute("height", h);
-  temps.setAttribute("style", "visibility: hidden;");
-  return temps;
-}
-function fontAddSprite(sprite, first, prop, sep)
-{
-  this.temp = new SpriteFont();
-  temp.sprite = sprite;
-  temp.start = first;
-  temp.sep = sep;
-  temp.prop = prop;
-  if (prop === true)
-  {
-    temp.propx = new Array();
-    temp.propwidth = new Array();
-	this.minx = sprite.siwidth;
-	this.maxw = 0;
-	this.surf = surfaceCreate(sprite.width, sprite.height);
-	this.con = surf.getContext("2d");
-	con.drawImage(sprite, 0, 0);
-	this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
-	for (var i = 0; i < sprite.width / sprite.siwidth; i++)
-	{
-	  for (var x = 0; x < sprite.siwidth; x++)
-	  {
-	    for (var y = 0; y < sprite.height; y++)
-	    {
-	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
-		  {
-		    minx = min(minx, x);
-		  }
-	    }
-	  }
-	  temp.propx[i] = minx;
-	  for (var x = minx + 1; x < sprite.siwidth; x++)
-	  {
-	    for (var y = 0; y < sprite.height; y++)
-	    {
-	      if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
-		  {
-		    maxw = max(maxw, x - minx);
-		  }
-	    }
-	  }
-	  temp.propwidth[i] = maxw;
-	}
-  }
-  return temp;
-}
-function Font()
-{
-  this.font = null;
-  this.name = null;
-  this.size = null;
-  this.style = null;
-}
-
-function SpriteFont()
-{
-  this.sprite = null;
-  this.start = null;
-  this.sep = null;
-  this.prop = null;
-  
-  //These two variables are used for proportional sprite fonts.
-  this.propx = null;
-  this.propwidth = null;
-}
-
-//Stuff to make color blending possible
-function imageBlend(img, col)
-{
-  if (local)
-  {
-	return img;
-  }
-  this.temp = document.createElement("canvas");
-  temp.setAttribute("width", image.width);
-  temp.setAttribute("height", image.height);
-  temp.setAttribute("style", "visibility: hidden;");
-  this.tmpctx = temp.getContext("2d");
-  
-  //Get the data for the single color
-  col = col.replace("#", "");
-  this.rgb = parseInt(col, 16);
- 
-  this.red = (rgb & (255 << 16)) >> 16;
-  this.green = (rgb & (255 << 8)) >> 8;
-  this.blue = (rgb & 255);
-  
-  //Put the image on the new canvas
-  tmpctx.drawImage(img, 0, 0);
-  this.imageData = tmpctx.getImageData(0, 0, temp.width, temp.height);
-  this.data = imageData.data;
-  
-  //Blend the image.
-  for (var i = 0; i < data.length; i += 4)
-  {
-	data[i] = Math.round(data[i] * red * (1 / 255));
-	data[i + 1] = Math.round(data[i + 1] * green * (1 / 255));
-	data[i + 2] = Math.round(data[i + 2] * blue * (1 / 255));
-  }
-  
-  //Set the data to the canvas.
-  tmpctx.putImageData(imageData, 0, 0);
-  
-  return temp;
-}
-
+//Collision Shapes
 var RECTANGLE = 0;
 var ELLIPSE = 1;
 var DIAMOND = 2;
 var PRECISE = 3;
-//Resources
-function Sprite(fname, imgn, rmback, sm, xo, yo, l, r, t, b, s, a)
-{
-	var img = new Image();
-	img.src = fname;
-	var tmp = fname.replace(/^.*[\\\/]/, "").split(".");
-	tmp.pop();
-	img.name = tmp.join();
-	img.numb = imgn;
-	img.removeback = rmback;
-	img.smooth = sm;
-	img.xorig = xo;
-	img.yorig = yo;
-	img.left = l;
-	img.right = r;
-	img.top = t;
-	img.bottom = b;
-	img.alpha = a; //This is to be used for precise collision checking.
-	img.onload = function() {
-		this.siwidth = this.width/this.numb;
-		resource[0][resource[0].length] = this;
-	};
-	return img;
+
+//Required functions
+function fontAdd(name, size, bold, italic) {
+	this.temp = new Font();
+	temp.style = bold + italic * 2;
+	this.str = "";
+	
+	if (temp.style == 1)
+		str = "bold ";
+	else if (temp.style == 2)
+		str = "italic ";
+	else if (temp.style == 3)
+		str = "italic bold ";
+	
+	str += size + "pt " + name;
+	temp.font = str;
+	temp.name = name;
+	temp.size = size;
+	
+	return temp;
 }
-function Sound(fname, kind, pre)
-{
-	var snd = new Audio();
-	snd.src = fname;
-	snd.kind = kind;
-	if (pre)
-	{
-		snd.load();
+
+function surfaceCreate(w, h) {
+	this.temps = document.createElement("canvas");
+	temps.setAttribute("width", w);
+	temps.setAttribute("height", h);
+	temps.setAttribute("style", "visibility: hidden;");
+	
+	return temps;
+}
+
+function fontAddSprite(sprite, first, prop, sep) {
+	this.temp = new SpriteFont();
+	temp.sprite = sprite;
+	temp.start = first;
+	temp.sep = sep;
+	temp.prop = prop;
+	
+	if (prop === true) {
+		temp.propx = new Array();
+		temp.propwidth = new Array();
+		this.minx = sprite.siwidth;
+		this.maxw = 0;
+		this.surf = surfaceCreate(sprite.width, sprite.height);
+		this.con = surf.getContext("2d");
+		con.drawImage(sprite, 0, 0);
+		this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
+		for (var i = 0; i < sprite.width / sprite.siwidth; i++) {
+			for (var x = 0; x < sprite.siwidth; x++)
+				for (var y = 0; y < sprite.height; y++)
+					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+						minx = min(minx, x);
+			temp.propx[i] = minx;
+			for (var x = minx + 1; x < sprite.siwidth; x++)
+				for (var y = 0; y < sprite.height; y++)
+					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
+						maxw = max(maxw, x - minx);
+			temp.propwidth[i] = maxw;
+		}
 	}
-	snd.onload = function() {
-		resource[1][resource[1].length] = this;
+	return temp;
+}
+
+function Font() {
+	this.font = null;
+	this.name = null;
+	this.size = null;
+	this.style = null;
+}
+
+function SpriteFont() {
+	this.sprite = null;
+	this.start = null;
+	this.sep = null;
+	this.prop = null;
+
+	//These two variables are used for proportional sprite fonts.
+	this.propx = null;
+	this.propwidth = null;
+}
+
+//Stuff to make color blending possible
+
+function imageBlend(img, col) {
+	if (local)
+		return img;
+
+	this.temp = document.createElement("canvas");
+	temp.setAttribute("width", image.width);
+	temp.setAttribute("height", image.height);
+	temp.setAttribute("style", "visibility: hidden;");
+	this.tmpctx = temp.getContext("2d");
+
+	//Get the data for the single color
+	col = col.replace("#", "");
+	this.rgb = parseInt(col, 16);
+
+	this.red = (rgb & (255 << 16)) >> 16;
+	this.green = (rgb & (255 << 8)) >> 8;
+	this.blue = (rgb & 255);
+
+	//Put the image on the new canvas
+	tmpctx.drawImage(img, 0, 0);
+	this.imageData = tmpctx.getImageData(0, 0, temp.width, temp.height);
+	this.data = imageData.data;
+
+	//Blend the image.
+	for (var i = 0; i < data.length; i += 4) {
+		data[i] = Math.round(data[i] * red * (1 / 255));
+		data[i + 1] = Math.round(data[i + 1] * green * (1 / 255));
+		data[i + 2] = Math.round(data[i + 2] * blue * (1 / 255));
 	}
-	return snd;
-}
-function Background(fname, rmback, sm)
-{
-	var bck = new Image();
-	bck.src = fname;
-	bck.removeback = rmback;
-	bck.smooth = sm;
-	bck.onload = function() {
-		resource[2][resource[2].length] = this;
-	}
-	return bck;
-}
-function Path()
-{
-	var pth = new Array();
-	resource[4][resource[4].length] = this;
-	return pth;
-}
-function Timeline()
-{
-	var tml = new Array();
-	resource[6][resource[6].length] = this;
-	return tml;
-}
-function GmObject()
-{
-	var obj = new Array();
-	resource[7][resource[7].length] = this;
-	return obj;
-}
-function Room()
-{
-	var rm = new Array();
-	resource[8][resource[8].length] = this;
-	return rm;
+
+	//Set the data to the canvas.
+	tmpctx.putImageData(imageData, 0, 0);
+
+	return temp;
 }
 
 ///////////
@@ -342,23 +246,23 @@ var systems = new Array();
 
 //Constants
 var psDeflectHorizontal = 0;
-var psDeflectVertical = 1;
+var psDeflectVertical   = 1;
 
 var psShapeRectangle = 0;
-var psShapeEllipse = 1;
-var psShapeDiamond = 2;
-var psShapeLine = 3;
+var psShapeEllipse   = 1;
+var psShapeDiamond   = 2;
+var psShapeLine      = 3;
 
-var psDistrLinear = 0;
-var psDistrGaussian = 1;
+var psDistrLinear      = 0;
+var psDistrGaussian    = 1;
 var psDistrInvgaussian = 2;
 
 var psChangeMotion = 0;
-var psChangeShape = 1;
-var psChangeAll = 2;
+var psChangeShape  = 1;
+var psChangeAll    = 2;
 
-var psForceConstant = 0;
-var psForceLinear = 1;
+var psForceConstant  = 0;
+var psForceLinear    = 1;
 var psForceQuadratic = 2;
 
 //Shapes
@@ -418,14 +322,13 @@ ptShapeSnow = new Image();
 ptShapeSnow.src = "particles/13_snow.png";
 ptShapeSnow.colors = new Array();
 
-function ParticleSystem()
-{
+function ParticleSystem() {
 	this.attractors = new Array();
-	this.changers = new Array();
+	this.changers   = new Array();
 	this.deflectors = new Array();
 	this.destroyers = new Array();
-	this.emitters = new Array();
-	this.particles = new Array();
+	this.emitters   = new Array();
+	this.particles  = new Array();
 	
 	this.order = true;
 	this.depth = 0;
@@ -437,8 +340,7 @@ function ParticleSystem()
 	this.autoDraw = true;
 }
 
-function ParticleAttractor()
-{
+function ParticleAttractor() {
 	this.x = 0;
 	this.y = 0;
 	this.dist = 0;
@@ -446,8 +348,7 @@ function ParticleAttractor()
 	this.additive = true;
 }
 
-function ParticleChanger()
-{
+function ParticleChanger() {
 	this.xMin = 0;
 	this.xMax = 0;
 	this.yMin = 0;
@@ -458,8 +359,7 @@ function ParticleChanger()
 	this.type2 = null;
 }
 
-function ParticleDeflector()
-{
+function ParticleDeflector() {
 	this.xMin = 0;
 	this.xMax = 0;
 	this.yMin = 0;
@@ -468,8 +368,7 @@ function ParticleDeflector()
 	this.friction = 0;
 }
 
-function ParticleDestroyer()
-{
+function ParticleDestroyer() {
 	this.xMin = 0;
 	this.xMax = 0;
 	this.yMin = 0;
@@ -477,8 +376,7 @@ function ParticleDestroyer()
 	this.shape = spShapeRectangle;
 }
 
-function ParticleEmitter()
-{
+function ParticleEmitter() {
 	this.xMin = 0;
 	this.xMax = 0;
 	this.yMin = 0;
@@ -490,8 +388,7 @@ function ParticleEmitter()
 	this.count = new Array();
 }
 
-function ParticleType()
-{
+function ParticleType() {
 	this.shape = ptShapePixel;
 	
 	this.sizeMin = 1;
@@ -570,8 +467,7 @@ function ParticleType()
 	this.rand = false;
 }
 
-function Particle()
-{
+function Particle() {
 	this.type = null;
 	this.size = null;
 	this.ang = null;
@@ -590,4 +486,117 @@ function Particle()
 	//If hit by a changer...
 	this.type2 = null;
 	this.chtype = null;
+}
+
+function instanceCreate(inst, x, y) {
+	var i = inst.id.length;
+	inst.id[i] = new inst(i, x, y);
+	inst.Create(i, x, y);
+
+	return i;
+}
+
+function RoomBackground(bkg, vis, fore, x, y, tileH, tileV, stretch, hsp, vsp) {
+	this.bkg = bkg;
+	this.vis = vis;
+	this.fore = fore;
+	this.xstart = x;
+	this.ystart = y;
+	this.x = x;
+	this.y = y;
+	this.tileH = tileH;
+	this.tileV = tileV;
+	this.stretch = stretch;
+	this.hsp = hsp;
+	this.vsp = vsp;
+}
+
+function roomOpen(i) {
+	for (var b = 0; b < rooms[i].backgrounds.length; b++) {
+		rooms[i].backgrounds[b].x = rooms[i].backgrounds[b].xstart;
+		rooms[i].backgrounds[b].y = rooms[i].backgrounds[b].ystart;
+	}
+	
+	rooms[i].rmCrCode();
+	for (var e=0;e<rooms[i].inst.length;e++) {
+		instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
+	}
+	roomWidth = rooms[i].width;
+	roomHeight = rooms[i].height;
+}
+
+/////////////
+//Resources//
+/////////////
+
+function Sprite(fname, imgn, rmback, sm, xo, yo, l, r, t, b, s, a) {
+	var img = new Image();
+	img.src = fname;
+	var tmp = fname.replace(/^.*[\\\/]/, "").split(".");
+	tmp.pop();
+	img.name = tmp.join();
+	img.numb = imgn;
+	img.removeback = rmback;
+	img.smooth = sm;
+	img.xorig = xo;
+	img.yorig = yo;
+	img.left = l;
+	img.right = r;
+	img.top = t;
+	img.bottom = b;
+	img.alpha = a; //This is to be used for precise collision checking.
+	img.onload = function () {
+		this.siwidth = this.width / this.numb;
+		resource[0][resource[0].length] = this;
+	};
+	return img;
+}
+
+function Sound(fname, kind, pre) {
+	var snd = new Audio();
+	snd.src = fname;
+	snd.kind = kind;
+
+	if (pre)
+		snd.load();
+
+	snd.onload = function () {
+		resource[1][resource[1].length] = this;
+	}
+	return snd;
+}
+
+function Background(fname, rmback, sm) {
+	var bck = new Image();
+	bck.src = fname;
+	bck.removeback = rmback;
+	bck.smooth = sm;
+	bck.onload = function () {
+		resource[2][resource[2].length] = this;
+	}
+	return bck;
+}
+
+function Path() {
+	var pth = new Array();
+	resource[4][resource[4].length] = this;
+	return pth;
+}
+
+function Timeline() {
+	var tml = new Array();
+	resource[6][resource[6].length] = this;
+	return tml;
+}
+
+function GmObject() {
+	var obj = new Array();
+	resource[7][resource[7].length] = this;
+	return obj;
+}
+
+function Room() {
+	var rm = new Array();
+	resource[8][resource[8].length] = this;
+	return rm;
 }

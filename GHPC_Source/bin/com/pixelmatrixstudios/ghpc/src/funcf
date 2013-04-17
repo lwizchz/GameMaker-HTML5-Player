@@ -69,7 +69,7 @@ function drawText(text, x, y) {
 		addLink(func, undefined, x + stringWidth(text1), y - stringHeight(text), stringWidth(text2), stringHeight(text), true, drawGetColor());
 	} else {
 		if ((instanceOf(globalFont) == "Font") || (globalFont === null)) {
-			curcon.font = globalFont.font;
+			curcon.font = globalFont;
 			if (curcon.verticalAlign != "top") y -= curcon.measureText(text).height / ((curcon.verticalAlign == "middle") ? 2 : 1);
 			curcon.fillText(text, x, y);
 		} else if (instanceOf(globalFont) == "SpriteFont") {
@@ -140,9 +140,9 @@ function drawBackgroundTiled(back, x, y) {
 	if (x > 0) x -= back.width;
 	if (y > 0) y -= back.height;
 
-	for (x; x < canvas.width; x += back.width)
-	for (y; y < canvas.height; y += back.height)
-	curcon.drawImage(back, x, y);
+	for (var xx = x; xx < canvas.width; xx += back.width)
+		for (var yy = y; yy < canvas.height; yy += back.height)
+			curcon.drawImage(back, xx, yy);
 }
 
 function drawBackgroundPart(back, left, top, w, h, x, y) {
@@ -196,9 +196,9 @@ function drawBackgroundTiledExt(back, x, y, xscale, yscale, color, alpha) {
 
 	curcon.save();
 	curcon.globalAlpha = alpha;
-	for (x; x < canvas.width; x += back.width * xscale)
-	for (y; y < canvas.height; y += back.height * yscale)
-	curcon.drawImage(image, x, y, back.width * xscale, back.height * yscale);
+	for (var xx = x; xx < canvas.width; xx += back.width * xscale)
+	for (var yy = y; yy < canvas.height; yy += back.height * yscale)
+	curcon.drawImage(image, xx, yy, back.width * xscale, back.height * yscale);
 	curcon.restore();
 }
 
@@ -259,7 +259,8 @@ function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha
 }
 
 function drawSelf(o) {
-	drawSpriteExt(o["sprite"], o["imgIndex"], o["x"], o["y"], o["imgXscale"], o["imgYscale"], o["imgAngle"], o["imgBlend"], o["imgAlpha"]);
+	if (o["sprite"] != undefined && o["sprite"] != null)
+		drawSpriteExt(o["sprite"], o["imgIndex"], o["x"], o["y"], o["imgXscale"], o["imgYscale"], o["imgAngle"], o["imgBlend"], o["imgAlpha"]);
 }
 
 function drawCircle(x, y, r, outline) {
@@ -274,7 +275,15 @@ function drawCircle(x, y, r, outline) {
 function clearDraw() {
 	delete window.links;
 	links = new Array();
-	context.clearRect(0, 0, roomWidth, roomHeight);
+	context.save();
+	
+	if (rooms[room].drawBackgroundColor)
+		context.fillStyle = rooms[room].backgroundColor;
+	else
+		context.fillStyle = "#000000";
+	
+	context.fillRect(0, 0, roomWidth, roomHeight);
+	context.restore();
 }
 
 function drawSetBackground(isback, back, fill) {
@@ -782,7 +791,7 @@ function stringWidth(str) {
 
 function stringHeight(str) {
 	if (instanceOf(globalFont) == "Font") {
-		curcon.font = globalFont.font;
+		curcon.font = globalFont;
 		return curcon.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
 	} else if (instanceOf(globalFont) == "SpriteFont") {
 		return globalFont.sprite.height * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
@@ -1207,34 +1216,33 @@ function surfaceFree(id) {
 }
 
 function surfaceExists(id) {
-	if (id === -1) {
+	if (id === -1)
 		id = canvas;
-	}
-	if (id === null) {
+	
+	if (id === null)
 		return false;
-	} else {
-		return (id.getContext);
-	}
+	else
+		return id.getContext;
 }
 
 function surfaceGetWidth(id) {
-	if (id === -1) {
+	if (id === -1)
 		id = canvas;
-	}
+	
 	return id.width;
 }
 
 function surfaceGetHeight(id) {
-	if (id === -1) {
+	if (id === -1)
 		id = canvas;
-	}
+
 	return id.height;
 }
 
 function surfaceSetTarget(id) {
-	if (id === -1) {
+	if (id === -1)
 		id = canvas;
-	}
+
 	this.tmpstroke = curcon.strokeStyle;
 	this.tmpfill = curcon.fillStyle;
 	this.tmpalpha = curcon.globalAlpha;
@@ -1254,9 +1262,9 @@ function surfaceResetTarget() {
 }
 
 function surfaceGetPixel(id, x, y) {
-	if (id === -1) {
+	if (id === -1)
 		id = canvas;
-	}
+
 	this.imgdata = id.getContext("2d").getImageData(x, y, 1, 1);
 	this.data = imgdata.data;
 	this.red = data[0];
@@ -1266,30 +1274,30 @@ function surfaceGetPixel(id, x, y) {
 }
 
 function drawSurface(id, x, y) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.drawImage(id, x, y);
 }
 
 function drawSurfaceStretched(id, x, y, w, h) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.drawImage(id, x, y, w, h);
 }
 
 function drawSurfacePart(id, left, top, w, h, x, y) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.drawImage(id, left, top, w, h, x, y, w, h);
 }
 
 function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.save();
 	curcon.translate(x, y);
 	curcon.rotate(angle * (pi / 180));
@@ -1300,9 +1308,9 @@ function drawSurfaceExt(id, x, y, xscale, yscale, angle, color, alpha) {
 }
 
 function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.save();
 	curcon.translate(x, y);
 	curcon.rotate(angle * (pi / 180));
@@ -1312,9 +1320,9 @@ function drawSurfaceStretchedExt(id, x, y, w, h, angle, color, alpha) {
 }
 
 function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, alpha) {
-	if (id == -1) {
+	if (id == -1)
 		id = canvas;
-	}
+
 	curcon.save();
 	curcon.globalAlpha = alpha;
 	curcon.drawImage(id, left, top, w, h, x, y, w, h);
@@ -1484,15 +1492,15 @@ function dateGetHour(d) {
 	return d.getHours();
 }
 
-function dateGetMinutes(d) {
+function dateGetMinute(d) {
 	return d.getMinutes();
 }
 
-function dateGetSeconds(d) {
+function dateGetSecond(d) {
 	return d.getSeconds();
 }
 
-function dateGetMilliseconds(d) {
+function dateGetMillisecond(d) {
 	return d.getMilliseconds();
 }
 
@@ -1725,25 +1733,25 @@ function placeEmpty(x, y, o) {
 }
 
 function placeMeeting(o, x, y, obj) {
-	if (obj instanceof Array) {
-		for (var i = 0; i < obj.id.length; i++)
-			if (checkCollision(o, x, y, obj.id[i]))
-				return true;
-		return false;
-	}
+	if (obj instanceof Array)
+		return checkCollision(o, x, y, obj);
+
+	for (var i = 0; i < obj.id.length; i++)
+		if (checkCollision(o, x, y, obj.id[i]))
+			return true;
 	
-	return checkCollision(o, x, y, obj);
+	return false;
 }
 
 function positionMeeting(x, y, obj) {
-	if (obj instanceof Array) {
-		for (var i = 0; i < obj.id.length; i++)
-			if (checkPoint(x, y, obj.id[i]))
-				return true;
-		return false;
-	}
-			
-	return checkPoint(x, y, obj);
+	if (obj instanceof Array)
+		return checkPoint(x, y, obj);
+
+	for (var i = 0; i < obj.id.length; i++)
+		if (checkPoint(x, y, obj.id[i]))
+			return true;
+
+	return false;
 }
 
 function positionEmpty(x, y) {
