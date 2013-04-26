@@ -7,9 +7,9 @@
  * GHP is free software and comes with ABSOLUTELY NO WARANTY.
  * See LICENSE for more details.
  */
-///////////////////
-//Drawing functions
-///////////////////
+/////////////////////
+//Drawing Functions//
+/////////////////////
 if (!window.requestAnimationFrame) {
 	window.requestAnimationFrame = (function () {
 		return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || function () {
@@ -54,13 +54,13 @@ function drawGetColor() {
 }
 
 function drawText(text, x, y) {
+	text += "";
 	if (text.indexOf("~#") != -1) {
 		var text1 = text.substr(0, text.indexOf("~#"));
 		var text2 = text.substr(text.indexOf("~#") + 2, text.length);
 		drawText(text1, x, y);
 		drawText(text2, x, y + stringHeight(text1) + 2);
-	} else if (text.indexOf("~a:") > -1) //Hyperlinks
-	{
+	} else if (text.indexOf("~a:") > -1) { //Hyperlinks
 		var link = text.substr(text.indexOf("~a:") + 3, text.length).indexOf("~");
 		var func = text.substr(text.indexOf("~a:") + 3, link);
 		var text1 = text.substr(0, text.indexOf("~a:"));
@@ -68,11 +68,14 @@ function drawText(text, x, y) {
 		drawText(text1 + text2, x, y);
 		addLink(func, undefined, x + stringWidth(text1), y - stringHeight(text), stringWidth(text2), stringHeight(text), true, drawGetColor());
 	} else {
-		if ((instanceOf(globalFont) == "Font") || (globalFont === null)) {
-			curcon.font = globalFont;
-			if (curcon.verticalAlign != "top") y -= curcon.measureText(text).height / ((curcon.verticalAlign == "middle") ? 2 : 1);
+		if (globalFont instanceof Font || globalFont == null) {
+			curcon.font = globalFont.font;
+			
+			if (curcon.verticalAlign != "bottom")
+				y += curcon.measureText("W").width / ((curcon.verticalAlign == "middle") ? 2 : 1);
+
 			curcon.fillText(text, x, y);
-		} else if (instanceOf(globalFont) == "SpriteFont") {
+		} else if (globalfont instanceof SpriteFont) {
 			if (curcon.verticalAlign != "top") if (curcon.verticalAlign == "bottom") y -= globalFont.sprite.height;
 			else y -= globalFont.sprite.height / 2;
 
@@ -202,7 +205,7 @@ function drawBackgroundTiledExt(back, x, y, xscale, yscale, color, alpha) {
 	curcon.restore();
 }
 
-function drawBackgroundPartExt(back, laft, top, w, h, x, y, xscale, yscale, color, alpha) {
+function drawBackgroundPartExt(back, left, top, w, h, x, y, xscale, yscale, color, alpha) {
 	image = back;
 
 	if (back.colors != undefined && color.toUpperCase() != cWhite) {
@@ -410,9 +413,9 @@ function makeColorHSV(h, s, v) {
 	return "#" + toHex(r) + toHex(g) + toHex(b);
 }
 
-////////////////
-//Font functions
-////////////////
+//////////////////
+//Font Functions//
+//////////////////
 function fontAdd(name, size, bold, italic) {
 	this.temp = new Font();
 	temp.font = name;
@@ -422,7 +425,7 @@ function fontAdd(name, size, bold, italic) {
 }
 
 function fontAddSprite(sprite, first, prop, sep) {
-	this.temp = new SpriteFont();
+	var temp = new SpriteFont();
 	temp.sprite = sprite;
 	temp.start = first;
 	temp.sep = sep;
@@ -430,28 +433,25 @@ function fontAddSprite(sprite, first, prop, sep) {
 	if (prop === true) {
 		temp.propx = new Array();
 		temp.propwidth = new Array();
-		this.minx = sprite.siwidth;
-		this.maxw = 0;
-		this.surf = surfaceCreate(sprite.width, sprite.height);
-		this.con = surf.getContext("2d");
+		var minx = sprite.siwidth;
+		var maxw = 0;
+		var surf = surfaceCreate(sprite.width, sprite.height);
+		var con = surf.getContext("2d");
 		con.drawImage(sprite, 0, 0);
-		this.imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
+		con.verticalAlign = "top";
+		var imgdata = con.getImageData(0, 0, sprite.width, sprite.height);
 		for (var i = 0; i < sprite.width / sprite.siwidth; i++) {
-			for (var x = 0; x < sprite.siwidth; x++) {
-				for (var y = 0; y < sprite.height; y++) {
-					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0) {
+			for (var x = 0; x < sprite.siwidth; x++)
+				for (var y = 0; y < sprite.height; y++)
+					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
 						minx = min(minx, x);
-					}
-				}
-			}
+
 			temp.propx[i] = minx;
-			for (var x = minx + 1; x < sprite.siwidth; x++) {
-				for (var y = 0; y < sprite.height; y++) {
-					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0) {
+			for (var x = minx + 1; x < sprite.siwidth; x++)
+				for (var y = 0; y < sprite.height; y++)
+					if (imgdata.data[(i * sprite.siwidth + x + (y * sprite.width)) * 4 + 3] > 0)
 						maxw = max(maxw, x - minx);
-					}
-				}
-			}
+
 			temp.propwidth[i] = maxw;
 		}
 	}
@@ -490,9 +490,9 @@ function fontGetItalic(ind) {
 	}
 }
 
-////////////////
-//Math Functions
-////////////////
+//////////////////
+//Math Functions//
+//////////////////
 function radToDeg(x) {
 	return x * 180 / pi;
 }
@@ -747,9 +747,9 @@ function randomize() {
 	return false;
 }
 
-//////////////////
-//String Functions
-//////////////////
+////////////////////
+//String Functions//
+////////////////////
 function isString(x) {
 	return (typeof x === "string") ? true : false;
 }
@@ -786,16 +786,20 @@ function stringLength(str) {
 }
 
 function stringWidth(str) {
-	return curcon.measureText(str).width;
+	if (globalFont instanceof Font) {
+		curcon.font = globalFont.font;
+		return curcon.measureText(str).width;
+	}
+	else
+		return (globalFont.sprite.siwidth + globalFont.sep) * text.length - globalFont.sep;
 }
 
 function stringHeight(str) {
-	if (instanceOf(globalFont) == "Font") {
-		curcon.font = globalFont;
-		return curcon.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
-	} else if (instanceOf(globalFont) == "SpriteFont") {
+	if (globalFont instanceof Font) {
+		curcon.font = globalFont.font;
+		return curcon.measureText("W").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
+	} else
 		return globalFont.sprite.height * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
-	}
 }
 
 function stringLower(str) {
@@ -916,24 +920,124 @@ function clipboardSetText() {
 	return false;
 }
 
-/////////////////
-//Data Structures
-/////////////////
+///////////////////
+//Data Structures//
+///////////////////
+function compAllTypes(a, b) {
+	if (typeof a == "string" && typeof b == "string")
+		return a.compareTo(b);
+	
+	if (typeof a == "string" && typeof b == "number")
+		return 10;
+	
+	if (typeof a == "number" && typeof b == "string")
+		return -10;
+	
+	return a - b;
+}
+
+//Stacks
+function dsStackCreate() {
+	return new Array();
+}
+
+function dsStackDestroy(id) {
+	delete id;
+}
+
+function dsStackClear(id) {
+	id.length = 0;
+}
+
+function dsStackCopy(id, src) {
+	id.length = 0;
+	src.forEach(function(e) {
+		id.push(e);
+	});
+}
+
+function dsStackSize(id) {
+	return id.length;
+}
+
+function dsStackEmpty(id) {
+	return id.length == 0;
+}
+
+function dsStackPush(id, val) {
+	id.unshift(val);
+}
+
+function dsStackPop(id) {
+	return id.shift();
+}
+
+function dsStackTop(id) {
+	return id[0];
+}
+
+//Queues
+function dsQueueCreate() {
+	return new Array();
+}
+
+function dsQueueDestroy(id) {
+	delete id;
+}
+
+function dsQueueClear(id) {
+	id.length = 0;
+}
+
+function dsQueueCopy(id, src) {
+	id.length = 0;
+	src.forEach(function(e) {
+		id.push(e);
+	});
+}
+
+function dsQueueSize(id) {
+	return id.length;
+}
+
+function dsQueueEmpty(id) {
+	return id.length == 0;
+}
+
+function dsQueueEnqueue(id, val) {
+	id.push(val);
+}
+
+function dsQueueDequeue(id) {
+	return id.shift();
+}
+
+function dsQueueHead(id) {
+	return id[0];
+}
+
+function dsQueueTail(id) {
+	return id[id.length - 1];
+}
+
+//Lists
 function dsListCreate() {
 	return new Array();
 }
 
 function dsListDestroy(id) {
-	delete this.id;
+	delete id;
 }
 
 function dsListClear(id) {
-	id.Clear();
+	id.length = 0;
 }
 
 function dsListCopy(id, src) {
-	id.Clear();
-	id.Concat(src);
+	id.length = 0;
+	src.forEach(function(e) {
+		id.push(e);
+	});
 }
 
 function dsListSize(id) {
@@ -941,33 +1045,15 @@ function dsListSize(id) {
 }
 
 function dsListEmpty(id) {
-	return (id.length === 0);
+	return id.length == 0;
 }
 
 function dsListAdd(id, val) {
-	id[id.length] = val;
+	id.push(val);
 }
 
 function dsListInsert(id, pos, val) {
-	this.start = new Array();
-	this.end = new Array();
-
-	start.Concat(id);
-	start.length = pos;
-	start.Add(val);
-
-	end.Concat(id);
-	end.Reverse();
-	end.length = id.length - pos - 1;
-	end.Reverse();
-
-	start.Concat(end);
-
-	id.Clear();
-	id.Concat(start);
-
-	delete this.start;
-	delete this.end;
+	id.splice(pos, 0, val);
 }
 
 function dsListReplace(id, pos, val) {
@@ -975,24 +1061,11 @@ function dsListReplace(id, pos, val) {
 }
 
 function dsListDelete(id, pos) {
-	id.RemoveAt(pos);
+	id.splice(pos, 1);
 }
 
 function dsListFindIndex(id, val) {
-	this.exit = false;
-	this.i = 0;
-	while (exit === false) {
-		if (i == id.length) {
-			exit = true;
-			return -1;
-		} else {
-			if (id[i] == val) {
-				exit = true;
-				return i;
-			}
-		}
-		i += 1;
-	}
+	return id.indexOf(val);
 }
 
 function dsListFindValue(id, pos) {
@@ -1000,41 +1073,527 @@ function dsListFindValue(id, pos) {
 }
 
 function dsListSort(id, ascending) {
-	for (this.index = 0; index < id.length - 1; index++) {
-		this.min = index;
-		for (this.scan = index + 1; scan < id.length; scan++)
-		if (isNaN(id[min])) if (isNaN(id[scan])) {
-			if (id[min].compareTo(id[scan]) > 0) min = scan;
-		} else min = scan;
-		else if (!isNaN(id[scan])) if (id[scan] < id[min]) min = scan;
-		this.tmp = id[index];
-		id[index] = id[min];
-		id[min] = tmp;
-	}
+	id.sort(compAllTypes);
 
-	if (!acsending) id.Reverse();
+	if (!acsending)
+		id.reverse();
 }
 
 function dsListShuffle(id) {
-	//This works by going through the array in order and switching the current value with a random one.
 	for (var i = 0; i < id.length; i++) {
 		this.a = id[i];
-		this.b = parseInt(random() * len);
+		this.b = Math.floor(random() * id.length);
 		id[i] = id[b];
 		id[p] = a;
 	}
 }
-//Later add support for dsListRead and dsListWrite. Javascript uses a different method than Game Maker, and we would want compatibility between executable and on games in the case of save files.
 
-////////////////////////
-//General Game Functions
-////////////////////////
-function variableGlobalExists(a) {
-	if (a === null) {
-		return false;
-	} else {
-		return true;
+//Maps
+function Map() {
+	this.keys = new Array();
+	this.values = new Array();
+}
+
+function dsMapCreate() {
+	return new Map();
+}
+
+function dsMapDestroy(id) {
+	delete id;
+}
+
+function dsMapClear(id) {
+	id.keys = new Array();
+	id.values = new Array();
+}
+
+function dsMapCopy(id, src) {
+	id.keys.length = 0;
+	src.keys.forEach(function(e) {
+		id.keys.push(e);
+	});
+	
+	id.values.length = 0;
+	src.values.forEach(function(e) {
+		id.values.push(e);
+	});
+}
+
+function dsMapSize(id) {
+	return id.keys.length;
+}
+
+function dsMapEmpty(id) {
+	return id.keys.length == 0;
+}
+
+function dsMapAdd(id, key, val) {
+	var ind = 0;
+	
+	while (ind < id.keys.length && compareAllTypes(id.keys[ind], key) > 0)
+		ind++;
+	
+	id.keys.splice(ind, 0, key);
+	id.values.splice(ind, 0, val);
+}
+
+function dsMapReplace(id, key, val) {
+	var ind = id.keys.indexOf(key);
+	id.values.splice(ind, 1, val);
+}
+
+function dsMapDelete(id, key) {
+	var ind = id.keys.indexOf(key);
+	id.values.keys(ind, 1);
+	id.values.splice(ind, 1);
+}
+
+function dsMapExists(id, key) {
+	return id.keys.indexOf(key) > -1;
+}
+
+function dsMapFindPrevious(id, key) {
+	var ind = 0;
+	
+	while (ind < id.keys.length && compareAllTypes(id.keys[ind], key) > 0)
+		ind++;
+	
+	return id.keys[ind - 1];
+}
+
+function dsMapFindNext(id, key) {
+	var ind = id.keys.length - 1;
+	
+	while (ind > 0 && compareAllTypes(id.keys[ind], key) < 0)
+		ind--;
+	
+	return id.keys[ind + 1];
+}
+
+function dsMapFindFirst(id) {
+	return id.keys[0];
+}
+
+function dsMapFindLast(id) {
+	return id.keys[id.keys.length - 1];
+}
+
+//Priority Queues
+function Priority() {
+	this.pr = new Array();
+	this.values = new Array();
+}
+
+function dsPriorityCreate() {
+	return new Priority();
+}
+
+function dsPriorityDestroy(id) {
+	delete id;
+}
+
+function dsPriorityClear(id) {
+	id.pr = new Array();
+	id.values = new Array();
+}
+
+function dsPriorityCopy(id, src) {
+	id.pr.length = 0;
+	src.pr.forEach(function(e) {
+		id.pr.push(e);
+	});
+	
+	id.values.length = 0;
+	src.values.forEach(function(e) {
+		id.values.push(e);
+	});
+}
+
+function dsPrioritySize(id) {
+	return id.values.length;
+}
+
+function dsPriorityEmpty(id) {
+	return id.values.length == 0;
+}
+
+function dsPriorityAdd(id, val, prio) {
+	var ind = 0;
+	
+	while (ind < id.prio.length && id.pr[ind] < prio)
+		ind++;
+	
+	id.pr.splice(ind, 0, prio);
+	id.values.splice(ind, 0, val);
+}
+
+function dsPriorityChangePriority(id, val, prio) {
+	var ind = id.values.indexOf(val);
+	id.values.splice(ind, 1);
+	dsPriorityAdd(id, val, prio);
+}
+
+function dsPriorityFindPriority(id, val) {
+	var ind = id.values.indexOf(val);
+	return id.pr[ind]
+}
+
+function dsPriorityDeleteValue(id, val) {
+	var ind = id.values.indexOf(val);
+	
+	if (ind > -1) {
+		id.values.splice(ind, 1);
+		id.pr.splice(ind, 1);
 	}
+}
+
+function dsPriorityDeleteMin(id, val) {
+	id.pr.shift();
+	return id.values.shift();
+}
+
+function dsPriorityFindMin(id) {
+	return id.keys[0];
+}
+
+function dsPriorityDeleteMax(id, val) {
+	id.pr.pop();
+	return id.values.pop();
+}
+
+function dsPriorityFindMax(id) {
+	return id.keys[id.keys.length - 1];
+}
+
+//Grids
+function dsGridCreate(w, h) {
+	var g = new Array(w);
+	for (var i = 0; i < w; i++)
+		g[i] = new Array(h);
+	
+	return g;
+}
+
+function dsGridDestroy(id) {
+	delete id;
+}
+
+function dsGridCopy(id, src) {
+	id.length = src.length;
+	
+	for (var i = 0; i < src.length; i++) {
+		id[i] = new Array(src[0].length);
+		for (var j = 0; j < id[0].length; j++)
+			id[i][j] = src[i][j];
+	}
+}
+
+function dsGridResize(id, w, h) {
+	var old = id.length;
+	id.length = w;
+	
+	for (var i = 0; i < w; i++)
+		if (i >= old)
+			id[i] = new Array(h);
+		else
+			id[i].length = h;
+}
+
+function dsGridWidth(id) {
+	return id.length;
+}
+
+function dsGridHeight(id) {
+	return id[0].length;
+}
+
+function dsGridClear(id, val) {
+	for (var i = 0; i < id.length; i++)
+		for (var j = 0; j < id[i].length; j++)
+			id[i][j] = val;
+}
+
+function dsGridSet(id, x, y, val) {
+	id[x][y] = val;
+}
+
+function dsGridAdd(id, x, y, val) {
+	id[x][y] += val;
+}
+
+function dsGridMultiply(id, x, y, val) {
+	id[x][y] *= val;
+}
+
+function dsGridSetRegion(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			id[i][j] = val;
+}
+
+function dsGridAddRegion(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			id[i][j] += val;
+}
+
+function dsGridMultiplyRegion(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			id[i][j] *= val;
+}
+
+function dsGridSetDisk(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r)
+				id[i][j] = val;
+}
+
+function dsGridAddDisk(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r)
+				id[i][j] += val;
+}
+
+function dsGridMultiplyDisk(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r)
+				id[i][j] *= val;
+}
+
+function dsGridSetGridRegion(id, src, x1, y1, x2, y2, xpos, ypos) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = 0; i + xs <= xe && i + xpos < id.length; i++)
+		for (var j = 0; j + ys <= ye && j + ypos < id[0].length; j++)
+			id[xpos + i][ypos + j] = src[xs + i][ys + j];
+}
+
+function dsGridAddGridRegion(id, src, x1, y1, x2, y2, xpos, ypos) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = 0; i + xs <= xe && i + xpos < id.length; i++)
+		for (var j = 0; j + ys <= ye && j + ypos < id[0].length; j++)
+			id[xpos + i][ypos + j] += src[xs + i][ys + j];
+}
+
+function dsGridMultiplyGridRegion(id, src, x1, y1, x2, y2, xpos, ypos) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = 0; i + xs <= xe && i + xpos < id.length; i++)
+		for (var j = 0; j + ys <= ye && j + ypos < id[0].length; j++)
+			id[xpos + i][ypos + j] *= src[xs + i][ys + j];
+}
+
+function dsGridGet(id, x, y) {
+	return id[x][y];
+}
+
+function dsGridGetSum(id, x1, y1, x2, y2) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	var sum = 0;
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			sum += id[i][j];
+	
+	return sum;
+}
+
+function dsGridGetMin(id, x1, y1, x2, y2) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	var min = id[xs][ys];
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			min = Math.min(min, id[i][j]);
+	
+	return min;
+}
+
+function dsGridGetMax(id, x1, y1, x2, y2) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	var max = id[xs][ys];
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			max = Math.max(max, id[i][j]);
+	
+	return max;
+}
+
+function dsGridGetMean(id, x1, y1, x2, y2) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	var mean = 0;
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			mean += id[i][j];
+	
+	mean /= (xe - xs + 1) * (ye - ys + 1);
+	
+	return mean;
+}
+
+function dsGridValueExists(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (id[i][j] == val)
+				return true;
+	
+	return false;
+}
+
+function dsGridValueX(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (id[i][j] == val)
+				return i;
+	
+	return -1;
+}
+
+function dsGridValueY(id, x1, y1, x2, y2, val) {
+	var xs = Math.min(x1, x2);
+	var ys = Math.min(y1, y2);
+	var xe = Math.max(x1, y1);
+	var ye = Math.max(y1, y2);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (id[i][j] == val)
+				return j;
+	
+	return -1;
+}
+
+function dsGridValueDiskExists(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r && id[i][j] == val)
+				return true;
+	
+	return false;
+}
+
+function dsGridValueDiskX(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r && id[i][j] == val)
+				return i;
+	
+	return -1;
+}
+
+function dsGridValueDiskY(id, x, y, r, val) {
+	var xs = Math.min(x - r, 0);
+	var ys = Math.min(y - r, 0);
+	var xe = Math.max(x + r, id.length);
+	var ye = Math.max(y + r, id[0].length);
+	
+	for (var i = xs; i <= xe; i++)
+		for (var j = ys; j <= ye; j++)
+			if (Math.sqrt(Math.pow(i - r, 2) + Math.pow(j - r, 2)) <= r && id[i][j] == val)
+				return j;
+	
+	return -1;
+}
+
+function dsGridShuffle(id) {
+	for (var i = 0; i < id.length; i++)
+		for (var j = 0; j < id[0].length; j++) {
+			var x = Math.floor(Math.random() * id.length);
+			var y = Math.floor(Math.random() * id[0].length);
+			
+			var temp = id[i][j];
+			id[i][j] = id[x][y];
+			id[x][y] = temp;
+		}
+}
+
+//////////////////////////
+//General Game Functions//
+//////////////////////////
+function variableGlobalExists(a) {
+	return a != undefined && a != null;
 }
 
 function variableGlobalGet(a) {
@@ -1111,9 +1670,9 @@ function instanceOf(o) //Fixes instanceof cross-frame breakage
 function windowSetCursor(c) {
 	drawSetCursor(c);
 }
-/////////////////
-//Sound functions
-/////////////////
+///////////////////
+//Sound Functions//
+///////////////////
 function soundPlay(snd) {
 	var i = sounds.length;
 	sounds[i] = new Audio();
@@ -1199,9 +1758,9 @@ function soundBackgroundTempo(snd, f) {
 	}
 }
 
-///////////////////
-//Surface Functions
-///////////////////
+/////////////////////
+//Surface Functions//
+/////////////////////
 function surfaceCreate(w, h) {
 	//temps has to be used instead of temp because this method is used in fontAddSprite which uses temp.
 	this.temps = document.createElement("canvas");
@@ -1329,9 +1888,9 @@ function drawSurfacePartExt(id, left, top, w, h, x, y, xscale, yscale, color, al
 	curcon.restore();
 }
 
-////////////////
-//Date functions
-////////////////
+//////////////////
+//Date Functions//
+//////////////////
 function dateDatetimeString(d) {
 	return d.toLocaleDateString() + d.toLocaleTimeString() + (d.getHours <= 12) ? " AM" : " PM";
 }
@@ -1614,9 +2173,9 @@ function dateMonthSpan(d1, d2) {
 	return round(abs(d1 - d2) / 2628000000, 10); //Not all months have 30 days
 }
 
-////////////////////
-//Instance functions
-////////////////////
+//////////////////////
+//Instance Functions//
+//////////////////////
 function instanceDestroy(obj) {
 	if (obj !== undefined) {
 		glin[obj["glin"]] = null;
@@ -1639,9 +2198,9 @@ function instanceNumber(obj) {
 	return obj.id.length;
 }
 
-////////////////////
-//Movement Functions
-////////////////////
+//////////////////////
+//Movement Functions//
+//////////////////////
 function motionSet(obj, dir, spd) {
 	inst = glin[obj["glin"]];
 	if (inst !== undefined) {
@@ -1761,9 +2320,9 @@ function positionEmpty(x, y) {
 	return true;
 }
 
-////////////////
-//Room functions
-////////////////
+//////////////////
+//Room Functions//
+//////////////////
 function roomGoto(r, m) {
 	var rm = undefined;
 	if (!isNaN(Number(r))) {
@@ -1804,8 +2363,159 @@ function roomRestart() {
 }
 
 //////////////////
-//Collision System
+//Tile Functions//
 //////////////////
+function tileDelete(id) {
+	tiles.splice(tiles.indexOf(id), 1);
+}
+
+function tileExists(id) {
+	if (id == undefined)
+		return false;
+
+	if (id == null)
+		return false;
+	
+	return tiles.indexOf(id) > -1;
+}
+
+function tileGetX(id) {
+	return id.x;
+}
+
+function tileGetY(id) {
+	return id.y;
+}
+
+function tileGetLeft(id) {
+	return id.left;
+}
+
+function tileGetTop(id) {
+	return id.top;
+}
+
+function tileGetWidth(id) {
+	return id.width;
+}
+
+function tileGetHeight(id) {
+	return id.height;
+}
+
+function tileGetDepth(id) {
+	return id.depth;
+}
+
+function tileGetVisible(id) {
+	return id.visible;
+}
+
+function tileGetXscale(id) {
+	return id.xscale;
+}
+
+function tileGetYscale(id) {
+	return id.yscale;
+}
+
+function tileGetBackground(id) {
+	return id.bkg;
+}
+
+function tileGetBlend(id) {
+	return id.blend;
+}
+
+function tileGetAlpha(id) {
+	return id.alpha;
+}
+
+function tileSetPosition(id, x, y) {
+	id.x = x;
+	id.y = y;
+}
+
+function tileSetRegion(id, left, top, width, height) {
+	id.left = left;
+	id.top = top;
+	id.width = width;
+	id.height = height;
+}
+
+function tileSetBackground(id, bkg) {
+	id.bkg = bkg;
+}
+
+function tileSetVisible(id, vis) {
+	id.visible = vis;
+}
+
+function tileSetDepth(id, d) {
+	id.depth = d;
+}
+
+function tileSetScale(id, xscale, yscale) {
+	id.xscale = xscale;
+	id.yscale = yscale;
+}
+
+function tileSetBlend(id, b) {
+	id.blend = b;
+}
+
+function tileSetAlpha(id, a) {
+	id.alpha = a;
+}
+
+function tileLayerHide(depth) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth)
+			tiles[i].visible = false;
+}
+
+function tileLayerShow(depth) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth)
+			tiles[i].visible = true;
+}
+
+function tileLayerDelete(depth) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth)
+			tiles.splice(i--, 1);
+}
+
+function tileLayerShift(depth, x, y) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth) {
+			tiles[i].x += x;
+			tiles[i].y += y;
+		}
+}
+
+function tileLayerFind(depth, x, y) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth && x >= tiles[i].x && y >= tiles[i].y && x < tiles[i].x + tiles[i].width && y < tiles[i].y + tiles[i].height)
+			return tiles[i];
+	
+	return -1;
+}
+
+function tileLayerDeleteAt(depth, x, y) {
+	if (tiles[i].depth == depth && x >= tiles[i].x && y >= tiles[i].y && x < tiles[i].x + tiles[i].width && y < tiles[i].y + tiles[i].height)
+		tiles.splice(i--, 1);
+}
+
+function tileLayerDepth(depth, newDepth) {
+	for (var i = 0; i < tiles.length; i++)
+		if (tiles[i].depth == depth)
+			tiles[i].depth = newDepth;
+}
+
+////////////////////
+//Collision System//
+////////////////////
 
 //This collision system works by finding how close two shapes must be to collide, given the direction from one to the other.
 //It calculates the distance from the center to the edge of each shape in the respective direction, adds those, and checks if
@@ -1967,19 +2677,23 @@ function checkPoint(xx, yy, o) {
 	return (l2 > dist)
 }
 
-/////////////////
-//Particle System
-/////////////////
+///////////////////
+//Particle System//
+///////////////////
 
 //Functions necessary.
 
 function sortDepth(a, b) {
 	var d1, d2;
-	if (a instanceof ParticleSystem) d1 = a.depth;
-	else d1 = a["depth"];
+	if (a instanceof ParticleSystem || a instanceof Tile)
+		d1 = a.depth;
+	else
+		d1 = a["depth"];
 
-	if (b instanceof ParticleSystem) d2 = b.depth;
-	else d2 = b["depth"];
+	if (b instanceof ParticleSystem || a instanceof Tile)
+		d2 = b.depth;
+	else
+		d2 = b["depth"];
 
 	return d2 - d1;
 }
@@ -2921,9 +3635,9 @@ function partTypeGravity(ind, gravAmount, gravDir) {
 	ind.gravDir = gravDir;
 }
 
-////////////////////
-//Resource functions
-////////////////////
+//////////////////////
+//Resource Functions//
+//////////////////////
 function spriteExists(ind) {
 	if (resource[0][ind] != null) {
 		return true;

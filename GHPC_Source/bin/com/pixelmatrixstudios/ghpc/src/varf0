@@ -8,22 +8,23 @@
 * See LICENSE for more details.
 */
 
-canvas = document.getElementById("maincan");
-local = true;
+var canvas = document.getElementById("maincan");
+var local = true;
 if ((window.location.protocol == "http:")||(window.location.protocol == "https:"))
 	local = false;
 
 context = canvas.getContext("2d");
+context.verticalAlign = "top";
 cursurf = canvas;
 curcon = context;
 //These were added to handle the current surface
 keymap = new Array();
 
 //Constants and globals
-mouseX = 0;
-mouseY = 0;
-pi = Math.PI;
-mpd = 1000 * 60 * 60 * 24; //Milliseconds per day
-all = -100;
+var mouseX = 0;
+var mouseY = 0;
+var pi = Math.PI;
+var mpd = 1000 * 60 * 60 * 24; //Milliseconds per day
+var all = -100;
 
-fps = 
+var fps = 

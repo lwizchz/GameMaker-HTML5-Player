@@ -1,29 +1,30 @@
 ;
-cfps = 0;
-tfps = fps;
-fnd = new Date();
+var cfps = 0;
+var tfps = fps;
+var fnd = new Date();
 fnd = fnd.getSeconds();
-fod = fnd;
+var fod = fnd;
 
-room = 0;
-roomWidth = canvas.width;
-roomHeight = canvas.height;
+var room = 0;
+var roomWidth = canvas.width;
+var roomHeight = canvas.height;
 
-globalFont = null;
-links = new Array();
+var globalFont = fontAdd("Arial", 12, false, false);
+var links = new Array();
 
-foreground = new Array();
-keys = new Array();
-pkey = new Array();
-rkey = new Array();
-cursor = new Image();
+var keys = new Array();
+var pkey = new Array();
+var rkey = new Array();
+var cursor = new Image();
 
-sounds = new Array();
-volume = 1;
+var sounds = new Array();
+var volume = 1;
 
-glin = new Array();
+var glin = new Array();
 
-resource = new Array();
+var tiles = new Array();
+
+var resource = new Array();
 resource[0] = new Array(); //Sprites
 resource[1] = new Array(); //Sounds
 resource[2] = new Array(); //Backgrounds
@@ -35,83 +36,83 @@ resource[7] = new Array(); //Objects
 resource[8] = new Array(); //Rooms
 
 //Colors
-cAqua    = "#00FFFF";
-cBlack   = "#000000";
-cBlue    = "#0000FF";
-cDkgray  = "#404040";
-cFuchsia = "#FF00FF";
-cGray    = "#808080";
-cGreen   = "#008000";
-cLime    = "#00FF00";
-cLtgray  = "#C0C0C0";
-cMaroon  = "#800000";
-cNavy    = "#000080";
-cOlive   = "#808000";
-cOrange  = "#FFA000";
-cPurple  = "#800080";
-cRed     = "#FF0000";
-cSilver  = "#C0C0C0";
-cTeal    = "#008080";
-cWhite   = "#FFFFFF";
-cYellow  = "#FFFF00";
+var cAqua    = "#00FFFF";
+var cBlack   = "#000000";
+var cBlue    = "#0000FF";
+var cDkgray  = "#404040";
+var cFuchsia = "#FF00FF";
+var cGray    = "#808080";
+var cGreen   = "#008000";
+var cLime    = "#00FF00";
+var cLtgray  = "#C0C0C0";
+var cMaroon  = "#800000";
+var cNavy    = "#000080";
+var cOlive   = "#808000";
+var cOrange  = "#FFA000";
+var cPurple  = "#800080";
+var cRed     = "#FF0000";
+var cSilver  = "#C0C0C0";
+var cTeal    = "#008080";
+var cWhite   = "#FFFFFF";
+var cYellow  = "#FFFF00";
 
 //Keys
-vkNokey       = undefined;
-vkAnykey      =   0;
-vkLeft        =  37;
-vkRight       =  39;
-vkUp          =  38;
-vkDown        =  40;
-vkEnter       =  13;
-vkEscape      =  27;
-vkShift       =  16;
-vkControl     =  17;
-vkAlt         =  18;
-vkBackspace   =   8;
-vkTab         =   9;
-vkHome        =  36;
-vkEnd         =  35;
-vkDelete      =  46;
-vkInsert      =  45;
-vkPageup      =  33;
-vkPagedown    =  34;
-vkPause       =  19;
-vkPrintscreen =  44;
-vkF1          = 112;
-vkF2          = 113;
-vkF3          = 114;
-vkF4          = 115;
-vkF5          = 116;
-vkF6          = 117;
-vkF7          = 118;
-vkF8          = 119;
-vkF9          = 120;
-vkF10         = 121;
-vkF11         = 122;
-vkF12         = 123;
-vkNumpad0     =  96;
-vkNumpad1     =  97;
-vkNumpad2     =  98;
-vkNumpad3     =  99;
-vkNumpad4     = 100;
-vkNumpad5     = 101;
-vkNumpad6     = 102;
-vkNumpad7     = 103;
-vkNumpad8     = 104;
-vkNumpad9     = 105;
-vkMultiply    = 106;
-vkDivide      = 111;
-vkAdd         = 107;
-vkSubtract    = 109;
-vkDecimal     = 110;
+var vkNokey       = undefined;
+var vkAnykey      =   0;
+var vkLeft        =  37;
+var vkRight       =  39;
+var vkUp          =  38;
+var vkDown        =  40;
+var vkEnter       =  13;
+var vkEscape      =  27;
+var vkShift       =  16;
+var vkControl     =  17;
+var vkAlt         =  18;
+var vkBackspace   =   8;
+var vkTab         =   9;
+var vkHome        =  36;
+var vkEnd         =  35;
+var vkDelete      =  46;
+var vkInsert      =  45;
+var vkPageup      =  33;
+var vkPagedown    =  34;
+var vkPause       =  19;
+var vkPrintscreen =  44;
+var vkF1          = 112;
+var vkF2          = 113;
+var vkF3          = 114;
+var vkF4          = 115;
+var vkF5          = 116;
+var vkF6          = 117;
+var vkF7          = 118;
+var vkF8          = 119;
+var vkF9          = 120;
+var vkF10         = 121;
+var vkF11         = 122;
+var vkF12         = 123;
+var vkNumpad0     =  96;
+var vkNumpad1     =  97;
+var vkNumpad2     =  98;
+var vkNumpad3     =  99;
+var vkNumpad4     = 100;
+var vkNumpad5     = 101;
+var vkNumpad6     = 102;
+var vkNumpad7     = 103;
+var vkNumpad8     = 104;
+var vkNumpad9     = 105;
+var vkMultiply    = 106;
+var vkDivide      = 111;
+var vkAdd         = 107;
+var vkSubtract    = 109;
+var vkDecimal     = 110;
 
 //Alignment
-faLeft   = "left";
-faCenter = "center";
-faRight  = "right";
-faTop    = "top";
-faMiddle = "middle";
-faBottom = "bottom";
+var faLeft   = "left";
+var faCenter = "center";
+var faRight  = "right";
+var faTop    = "top";
+var faMiddle = "middle";
+var faBottom = "bottom";
 
 //Collision Shapes
 var RECTANGLE = 0;
@@ -518,9 +519,13 @@ function roomOpen(i) {
 	}
 	
 	rooms[i].rmCrCode();
-	for (var e=0;e<rooms[i].inst.length;e++) {
+	for (var e=0;e<rooms[i].inst.length;e++)
 		instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
-	}
+
+	tiles = new Array();
+	for (var e=0;e<rooms[i].tiles.length;e++)
+		tileAdd(rooms[i].tiles[e][0], rooms[i].tiles[e][1], rooms[i].tiles[e][2], rooms[i].tiles[e][3], rooms[i].tiles[e][4], rooms[i].tiles[e][5], rooms[i].tiles[e][6], rooms[i].tiles[e][7]);
+	
 	roomWidth = rooms[i].width;
 	roomHeight = rooms[i].height;
 }
@@ -544,7 +549,7 @@ function Sprite(fname, imgn, rmback, sm, xo, yo, l, r, t, b, s, a) {
 	img.right = r;
 	img.top = t;
 	img.bottom = b;
-	img.alpha = a; //This is to be used for precise collision checking.
+	img.alpha = a;
 	img.onload = function () {
 		this.siwidth = this.width / this.numb;
 		resource[0][resource[0].length] = this;
@@ -599,4 +604,53 @@ function Room() {
 	var rm = new Array();
 	resource[8][resource[8].length] = this;
 	return rm;
+}
+
+function Tile(x, y, bkg, l, t, w, h, d, vis, xsc, ysc, bl, a) {
+	if (x == undefined)
+		x = 0;
+	if (y == undefined)
+		y = 0;
+	if (bkg == undefined)
+		bkg = null;
+	if (l == undefined)
+		l = 0;
+	if (t == undefined)
+		t = 0;
+	if (w == undefined)
+		w = 0;
+	if (h == undefined)
+		h = 0;
+	if (d == undefined)
+		d = 0;
+	if (vis == undefined)
+		vis = true;
+	if (xsc == undefined)
+		xsc = 1;
+	if (ysc == undefined)
+		ysc = 1;
+	if (bl == undefined)
+		bl = cWhite;
+	if (a == undefined)
+		a = 1;
+	
+	this.x = x;
+	this.y = y;
+	this.bkg = bkg;
+	this.left = l;
+	this.top = t;
+	this.width = w;
+	this.height = h;
+	this.depth = d;
+	this.visible = vis;
+	this.xscale = xsc;
+	this.yscale = ysc;
+	this.blend = bl;
+	this.alpha = a;
+	
+	tiles.push(this);
+}
+
+function tileAdd(bkg, left, top, width, height, x, y, depth) {
+	new Tile(x, y, bkg, left, top, width, height, depth);
 }

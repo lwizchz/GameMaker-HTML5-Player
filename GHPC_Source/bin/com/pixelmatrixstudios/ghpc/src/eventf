@@ -104,12 +104,15 @@ function eventDraw() {
 		rooms[room].backgrounds[b].y += rooms[room].backgrounds[b].vsp;
 	}
 	
-	var drawList = glin.concat(systems);
+	var drawList = glin.concat(systems).concat(tiles);
 	drawList.sort(sortDepth);
 	for (var g = 0; g < drawList.length; g++)
 		if (drawList[g] instanceof ParticleSystem) {
 			if (drawList[g].autoDraw)
 				partSystemDrawit(drawList[g]);
+		} else if (drawList[g] instanceof Tile) {
+			if (drawList[g].visible)
+				drawBackgroundPartExt(drawList[g].bkg, drawList[g].left, drawList[g].top, drawList[g].width, drawList[g].height, drawList[g].x, drawList[g].y, drawList[g].xscale, drawList[g].yscale, drawList[g].blend, drawList[g].alpha);
 		} else if (drawList[g]["visible"])
 		drawList[g]["objectIndex"].Draw(drawList[g]["objectIndex"].id.indexOf(drawList[g]));
 
