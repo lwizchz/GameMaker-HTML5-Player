@@ -1,8 +1,7 @@
 ;
 var cfps = 0;
 var tfps = fps;
-var fnd = new Date();
-fnd = fnd.getSeconds();
+var fnd = new Date().getSeconds();
 var fod = fnd;
 
 var room = 0;
@@ -12,10 +11,17 @@ var roomHeight = canvas.height;
 var globalFont = fontAdd("Arial", 12, false, false);
 var links = new Array();
 
+//For keyboard functions
 var keys = new Array();
 var pkey = new Array();
 var rkey = new Array();
-var cursor = new Image();
+
+//For mouse functions
+var mButton   = new Array(false, false, false);
+var mPressed  = new Array(false, false, false);
+var mReleased = new Array(false, false, false);
+
+var cursorSprite = -1;
 
 var sounds = new Array();
 var volume = 1;
@@ -23,6 +29,8 @@ var volume = 1;
 var glin = new Array();
 
 var tiles = new Array();
+
+var global = new Array();
 
 var resource = new Array();
 resource[0] = new Array(); //Sprites
@@ -114,6 +122,11 @@ var faTop    = "top";
 var faMiddle = "middle";
 var faBottom = "bottom";
 
+//Mouse Buttons
+var mbLeft   = 0;
+var mbMiddle = 1;
+var mbRight  = 2;
+
 //Collision Shapes
 var RECTANGLE = 0;
 var ELLIPSE = 1;
@@ -122,9 +135,9 @@ var PRECISE = 3;
 
 //Required functions
 function fontAdd(name, size, bold, italic) {
-	this.temp = new Font();
+	var temp = new Font();
 	temp.style = bold + italic * 2;
-	this.str = "";
+	var str = "";
 	
 	if (temp.style == 1)
 		str = "bold ";
@@ -150,7 +163,8 @@ function surfaceCreate(w, h) {
 	return temps;
 }
 
-function fontAddSprite(sprite, first, prop, sep) {
+function fontAddSprite(spr, first, prop, sep) {
+	var sprite = resource[0][spr];
 	this.temp = new SpriteFont();
 	temp.sprite = sprite;
 	temp.start = first;
@@ -513,21 +527,21 @@ function RoomBackground(bkg, vis, fore, x, y, tileH, tileV, stretch, hsp, vsp) {
 }
 
 function roomOpen(i) {
-	for (var b = 0; b < rooms[i].backgrounds.length; b++) {
-		rooms[i].backgrounds[b].x = rooms[i].backgrounds[b].xstart;
-		rooms[i].backgrounds[b].y = rooms[i].backgrounds[b].ystart;
+	for (var b = 0; b < resource[8][i].backgrounds.length; b++) {
+		resource[8][i].backgrounds[b].x = resource[8][i].backgrounds[b].xstart;
+		resource[8][i].backgrounds[b].y = resource[8][i].backgrounds[b].ystart;
 	}
 	
-	rooms[i].rmCrCode();
-	for (var e=0;e<rooms[i].inst.length;e++)
-		instanceCreate(rooms[i].inst[e][0], rooms[i].inst[e][1], rooms[i].inst[e][2]);
+	resource[8][i].rmCrCode();
+	for (var e=0;e<resource[8][i].inst.length;e++)
+		instanceCreate(resource[8][i].inst[e][0], resource[8][i].inst[e][1], resource[8][i].inst[e][2]);
 
 	tiles = new Array();
-	for (var e=0;e<rooms[i].tiles.length;e++)
-		tileAdd(rooms[i].tiles[e][0], rooms[i].tiles[e][1], rooms[i].tiles[e][2], rooms[i].tiles[e][3], rooms[i].tiles[e][4], rooms[i].tiles[e][5], rooms[i].tiles[e][6], rooms[i].tiles[e][7]);
+	for (var e=0;e<resource[8][i].tiles.length;e++)
+		tileAdd(resource[8][i].tiles[e][0], resource[8][i].tiles[e][1], resource[8][i].tiles[e][2], resource[8][i].tiles[e][3], resource[8][i].tiles[e][4], resource[8][i].tiles[e][5], resource[8][i].tiles[e][6], resource[8][i].tiles[e][7]);
 	
-	roomWidth = rooms[i].width;
-	roomHeight = rooms[i].height;
+	roomWidth = resource[8][i].width;
+	roomHeight = resource[8][i].height;
 }
 
 /////////////
@@ -549,12 +563,13 @@ function Sprite(fname, imgn, rmback, sm, xo, yo, l, r, t, b, s, a) {
 	img.right = r;
 	img.top = t;
 	img.bottom = b;
+	img.shape = s;
 	img.alpha = a;
 	img.onload = function () {
 		this.siwidth = this.width / this.numb;
-		resource[0][resource[0].length] = this;
 	};
-	return img;
+	resource[0][resource[0].length] = img;
+	return resource[0].length - 1;
 }
 
 function Sound(fname, kind, pre) {
@@ -654,3 +669,4 @@ function Tile(x, y, bkg, l, t, w, h, d, vis, xsc, ysc, bl, a) {
 function tileAdd(bkg, left, top, width, height, x, y, depth) {
 	new Tile(x, y, bkg, left, top, width, height, depth);
 }
+

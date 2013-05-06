@@ -11,6 +11,7 @@
 				border-radius: 4px;
 				background: -webkit-gradient(linear, left top, left bottom, from(#000033), to(#000011));
 				background: -moz-linear-gradient(top,  #000033,  #000011);
+				outline: none;
 			}
 			
 			body {
@@ -34,6 +35,6 @@
 
 	</head>
 
-	<body onload="gameStart();" onunload="eventGameEnd();">
+	<body onload="gameStart();" onunload="eventGameEnd();" oncontextmenu="return false;">
 	
 		

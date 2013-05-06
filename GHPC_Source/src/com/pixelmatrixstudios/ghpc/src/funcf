@@ -72,7 +72,7 @@ function drawText(text, x, y) {
 			curcon.font = globalFont.font;
 			
 			if (curcon.verticalAlign != "bottom")
-				y += curcon.measureText("W").width / ((curcon.verticalAlign == "middle") ? 2 : 1);
+				y += curcon.measureText("m").width / ((curcon.verticalAlign == "middle") ? 2 : 1);
 
 			curcon.fillText(text, x, y);
 		} else if (globalfont instanceof SpriteFont) {
@@ -106,7 +106,7 @@ function drawText(text, x, y) {
 				for (var i = 0; i < text.length; i++) {
 					if (ord(stringCharAt(text, i)) >= globalFont.start && ord(stringCharAt(text, i)) < globalFont.start + globalFont.sprite.width / globalFont.sprite.siwidth) {
 						curx -= globalFont.propx[ord(stringCharAt(text, i)) - globalFont.start];
-						drawSpriteExt(globalFont.sprite, ord(stringCharAt(text, i)) - globalFont.start, curx, y);
+						drawSpriteExt(resources[0].indexOf[globalFont.sprite], ord(stringCharAt(text, i)) - globalFont.start, curx, y);
 						curx += globalFont.propwidth[ord(stringCharAt(text, i)) - globalFont.start] + globalFont.sep;
 					}
 				}
@@ -156,7 +156,7 @@ function drawBackgroundExt(back, x, y, xscale, yscale, rot, color, alpha) {
 	image = back;
 
 	if (back.colors != undefined && color.toUpperCase() != cWhite) {
-		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(sprite, color);
+		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(back, color);
 		image = back.colors[stringUpper(color)];
 	}
 
@@ -173,7 +173,7 @@ function drawBackgroundStretchedExt(back, x, y, w, h, color, alpha) {
 	image = back;
 
 	if (back.colors != undefined && color.toUpperCase() != cWhite) {
-		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(sprite, color);
+		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(back, color);
 		image = back.colors[stringUpper(color)];
 	}
 
@@ -187,7 +187,7 @@ function drawBackgroundTiledExt(back, x, y, xscale, yscale, color, alpha) {
 	image = back;
 
 	if (back.colors != undefined && color.toUpperCase() != cWhite) {
-		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(sprite, color);
+		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(back, color);
 		image = back.colors[stringUpper(color)];
 	}
 
@@ -209,7 +209,7 @@ function drawBackgroundPartExt(back, left, top, w, h, x, y, xscale, yscale, colo
 	image = back;
 
 	if (back.colors != undefined && color.toUpperCase() != cWhite) {
-		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(sprite, color);
+		if (back.colors.indexOf(stringUpper(color)) == -1) back.colors[stringUpper(color)] = imageBlend(back, color);
 		image = back.colors[stringUpper(color)];
 	}
 
@@ -221,31 +221,33 @@ function drawBackgroundPartExt(back, left, top, w, h, x, y, xscale, yscale, colo
 	curcon.restore();
 }
 
-function drawSprite(sprite, subimg, x, y) {
+function drawSprite(spr, subimg, x, y) {
+	var sprite = resource[0][spr];
 	this.xx = 0;
 	this.yy = 0;
 	if (sprite.xorig != undefined) xx = sprite.xorig;
 	if (sprite.yorig != undefined) yy = sprite.yorig;
 	curcon.save();
 	curcon.translate(x, y);
-	if (sprite.siwidth != undefined) {
+
+	if (sprite.siwidth != undefined)
 		curcon.drawImage(sprite, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, -xx, -yy, sprite.siwidth, sprite.height);
-	} else {
+	else
 		curcon.drawImage(sprite, -xx, -yy);
-	}
+
 	curcon.restore();
 }
 
-function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha) {
-	this.xx = 0;
-	this.yy = 0;
+function drawSpriteExt(spr, subimg, x, y, xscale, yscale, angle, color, alpha) {
+	var sprite = resource[0][spr];
+	var xx = 0;
+	var yy = 0;
 	if (sprite.xorig != undefined) xx = sprite.xorig;
 	if (sprite.yorig != undefined) yy = sprite.yorig;
-	image = sprite;
+	var image = sprite;
 	if (sprite.colors != undefined && color.toUpperCase() != cWhite) {
-		if (sprite.colors.indexOf(stringUpper(color)) == -1) {
+		if (sprite.colors.indexOf(stringUpper(color)) == -1)
 			sprite.colors[stringUpper(color)] = imageBlend(sprite, color);
-		}
 		image = sprite.colors[stringUpper(color)];
 	}
 	curcon.save();
@@ -253,16 +255,15 @@ function drawSpriteExt(sprite, subimg, x, y, xscale, yscale, angle, color, alpha
 	curcon.rotate(angle * (pi / 180));
 	curcon.scale(xscale, yscale);
 	curcon.globalAlpha = alpha;
-	if (sprite.siwidth != undefined) {
-		curcon.drawImage(image, floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, -xx, -yy, sprite.siwidth, sprite.height);
-	} else {
-		curcon.drawImage(image, floor(subimg) * sprite.width, 0, sprite.width, sprite.height, -xx, -yy, sprite.width, sprite.height);
-	}
+	if (sprite.siwidth != undefined)
+		curcon.drawImage(image, Math.floor(subimg) * sprite.siwidth, 0, sprite.siwidth, sprite.height, -xx, -yy, sprite.siwidth, sprite.height);
+	else
+		curcon.drawImage(image, Math.floor(subimg) * sprite.width, 0, sprite.width, sprite.height, -xx, -yy, sprite.width, sprite.height);
 	curcon.restore();
 }
 
 function drawSelf(o) {
-	if (o["sprite"] != undefined && o["sprite"] != null)
+	if (o["sprite"] != undefined && o["sprite"] != null && o["sprite"] >= 0)
 		drawSpriteExt(o["sprite"], o["imgIndex"], o["x"], o["y"], o["imgXscale"], o["imgYscale"], o["imgAngle"], o["imgBlend"], o["imgAlpha"]);
 }
 
@@ -280,8 +281,8 @@ function clearDraw() {
 	links = new Array();
 	context.save();
 	
-	if (rooms[room].drawBackgroundColor)
-		context.fillStyle = rooms[room].backgroundColor;
+	if (resource[8][room].drawBackgroundColor)
+		context.fillStyle = resource[8][room].backgroundColor;
 	else
 		context.fillStyle = "#000000";
 	
@@ -424,7 +425,8 @@ function fontAdd(name, size, bold, italic) {
 	return temp;
 }
 
-function fontAddSprite(sprite, first, prop, sep) {
+function fontAddSprite(spr, first, prop, sep) {
+	var sprite = resource[0][spr];
 	var temp = new SpriteFont();
 	temp.sprite = sprite;
 	temp.start = first;
@@ -494,7 +496,7 @@ function fontGetItalic(ind) {
 //Math Functions//
 //////////////////
 function radToDeg(x) {
-	return x * 180 / pi;
+	return ((x * 180 / pi % 360) + 360) % 360;
 }
 
 function degToRad(x) {
@@ -666,7 +668,7 @@ function pointDistance3d(x1, y1, z1, x2, y2, z2) {
 }
 
 function pointDirection(x1, y1, x2, y2) {
-	return radToDeg((y2 - y1) / (x2 - x1));
+	return radToDeg(Math.atan2(y1 - y2, x2 - x1));
 }
 
 function rayPoint(obj, dir, spd) //Point along ray from object
@@ -797,7 +799,7 @@ function stringWidth(str) {
 function stringHeight(str) {
 	if (globalFont instanceof Font) {
 		curcon.font = globalFont.font;
-		return curcon.measureText("W").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
+		return curcon.measureText("m").width * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
 	} else
 		return globalFont.sprite.height * (stringCount("~#", str) + 1) + 2 * stringCount("~#", str);
 }
@@ -2177,10 +2179,13 @@ function dateMonthSpan(d1, d2) {
 //Instance Functions//
 //////////////////////
 function instanceDestroy(obj) {
-	if (obj !== undefined) {
-		glin[obj["glin"]] = null;
-	}
-	return null;
+	if (obj == undefined)
+		return;
+	
+	if (obj.prototype != null)
+		obj.prototype.constructor.id.splice(obj.prototype.constructor.id.indexOf(obj), 1);
+
+	glin[obj["glin"]] = null;
 }
 
 function instanceFind(obj, n) {
@@ -2188,13 +2193,13 @@ function instanceFind(obj, n) {
 }
 
 function instanceExists(obj) {
-	return (obj == null) ? false : true;
+	return obj != null;
 }
 
 function instanceNumber(obj) {
-	if (obj == all) {
+	if (obj == all)
 		return glin.length;
-	}
+
 	return obj.id.length;
 }
 
@@ -2275,8 +2280,14 @@ function moveTowardsPoint(obj, x, y, spd) {
 //Fix
 function placeFree(x, y, obj) {
 	for (var i = 0; i < glin.length; i++) {
-		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0 || glin[i]["solid"] == false) break;
-		if (checkCollision(obj, x, y, glin[i])) return false;
+		if (glin[i] == null)
+			continue;
+
+		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0 || glin[i]["solid"] == false)
+			break;
+
+		if (checkCollision(obj, x, y, glin[i]))
+			return false;
 	}
 
 	return true;
@@ -2284,8 +2295,14 @@ function placeFree(x, y, obj) {
 
 function placeEmpty(x, y, o) {
 	for (var i = 0; i < glin.length; i++) {
-		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0) continue;
-		if (checkCollision(obj, x, y, glin[i])) return false;
+		if (glin[i] == null)
+			continue;
+
+		if (glin[i] == obj || glin[i]["imgXscale"] == 0 || glin[i]["imgYscale"] == 0)
+			continue;
+
+		if (checkCollision(obj, x, y, glin[i]))
+			return false;
 	}
 
 	return true;
@@ -2315,8 +2332,13 @@ function positionMeeting(x, y, obj) {
 
 function positionEmpty(x, y) {
 	if (obj instanceof Array)
-		for (var i = 0; i < glin.length; i++)
-			if (checkPoint(x, y, glin[i])) return false;
+		for (var i = 0; i < glin.length; i++) {
+			if (glin[i] == null)
+				continue;
+
+			if (checkPoint(x, y, glin[i]))
+				return false;
+		}
 	return true;
 }
 
@@ -2325,28 +2347,31 @@ function positionEmpty(x, y) {
 //////////////////
 function roomGoto(r, m) {
 	var rm = undefined;
-	if (!isNaN(Number(r))) {
+	if (!isNaN(Number(r)))
 		rm = r;
-	} else {
-		for (var i = 0; i < rooms.length; i++) {
-			if (rooms[i] == r) {
+	else {
+		for (var i = 0; i < resource[8].length; i++)
+			if (resource[8][i] == r) {
 				rm = i;
 				break;
 			}
-		}
-		if (rm == undefined) {
+		
+		if (rm == undefined)
 			return false;
-		}
 	}
-	if (m !== undefined) {
+	
+	if (m !== undefined)
 		rm += m;
-	}
-	for (var i = 0; i < rooms[room].inst.length; i++) {
-		rooms[room].inst[i][0].id.length = 0;
-	}
-	delete window.glin;
-	glin = new Array();
+
+	eventRoomEnd();
+	
+	for (var i = 0; i < glin.length; i++)
+		if (glin[i] != null && !glin[i]["persistent"])
+			instanceDestroy(glin[i]);
+	
+	room = rm;
 	roomOpen(rm);
+	eventRoomStart();
 	return true;
 }
 
@@ -2522,43 +2547,43 @@ function tileLayerDepth(depth, newDepth) {
 //that distance is less than the distance from the center of one shape to the center of the next.
 
 function lengthRectangle(w, h, dir) {
+	dir = ((dir % 360) + 360) % 360;
+
+	if (dir >= 270)
+		dir = 360 - dir;
+	else if (dir >= 180)
+		dir = 270 - dir;
+	else if (dir >= 90)
+		dir = 180 - dir;
+
 	dir *= Math.PI / 180;
 
-	if (dir >= Math.PI) dir -= Math.PI;
-
-	if (dir >= Math.PI / 2) dir = Math.PI - dir;
-
-	if (!(dir > Math.atan(h / w)) || dir > (Math.PI - Math.atan(h / w))) {
-		this.l = Math.sqrt(Math.pow(w / 2 * Math.tan(dir), 2) + Math.pow(w / 2, 2));
-	} else {
-		this.l = Math.sqrt(Math.pow(h / 2 / Math.tan(dir), 2) + Math.pow(h / 2, 2));
-	}
-
-	if (l > Math.sqrt(Math.pow(w / 2, 2) + Math.pow(h / 2, 2))) l = w / 2;
-
-	return l;
+	if (dir < Math.atan(h / w))
+		return Math.sqrt(Math.pow(w / 2, 2) + Math.pow(Math.tan(dir) * w / 2, 2));
+	else if (dir == Math.atan(h / w))
+		return Math.sqrt(Math.pow(w / 2, 2) + Math.pow(h / 2, 2));
+	else
+		return Math.sqrt(Math.pow(h / 2 / Math.tan(dir), 2) + Math.pow(h / 2, 2));
 }
 
 function lengthEllipse(w, h, dir) {
+	dir = ((dir % 360) + 360) % 360;
 	dir *= Math.PI / 180;
-
 	return (w * h) / (Math.sqrt(Math.pow(h * Math.cos(dir), 2) + Math.pow(w * Math.sin(dir), 2))) / 2;
 }
 
 function lengthDiamond(w, h, dir) {
+	dir = ((dir % 360) + 360) % 360;
+	if (dir >= 270)
+		dir = 360 - dir;
+	else if (dir >= 180)
+		dir = 270 - dir;
+	else if (dir >= 90)
+		dir = 180 - dir;
+
 	dir *= Math.PI / 180;
 
-	if (dir > Math.PI) dir -= Math.PI;
-
-	if (dir > Math.PI / 2) dir = Math.PI - dir;
-
-	this.sl1 = Math.tan(dir);
-	this.sl2 = -(h / 2) / (w / 2);
-
-	this.xx = (h / 2) / (sl1 - sl2);
-	this.yy = xx * sl1;
-
-	return Math.sqrt(Math.pow(xx, 2) + Math.pow(yy, 2));
+	return Math.sqrt(Math.pow(h / (2 * (Math.tan(dir) + h / w)), 2) + Math.pow(h / (2 * (Math.tan(dir) + h / w)) * Math.tan(dir), 2));
 }
 
 //This function checks of collisions.
@@ -2568,23 +2593,33 @@ function checkCollision(start, xx, yy, o) {
 	if (start["imgXscale"] == 0 || start["imgYscale"] == 0) return false;
 
 	if (o["imgXscale"] == 0 || o["imgYscale"] == 0) return false;
+	
+	var smask;
+	if (start["mask"] < 0)
+		smask = resource[0][start["sprite"]];
+	else
+		smask = resource[0][start["mask"]];
 
 	var xs = start["imgXscale"];
-	var xo = start["mask"].xorig;
+	var xo = smask.xorig;
 	if (xs < 0) {
 		xs = -xs;
-		xo = start["mask"].siwidth - xo;
+		xo = smask.siwidth - xo;
 	}
 	var ys = start["imgYscale"];
-	var yo = start["mask"].yorig;
+	var yo = smask.yorig;
 	if (ys < 0) {
 		ys = -ys;
-		yo = (start["mask"].bottom - start["mask"].top + 1) - yo;
+		yo = (smask.bottom - smask.top + 1) - yo;
 	}
-	var centX = xx - ((xo * xs - (start["mask"].right - start["mask"].left + 1) * xs / 2) * Math.cos(start["imgAngle"] * Math.PI / 180) - (yo * ys - (start["mask"].bottom - start["mask"].top + 1) * ys / 2) * Math.sin(start["imgAngle"] * Math.PI / 180));
-	var centY = yy - ((xo * xs - (start["mask"].right - start["mask"].left + 1) * xs / 2) * Math.sin(start["imgAngle"] * Math.PI / 180) + (yo * ys - (start["mask"].bottom - start["mask"].top + 1) * ys / 2) * Math.cos(start["imgAngle"] * Math.PI / 180));
+	var centX = xx - ((xo * xs - (smask.right - smask.left + 1) * xs / 2) * Math.cos(start["imgAngle"] * Math.PI / 180) - (yo * ys - (smask.bottom - smask.top + 1) * ys / 2) * Math.sin(start["imgAngle"] * Math.PI / 180));
+	var centY = yy - ((xo * xs - (smask.right - smask.left + 1) * xs / 2) * Math.sin(start["imgAngle"] * Math.PI / 180) + (yo * ys - (smask.bottom - smask.top + 1) * ys / 2) * Math.cos(start["imgAngle"] * Math.PI / 180));
 
-	var mask2 = o["mask"];
+	var mask2;
+	if (o["mask"] < 0)
+		mask2 = resource[0][o["sprite"]];
+	else
+		mask2 = resource[0][o["mask"]];
 
 	xs = o["imgXscale"];
 	xo = mask2.xorig;
@@ -2606,53 +2641,60 @@ function checkCollision(start, xx, yy, o) {
 	var dist = Math.sqrt(Math.pow(centX - centX2, 2) + Math.pow(centY - centY2, 2));
 
 	var l = 0;
-	switch (start["mask"].shape) {
+	switch (smask.shape) {
 		case RECTANGLE:
-			l = lengthRectangle(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+			l = lengthRectangle(Math.abs((smask.right - smask.left + 1) * start["imgXscale"]), Math.abs((smask.bottom - smask.top + 1) * start["imgYscale"]), dir - start["imgAngle"]);
 			break;
 
 		case ELLIPSE:
-			l = lengthEllipse(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+			l = lengthEllipse(Math.abs((smask.right - smask.left + 1) * start["imgXscale"]), Math.abs((smask.bottom - smask.top + 1) * start["imgYscale"]), dir - start["imgAngle"]);
 			break;
 
 		case DIAMOND:
-			l = lengthDiamond(Math.abs((start["mask"].right - start["mask"].left + 1) * start["imgXscale"]), Math.abs((start["mask"].bottom - start["mask"].top + 1) * start["imgYscale"]), ((((dir - start["imgAngle"] * Math.PI / 180) % 360) + 540) % 360) - 180);
+			l = lengthDiamond(Math.abs((smask.right - smask.left + 1) * start["imgXscale"]), Math.abs((smask.bottom - smask.top + 1) * start["imgYscale"]), dir - start["imgAngle"]);
 	}
 
 	var l2 = 0;
 	switch (mask2.shape) {
 		case RECTANGLE:
-			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 			break;
 
 		case ELLIPSE:
-			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 			break;
 
 		case DIAMOND:
-			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 	}
 
 	return (l2 + l > dist)
 }
 
 function checkPoint(xx, yy, o) {
-	if (o["imgXscale"] == 0 || o["imgYscale"] == 0) return false;
+	if (o["imgXscale"] == 0 || o["imgYscale"] == 0)
+		return false;
 
-	var mask2 = o["mask"];
+	var mask2;
+	if (o["mask"] < 0)
+		mask2 = resource[0][o["sprite"]];
+	else
+		mask2 = resource[0][o["mask"]];
 
-	xs = o["imgXscale"];
-	xo = mask2.xorig;
+	var xs = o["imgXscale"];
+	var xo = mask2.xorig;
 	if (xs < 0) {
 		xs = -xs;
 		xo = mask2.siwidth - xo;
 	}
-	ys = o["imgYscale"];
-	yo = mask2.yorig;
+
+	var ys = o["imgYscale"];
+	var yo = mask2.yorig;
 	if (ys < 0) {
 		ys = -ys;
 		yo = (mask2.bottom - mask2.top + 1) - yo;
 	}
+
 	var centX2 = o["x"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180) - (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180));
 	var centY2 = o["y"] - ((xo * xs - ((mask2.right - mask2.left + 1) * xs / 2)) * Math.sin(o["imgAngle"] * Math.PI / 180) + (yo * ys - ((mask2.bottom - mask2.top + 1) * ys / 2)) * Math.cos(o["imgAngle"] * Math.PI / 180));
 	var dir = Math.atan2(yy - centY2, centX2 - xx);
@@ -2663,15 +2705,15 @@ function checkPoint(xx, yy, o) {
 	var l2 = 0;
 	switch (mask2.shape) {
 		case RECTANGLE:
-			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthRectangle(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 			break;
 
 		case ELLIPSE:
-			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthEllipse(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 			break;
 
 		case DIAMOND:
-			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), ((((dir2 - o["imgAngle"] * Math.PI / 180) % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2)) - Math.PI);
+			l2 = lengthDiamond(Math.abs((mask2.right - mask2.left + 1) * o["imgXscale"]), Math.abs((mask2.bottom - mask2.top + 1) * o["imgYscale"]), dir2 - o["imgAngle"]);
 	}
 
 	return (l2 > dist)
@@ -2684,6 +2726,13 @@ function checkPoint(xx, yy, o) {
 //Functions necessary.
 
 function sortDepth(a, b) {
+	if (a == null)
+		return 1;
+
+	if (b == null)
+		return -1;
+
+
 	var d1, d2;
 	if (a instanceof ParticleSystem || a instanceof Tile)
 		d1 = a.depth;
@@ -3011,7 +3060,7 @@ function partEmitterRegion(ps, ind, xmin, xmax, ymin, ymax, shape, distribution)
 
 function partEmitterBurst(ind, emit, parttype, number) {
 	for (c = 0; c < number; c++) {
-		this.dir = Math.random() * 360;
+		var dir = Math.random() * 360;
 
 		if (emit.shape == psShapeRectangle) this.length = lengthRectangle(Math.abs(emit.xMax - emit.xMin), Math.abs(emit.yMax - emit.yMin), dir);
 		if (emit.shape == psShapeEllipse) this.length = lengthEllipse(Math.abs(emit.xMax - emit.xMin), Math.abs(emit.yMax - emit.yMin), dir);
@@ -3494,7 +3543,7 @@ function partTypeShape(ind, shape) {
 }
 
 function partTypeSprite(ind, sprite, animat, stretch, random) {
-	ind.shape = sprite;
+	ind.shape = resource[0][sprite];
 	ind.animat = animat;
 	ind.stretch = stretch;
 	ind.rand = random;
@@ -3681,6 +3730,22 @@ function spriteGetYoffset(ind) {
 	return resource[0][ind].yorig;
 }
 
+function spriteGetBboxLeft(ind) {
+	return resource[0][ind].left;
+}
+
+function spriteGetBboxTop(ind) {
+	return resource[0][ind].top;
+}
+
+function spriteGetBboxRight(ind) {
+	return resource[0][ind].right;
+}
+
+function spriteGetBboxBottom(ind) {
+	return resource[0][ind].bottom;
+}
+
 //////////////////////
 //Keyboard Functions//
 //////////////////////
@@ -3714,6 +3779,22 @@ function keyboardCheckReleased(key) {
 	}
 
 	return rkey[key] == 1;
+}
+
+///////////////////
+//Mouse Functions//
+///////////////////
+
+function mouseCheckButton(b) {
+	return mButton[b];
+}
+
+function mouseCheckPressed(b) {
+	return mPressed[b];
+}
+
+function mouseCheckReleased(b) {
+	return mReleased[b];
 }
 
 ///////////////////

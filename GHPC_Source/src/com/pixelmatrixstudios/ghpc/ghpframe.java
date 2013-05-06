@@ -25,7 +25,9 @@ import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameSettings;
+import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
@@ -67,7 +69,11 @@ public class ghpframe extends JFrame implements ActionListener {
 	Container con;
 	String lf;
 	String[] gml, gcl, gmc, gcc;
-	String[] resourceNames;
+	String[] resourceNames, objNames;
+	GmFile gmfile;
+	byte curMain;
+	String curEvt;
+	GmObject child = null;
 	
 	//GML Helper scripts
 	String gmhescr = "initGHP"+"addLink"+"drawText"+"drawGradientRect"+"drawGradientCircle"+"drawSetBackground";
@@ -263,15 +269,18 @@ public class ghpframe extends JFrame implements ActionListener {
 			
 			String dir = d.getName();
 			proBar(7);
-			GmFile gmfile = lfc.openFile(d);
+			gmfile = lfc.openFile(d);
 			int rsnum = gmfile.sprites.size()+gmfile.sounds.size()+gmfile.backgrounds.size()+gmfile.paths.size()+gmfile.scripts.size()+gmfile.fonts.size()+gmfile.timelines.size()+gmfile.gmObjects.size()+gmfile.rooms.size();
 			proBar(10);
 			
 			resourceNames = new String[rsnum];
+			objNames = new String[gmfile.gmObjects.size()];
 			int ind = 0;
 			
-			for (GmObject o : gmfile.gmObjects)
+			for (GmObject o : gmfile.gmObjects) {
+				objNames[ind] = o.getName();
 				resourceNames[ind++] = o.getName();
+			}
 			
 			for (Sprite s : gmfile.sprites)
 				resourceNames[ind++] = s.getName();
@@ -298,6 +307,7 @@ public class ghpframe extends JFrame implements ActionListener {
 				resourceNames[ind++] = f.getName();
 			
 			Arrays.sort(resourceNames);
+			Arrays.sort(objNames);
 			
 			//Get settings and other variables
 			String descr = gmfile.gameSettings.get(GameSettings.PGameSettings.DESCRIPTION);
@@ -379,7 +389,10 @@ public class ghpframe extends JFrame implements ActionListener {
 							main.write(buf);
 					}
 					mainf[2].close();
-					line = "<canvas id=\"maincan\" width=\"" + gmfile.rooms.first().get(PRoom.WIDTH) + "\" height=\"" + gmfile.rooms.first().get(PRoom.HEIGHT) + "\" tabindex=\"1\" style=\"cursor:url(invis.png),auto;\" onkeydown=\"eventKeyboardPress(event);\" onkeyup=\"eventKeyboardRelease(event);\" onmousemove=\"eventMouseMove(event);\" onmousedown=\"eventMousePress(event);\" onmouseup=\"eventMouseRelease(event);\">";
+					String cur = "";
+					if (!(boolean) gmfile.gameSettings.get(PGameSettings.DISPLAY_CURSOR))
+						cur = "cursor:url(invis.png),auto;";
+					line = "<canvas id=\"maincan\" width=\"" + gmfile.rooms.first().get(PRoom.WIDTH) + "\" height=\"" + gmfile.rooms.first().get(PRoom.HEIGHT) + "\" tabindex=\"1\" style=\"" + cur + "\" onkeydown=\"eventKeyboardPress(event);\" onkeyup=\"eventKeyboardRelease(event);\" onmousemove=\"eventMouseMove(event);\" onmousedown=\"eventMousePress(event);\" onmouseup=\"eventMouseRelease(event);\">";
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							main.write(buf);
@@ -567,7 +580,7 @@ public class ghpframe extends JFrame implements ActionListener {
 								sh = "ELLIPSE";
 							if (spr.get(PSprite.SHAPE).equals(MaskShape.DIAMOND))
 								sh = "DIAMOND";
-							line = spr.getName()+" = new Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+", " + spr.get(PSprite.TRANSPARENT) + ", " + spr.get(PSprite.SMOOTH_EDGES) + ", " + spr.get(PSprite.ORIGIN_X) + ", " + spr.get(PSprite.ORIGIN_Y) + ", " + spr.get(PSprite.BB_LEFT) + ", " + spr.get(PSprite.BB_RIGHT) + ", " + spr.get(PSprite.BB_TOP) + ", " + spr.get(PSprite.BB_BOTTOM) + ", " + sh + ", " + spr.get(PSprite.ALPHA_TOLERANCE) + ");\n";
+							line = spr.getName()+" = Sprite(\"sprites/"+spr.getName()+".png\", "+spr.subImages.size()+", " + spr.get(PSprite.TRANSPARENT) + ", " + spr.get(PSprite.SMOOTH_EDGES) + ", " + spr.get(PSprite.ORIGIN_X) + ", " + spr.get(PSprite.ORIGIN_Y) + ", " + spr.get(PSprite.BB_LEFT) + ", " + spr.get(PSprite.BB_RIGHT) + ", " + spr.get(PSprite.BB_TOP) + ", " + spr.get(PSprite.BB_BOTTOM) + ", " + sh + ", " + spr.get(PSprite.ALPHA_TOLERANCE) + ");\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
@@ -627,118 +640,382 @@ public class ghpframe extends JFrame implements ActionListener {
 							}
 					}
 					proBar(14);
+					
+					///////////
+					//Objects//
+					///////////
+					
 					line = "\n//Objects\n";
+					
+					//Begin Step
 					boolean ie = false;
 					while (gmobjects.hasNext()) {
-						GmObject curobj = gmobjects.next();
-								if (!ie)
-										line += "function objDraw() {\n";
-
-								line += "	"+curobj.getName()+".Draw();\n";
-								ie = true;
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(MainEvent.EV_STEP).events)
+											if (e.toString().equals("Begin Step")) {
+													cont = true;
+													break;
+											}
+									
+									if (cont)
+											break;
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+							
+							if (!ie)
+									line += "function objBeginStep() {\n";
+							
+							line += "\t"+curobj.getName()+".BeginStep();\n";
+							ie = true;
 					}
 					if (ie)
 							line += "}\n\n";
 					else
-							line += "function objDraw(){}\n";
+							line += "function objBeginStep(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					
+					//Normal Step
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+						GmObject curobj = gmobjects.next();
+						
+						if (!ie)
+								line += "function objStep() {\n";
+
+						line += "\t"+curobj.getName()+".Step();\n";
+						ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objStep(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					
+					//End Step
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(MainEvent.EV_STEP).events)
+											if (e.toString().equals("Begin Step")) {
+													cont = true;
+													break;
+											}
+									
+									if (cont)
+											break;
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+
+							if (!ie)
+									line += "function objEndStep() {\n";
+							
+							line += "\t"+curobj.getName()+".EndStep();\n";
+							ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objEndStep(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					
+					//Mouse Events
+					String[] mLocales = {"", "Global "};
+					String[] mButtons = {"Left ", "Middle ", "Right "};
+					String[] mActions = {"Button", "Pressed", "Released"};
+					
+					for (String ml : mLocales)
+							for (String mb : mButtons)
+									for (String ma : mActions) {
+											String eName = ml + mb + ma;
+											line = "";
+											ie = false;
+											gmobjects = gmfile.gmObjects.iterator();
+											while (gmobjects.hasNext()) {
+													GmObject curobj = gmobjects.next();
+													GmObject qobj = curobj;
+													boolean cont = false;
+													while (qobj != null) {
+															for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(MainEvent.EV_MOUSE).events)
+																	if (e.toString().equals(eName)) {
+																			cont = true;
+																			break;
+																	}
+															
+															if (cont)
+																	break;
+															
+															ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+															if (ref2 == null)
+																	qobj = null;
+															else
+																	qobj = (GmObject) ref2.get();
+													}
+													
+													if (!cont)
+														continue;
+													if (!ie)
+															line += "function obj" + eName.replace(" ", "") + "() {\n";
+													
+													line += "\t"+curobj.getName()+"."+eName.replace(" ", "")+"();\n";
+													ie = true;
+											}
+											if (ie)
+													line += "}\n\n";
+											else
+													line += "function obj" + eName.replace(" ", "") + "() {}\n";
+											
+											for (int e=0;e<line.length();e++) {
+													buf = (byte) line.toCharArray()[e];
+													vars.write(buf);
+											}
+									}
+					
+					//Keyboard
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									if (qobj.mainEvents.get(MainEvent.EV_KEYBOARD).events.size() > 0) {
+											cont = true;
+											break;
+									}
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+							if (!ie)
+									line += "function objKeys(i) {\n";
+							
+							line += "\t"+curobj.getName()+".Keyboard(i);\n";
+							ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objKeys(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					
+					//Keyboard Press
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									if (qobj.mainEvents.get(MainEvent.EV_KEYPRESS).events.size() > 0) {
+											cont = true;
+											break;
+									}
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+
+							if (!ie)
+									line += "function objKeyP(i) {\n";
+							
+							line += "\t"+curobj.getName()+".KeyboardPress(i);\n";
+							ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objKeyP(){}\n";
 
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
 					}
 					
+					//Keyboard Release
 					line = "";
 					ie = false;
 					gmobjects = gmfile.gmObjects.iterator();
 					while (gmobjects.hasNext()) {
 							GmObject curobj = gmobjects.next();
-							if (curobj.mainEvents.get(MainEvent.EV_STEP).events.size() > 0) {
-									if (!ie) {
-											line += "function objStep() {\n";
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									if (qobj.mainEvents.get(MainEvent.EV_KEYRELEASE).events.size() > 0) {
+											cont = true;
+											break;
 									}
-									line += "	"+curobj.getName()+".Step();\n";
-									ie = true;
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
 							}
+							
+							if (!cont)
+								continue;
+		
+							if (!ie)
+									line += "function objKeyR(i) {\n";
+							
+							line += "\t"+curobj.getName()+".KeyboardRelease(i);\n";
+							ie = true;
 					}
-					if (ie) {
+					if (ie)
 							line += "}\n\n";
-					}
-					else {
-							line += "function objStep(){}\n";
-					}
-					for (int e=0;e<line.length();e++) {
-							buf = (byte) line.toCharArray()[e];
-							vars.write(buf);
-					}
-					line = "";
-					ie = false;
-					gmobjects = gmfile.gmObjects.iterator();
-					while (gmobjects.hasNext()) {
-							GmObject curobj = gmobjects.next();
-							if (curobj.mainEvents.get(MainEvent.EV_KEYBOARD).events.size() > 0) {
-									if (!ie) {
-											line += "function objKeys(i) {\n";
-									}
-									line += "	"+curobj.getName()+".Keyboard(i);\n";
-									ie = true;
-							}
-					}
-					if (ie) {
-							line += "}\n\n";
-					}
-					else {
-							line += "function objKeys(){}\n";
-					}
-					for (int e=0;e<line.length();e++) {
-							buf = (byte) line.toCharArray()[e];
-							vars.write(buf);
-					}
-					line = "";
-					ie = false;
-					gmobjects = gmfile.gmObjects.iterator();
-					while (gmobjects.hasNext()) {
-							GmObject curobj = gmobjects.next();
-							if (curobj.mainEvents.get(MainEvent.EV_KEYPRESS).events.size() > 0) {
-									if (!ie) {
-											line += "function objKeyP(i) {\n";
-									}
-									line += "	"+curobj.getName()+".KeyboardPress(i);\n";
-									ie = true;
-							}
-					}
-					if (ie) {
-							line += "}\n\n";
-					}
-					else {
-							line += "function objKeyP(){}\n";
-					}
-					for (int e=0;e<line.length();e++) {
-							buf = (byte) line.toCharArray()[e];
-							vars.write(buf);
-					}
-					line = "";
-					ie = false;
-					gmobjects = gmfile.gmObjects.iterator();
-					while (gmobjects.hasNext()) {
-							GmObject curobj = gmobjects.next();
-							if (curobj.mainEvents.get(MainEvent.EV_KEYRELEASE).events.size() > 0) {
-									if (!ie) {
-											line += "function objKeyR() {\n";
-									}
-									line += "	"+curobj.getName()+".KeyboardRelease();\n";
-									ie = true;
-							}
-					}
-					if (ie) {
-							line += "}\n\n";
-					}
-					else {
+					else
 							line += "function objKeyR(){}\n";
-					}
+
 					for (int e=0;e<line.length();e++) {
 							buf = (byte) line.toCharArray()[e];
 							vars.write(buf);
 					}
+					
+					//Room Start
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(MainEvent.EV_OTHER).events)
+											if (e.toString().equals("Room Start")) {
+													cont = true;
+													break;
+											}
+									
+									if (cont)
+											break;
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+
+							if (!ie)
+									line += "function objRoomStart() {\n";
+							
+							line += "\t"+curobj.getName()+".RoomStart();\n";
+							ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objRoomStart(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+					
+					//Room End
+					line = "";
+					ie = false;
+					gmobjects = gmfile.gmObjects.iterator();
+					while (gmobjects.hasNext()) {
+							GmObject curobj = gmobjects.next();
+							GmObject qobj = curobj;
+							boolean cont = false;
+							while (qobj != null) {
+									for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(MainEvent.EV_OTHER).events)
+											if (e.toString().equals("Room End")) {
+													cont = true;
+													break;
+											}
+									
+									if (cont)
+											break;
+									
+									ResourceReference ref2 = qobj.get(PGmObject.PARENT);
+									if (ref2 == null)
+											qobj = null;
+									else
+											qobj = (GmObject) ref2.get();
+							}
+							
+							if (!cont)
+								continue;
+
+							if (!ie)
+									line += "function objRoomEnd() {\n";
+							
+							line += "\t"+curobj.getName()+".RoomEnd();\n";
+							ie = true;
+					}
+					if (ie)
+							line += "}\n\n";
+					else
+							line += "function objRoomEnd(){}\n";
+					
+					for (int e=0;e<line.length();e++) {
+							buf = (byte) line.toCharArray()[e];
+							vars.write(buf);
+					}
+
+					//Object
 					line = "";
 					int i = 0;
 					gmobjects = gmfile.gmObjects.iterator();
@@ -746,19 +1023,38 @@ public class ghpframe extends JFrame implements ActionListener {
 							GmObject curobj = gmobjects.next();
 							i++;
 							String objname = curobj.getName();
-							line = "//"+objname+"\n"+objname+" = function() {\n	//Do nothing\n}\n\n"+objname+".id = new Array();\n\n"+objname+".Create = function(i, x, y) {\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n\t"+objname+".id[i][\"depth\"] = "+curobj.get(GmObject.PGmObject.DEPTH)+";\n\t"+objname+".id[i][\"visible\"] = "+curobj.get(GmObject.PGmObject.VISIBLE)+";\n\t"+objname+".id[i][\"objectIndex\"] = "+objname+";\n";
-							if (curobj.get(GmObject.PGmObject.SPRITE) != null)	{
-									line += "	"+objname+".id[i][\"sprite\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n\t"+objname+".id[i][\"width\"] = ";
-									ResourceReference<Sprite> r = curobj.get(GmObject.PGmObject.SPRITE);
-									line += deRef(r).getDisplayImage().getWidth()+";\n\t"+objname+".id[i][\"height\"] = "+Util.deRef(r).getDisplayImage().getHeight()+";\n\t";
-									if (curobj.get(GmObject.PGmObject.MASK) != null)
-										line += objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.MASK)).get().getName()+";\n	";
-									else
-										line += objname+".id[i][\"mask\"] = "+((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName()+";\n	";
-									line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n\t";
-									line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n\t";
-									line += objname+".id[i][\"imgAngle\"] = 0;\n";
-							}
+							line = "//"+objname+"\n"+objname+" = function() {\n	//Do nothing\n}\n\n"+objname+".id = new Array();\n\n"+objname+".Create = function(i, x, y) {\n	"+objname+".id[i] = new Array();\n	"+objname+".id[i][\"x\"] = x;\n	"+objname+".id[i][\"y\"] = y;\n	"+objname+".id[i][\"startx\"] = x;\n	"+objname+".id[i][\"starty\"] = y;\n\t"+objname+".id[i][\"depth\"] = "+curobj.get(GmObject.PGmObject.DEPTH)+";\n\t"+objname+".id[i][\"visible\"] = "+curobj.get(GmObject.PGmObject.VISIBLE)+";\n\t"+objname+".id[i][\"objectIndex\"] = "+objname+";\n\t";
+							
+							String spr = "-1";
+							if (curobj.get(GmObject.PGmObject.SPRITE) != null)
+									spr = ((ResourceReference) curobj.get(GmObject.PGmObject.SPRITE)).get().getName();
+							
+							line += objname+".id[i][\"sprite\"] = "+spr+";\n\t";
+							
+							String mask = "-1";
+							if (curobj.get(GmObject.PGmObject.MASK) != null)
+								mask = ((ResourceReference) curobj.get(GmObject.PGmObject.MASK)).get().getName();
+							
+							line += objname+".id[i][\"mask\"] = "+mask+";\n\t";
+							line += objname+".id[i][\"imgIndex\"] = 0;\n\t" + objname+".id[i][\"imgSpeed\"] = 1;\n\t";
+							line += objname+".id[i][\"imgXscale\"] = 1;\n\t" + objname+".id[i][\"imgYscale\"] = 1;\n\t";
+							line += objname+".id[i][\"imgAngle\"] = 0;\n\t";
+
+							line += objname+".id[i][\"persistent\"] = "+curobj.get(PGmObject.PERSISTENT)+";\n\t";
+
+							line += objname+".id[i][\"alarm\"] = new Array();\n\t";
+							line += objname+".id[i][\"alarm\"][0] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][1] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][2] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][3] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][4] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][5] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][6] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][7] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][8] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][9] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][10] = -1;\n\t";
+							line += objname+".id[i][\"alarm\"][11] = -1;\n";
 							if (curobj.mainEvents.get(MainEvent.EV_CREATE).events.size() > 0) {
 									Iterator<org.lateralgm.resources.sub.Event> ev_create = curobj.mainEvents.get(MainEvent.EV_CREATE).events.iterator();
 									while (ev_create.hasNext()) {
@@ -769,24 +1065,24 @@ public class ghpframe extends JFrame implements ActionListener {
 													Iterator<Argument> eab = action.getArguments().iterator();
 													while (eab.hasNext()) {
 															Argument arg = eab.next();
-															if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
+															if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0))))
 																	line += "\t" + gmltoghp(arg.getVal(), objname, "\t").trim() + "\n";
-															}
-															else {
+															else
 																	line += "	//Sorry no DnD support yet\n";
-															}
 													}
 											}
 									}
 							}
 							line += "\t" + objname + ".id[i][\"glin\"] = glin.length;\n";
 							line += "\tglin[glin.length] = " + objname + ".id[i];\n";
-							line += "}\n";
+							line += "}\n\n";
 							for (int e=0;e<line.length();e++) {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
 							}
 							proBar(Math.round(15+(2*i/objnum)));
+							
+							//Process events.
 							processEvent(curobj, objname, MainEvent.EV_DESTROY, vars);
 							processEvent(curobj, objname, MainEvent.EV_ALARM, vars);
 							processEvent(curobj, objname, MainEvent.EV_STEP, vars);
@@ -799,26 +1095,25 @@ public class ghpframe extends JFrame implements ActionListener {
 							processEvent(curobj, objname, MainEvent.EV_DRAW, vars);
 							processEvent(curobj, objname, MainEvent.EV_TRIGGER, vars);
 					}
-					line = "//Rooms\nvar rooms = new Array();\nrooms[0] = "+gmfile.rooms.toArray()[0].toString()+";\n\n";
-					for (int e=0;e<line.length();e++) {
-							buf = (byte) line.toCharArray()[e];
-							vars.write(buf);
-					}
+					
+					/////////
+					//Rooms//
+					/////////
+					
+					line = "//Rooms\n\n";
 					i = 0;
 					while (rooms.hasNext()) {
 							Room rm = rooms.next();
-							line = "//"+rm.getName()+"\nfunction "+rm.getName()+"(i) {\n	//Do nothing\n}\n\n"+rm.getName()+".inst = new Array();\n"+rm.getName()+".tiles = new Array();\n\n"+rm.getName()+".rmCrCode = ";
-							if ((rm.get(PRoom.CREATION_CODE) == null)||(rm.get(PRoom.CREATION_CODE) == "")) {
+							line = "//"+rm.getName()+"\n"+rm.getName()+" = "+i+";\nresource[8]["+i+"] = function(i) {\n	//Do nothing\n}\n\nresource[8]["+i+"].inst = new Array();\nresource[8]["+i+"].tiles = new Array();\n\nresource[8]["+i+"].rmCrCode = ";
+							if ((rm.get(PRoom.CREATION_CODE) == null)||(rm.get(PRoom.CREATION_CODE) == ""))
 									line += "false;\n\n";
-							}
-							else {
+							else
 									line += "function() {\n"+gmltoghp(rm.get(PRoom.CREATION_CODE).toString(), "", "\t")+"\n}\n\n";
-							}
 							
 							Iterator<Instance> rmi = rm.instances.iterator();
 							
 							boolean icc = false;
-							line += rm.getName()+".objCrCode = ";
+							line += "resource[8]["+i+"].objCrCode = ";
 							while (rmi.hasNext()) {
 									Instance inst = rmi.next();
 									if ((inst.properties.get(PInstance.CREATION_CODE) != null)&&(inst.properties.get(PInstance.CREATION_CODE) != "")) {
@@ -835,37 +1130,37 @@ public class ghpframe extends JFrame implements ActionListener {
 							else
 									line += "}\n\n";
 							
-							line += rm.getName()+".width = "+rm.get(PRoom.WIDTH)+";\n"+rm.getName()+".height = "+rm.get(PRoom.HEIGHT)+";\n"+rm.getName()+".backgroundColor = "+colorToJS((Color)rm.get(PRoom.BACKGROUND_COLOR))+";\n"+rm.getName()+".drawBackgroundColor = "+rm.get(PRoom.DRAW_BACKGROUND_COLOR)+";\n\n";
+							line += "resource[8]["+i+"].width = "+rm.get(PRoom.WIDTH)+";\nresource[8]["+i+"].height = "+rm.get(PRoom.HEIGHT)+";\nresource[8]["+i+"].backgroundColor = "+colorToJS((Color)rm.get(PRoom.BACKGROUND_COLOR))+";\nresource[8]["+i+"].drawBackgroundColor = "+rm.get(PRoom.DRAW_BACKGROUND_COLOR)+";\n\n";
 							
 							//Backgrounds
-							line += rm.getName() + ".backgrounds = new Array();\n";
+							line += "resource[8]["+i+"].backgrounds = new Array();\n";
 							for (int e = 0; e < rm.backgroundDefs.size(); e++) {
-								BackgroundDef def = rm.backgroundDefs.get(e);
-								ResourceReference ref2 = (ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND);
-								
-								if (ref2 == null)
-									continue;
-								
-								String bkg = ((ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND)).get().getName();
-								boolean vis = def.properties.get(PBackgroundDef.VISIBLE);
-								boolean fore = def.properties.get(PBackgroundDef.FOREGROUND);
-								int x = def.properties.get(PBackgroundDef.X);
-								int y = def.properties.get(PBackgroundDef.Y);
-								boolean tileH = def.properties.get(PBackgroundDef.TILE_HORIZ);
-								boolean tileV = def.properties.get(PBackgroundDef.TILE_VERT);
-								boolean stretch = def.properties.get(PBackgroundDef.STRETCH);
-								int hsp = def.properties.get(PBackgroundDef.H_SPEED);
-								int vsp = def.properties.get(PBackgroundDef.V_SPEED);
-								line += rm.getName() + ".backgrounds[" + e + "] = new RoomBackground(" + bkg + ", " + vis + ", " + fore + ", " + x + ", " + y + ", " + tileH + ", " + tileV + ", " + stretch + ", " + hsp + ", " + vsp + ");\n";
+									BackgroundDef def = rm.backgroundDefs.get(e);
+									ResourceReference ref2 = (ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND);
+									
+									if (ref2 == null)
+										continue;
+									
+									String bkg = ((ResourceReference) def.properties.get(PBackgroundDef.BACKGROUND)).get().getName();
+									boolean vis = def.properties.get(PBackgroundDef.VISIBLE);
+									boolean fore = def.properties.get(PBackgroundDef.FOREGROUND);
+									int x = def.properties.get(PBackgroundDef.X);
+									int y = def.properties.get(PBackgroundDef.Y);
+									boolean tileH = def.properties.get(PBackgroundDef.TILE_HORIZ);
+									boolean tileV = def.properties.get(PBackgroundDef.TILE_VERT);
+									boolean stretch = def.properties.get(PBackgroundDef.STRETCH);
+									int hsp = def.properties.get(PBackgroundDef.H_SPEED);
+									int vsp = def.properties.get(PBackgroundDef.V_SPEED);
+									line += "resource[8]["+i+"].backgrounds[" + e + "] = new RoomBackground(" + bkg + ", " + vis + ", " + fore + ", " + x + ", " + y + ", " + tileH + ", " + tileV + ", " + stretch + ", " + hsp + ", " + vsp + ");\n";
 							}
 							line += "\n";
 							
-							line += rm.getName()+".Create = function() {\n\t//Instances\n";
+							line += "resource[8]["+i+"].Create = function() {\n\t//Instances\n";
 							rmi = rm.instances.iterator();
 							int e = 0;
 							while (rmi.hasNext()) {
 									Instance inst = rmi.next();
-									line += "\t"+rm.getName()+".inst["+e+"] = new Array();\n	"+rm.getName()+".inst["+e+"][0] = "+deRef((ResourceReference<?>) inst.properties.get(PInstance.OBJECT))+";\n	"+rm.getName()+".inst["+e+"][1] = "+inst.getPosition().x+";\n	"+rm.getName()+".inst["+e+"][2] = "+inst.getPosition().y+";\n";
+									line += "\tresource[8]["+i+"].inst["+e+"] = new Array();\n\tresource[8]["+i+"].inst["+e+"][0] = "+deRef((ResourceReference<?>) inst.properties.get(PInstance.OBJECT))+";\n\tresource[8]["+i+"].inst["+e+"][1] = "+inst.getPosition().x+";\n\tresource[8]["+i+"].inst["+e+"][2] = "+inst.getPosition().y+";\n";
 									e++;
 							}
 							
@@ -874,15 +1169,15 @@ public class ghpframe extends JFrame implements ActionListener {
 							e = 0;
 							while (tiles.hasNext()) {
 									Tile t = tiles.next();
-									line += "\t" + rm.getName() + ".tiles[" + e + "] = new Array();\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][0] = " + ((ResourceReference) t.properties.get(PTile.BACKGROUND)).get().getName() + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][1] = " + t.getBackgroundPosition().x + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][2] = " + t.getBackgroundPosition().y + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][3] = " + t.getSize().width + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][4] = " + t.getSize().height + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][5] = " + t.getRoomPosition().x + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][6] = " + t.getRoomPosition().y + ";\n";
-									line += "\t" + rm.getName() + ".tiles[" + e + "][7] = " + t.getDepth() + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "] = new Array();\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][0] = " + ((ResourceReference) t.properties.get(PTile.BACKGROUND)).get().getName() + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][1] = " + t.getBackgroundPosition().x + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][2] = " + t.getBackgroundPosition().y + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][3] = " + t.getSize().width + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][4] = " + t.getSize().height + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][5] = " + t.getRoomPosition().x + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][6] = " + t.getRoomPosition().y + ";\n";
+									line += "\tresource[8]["+i+"].tiles[" + e + "][7] = " + t.getDepth() + ";\n";
 									e++;
 							}
 							
@@ -892,7 +1187,7 @@ public class ghpframe extends JFrame implements ActionListener {
 									buf = (byte) line.toCharArray()[e];
 									vars.write(buf);
 							}
-							proBar(Math.round(18+(2*i/roomnum)));
+							proBar(Math.round(18+(2*++i/roomnum)));
 					}
 			} catch (IOException e) {
 					System.out.println("Could not include files.");
@@ -1143,7 +1438,6 @@ public class ghpframe extends JFrame implements ActionListener {
 	}
 	
 	public String gmltoghp(String code, String obj, String indent) {
-			
 			String[] cl = code.split("\n");
 			
 			String endl = "";
@@ -1157,6 +1451,51 @@ public class ghpframe extends JFrame implements ActionListener {
 			
 					String nc = new String(cl[i]);
 					
+					//Inheritance
+					if (cl[i].replace(";", "").equals("event_inherited()")) {
+							cl[i] = "";
+							GmObject ob = null;
+							for (GmObject o : gmfile.gmObjects)
+									if (o.toString().equals(obj)) {
+											ob = o;
+											break;
+									}
+							
+							if (ob == null)
+									continue;
+							
+							if (child == null)
+									child = ob;
+							
+							GmObject par = (GmObject) ((ResourceReference) child.get(PGmObject.PARENT)).get();
+							
+							if (par == null || par.mainEvents.size() <= curMain || par.mainEvents.get(curMain).events.size() <= 0)
+									continue;
+							
+							org.lateralgm.resources.sub.Event evt = null;
+							for (org.lateralgm.resources.sub.Event ev : par.mainEvents.get(curMain).events)
+									if (ev.toString().equals(curEvt)) {
+											evt = ev;
+											break;
+									}
+							
+							if (evt == null || evt.actions.size() <= 0)
+									continue;
+							
+							for (org.lateralgm.resources.sub.Action a : evt.actions) {
+									Iterator<Argument> eab = a.getArguments().iterator();
+									while (eab.hasNext()) {
+											Argument arg = eab.next();
+											if ((arg.kind == Argument.ARG_STRING) && (!Character.isDigit(arg.getVal().charAt(0))))
+													cl[i] += gmltoghp(arg.getVal(), obj, indent).trim() + "\n" + indent;
+									}
+							}
+							
+							child = null;
+							cc += cl[i];
+							continue;
+					}
+					
 					//Handle things like if statements and loops.
 					String[] sts = {"else", "for", "if", "repeat", "while", "with"};
 					String type = cl[i].trim().split("[\\s(]")[0];
@@ -1167,11 +1506,11 @@ public class ghpframe extends JFrame implements ActionListener {
 							String str = cl[i].substring(cl[i].indexOf(type) + type.length()).trim();
 							
 							if (str.length() > 0) {
-								if (type.equals("else")) {
-									cl[i] = "else " + gmltoghp(str, obj, "").trim();
-									cc += cl[i] + (i < cl.length - 1 ? endl : "");
-									continue;
-								}
+									if (type.equals("else")) {
+											cl[i] = "else " + gmltoghp(str, obj, "").trim();
+											cc += cl[i] + (i < cl.length - 1 ? endl : "");
+											continue;
+									}
 							
 								//The first meaningful character after the statement word.
 								char firstChar = str.charAt(0);
@@ -1238,7 +1577,7 @@ public class ghpframe extends JFrame implements ActionListener {
 										parts[j] = gmltoghp(parts[j], obj, "").trim();
 										if (parts[j].charAt(parts[j].length() - 1) == ';') {
 												if (j == parts.length - 1)
-													parts[j].substring(0, parts[j].length() - 1);
+													parts[j] = parts[j].substring(0, parts[j].length() - 1);
 										} else if (j < parts.length - 1)
 												parts[j] += ';';
 								}
@@ -1268,12 +1607,12 @@ public class ghpframe extends JFrame implements ActionListener {
 										
 										eq = eInd + 1;
 									}
-	
-									if (type.equals("for"))
-										inp = parts[0] + " " + parts[1] + " " + parts[2];
-									else
-										inp = parts[0];
 								}
+								
+								if (type.equals("for"))
+										inp = parts[0] + " " + parts[1] + " " + parts[2];
+								else
+										inp = parts[0];
 								
 								end = gmltoghp(end, obj, "").trim();
 								
@@ -1293,7 +1632,7 @@ public class ghpframe extends JFrame implements ActionListener {
 					
 					//Convert simple statements without parentheses
 					if (pap == -1) {
-							String regex = "[\\s+-/*\\[{;<>=!]";
+							String regex = "[\\s+\\-/*\\[{;<>=!]";
 							
 							int len = 1;
 							for (char ch : cl[i].toCharArray())
@@ -1343,6 +1682,43 @@ public class ghpframe extends JFrame implements ActionListener {
 							for (int e=0;e<cla.length;e++) {
 									if (cla[e] == null)
 											break;
+									
+									//Variables of other objects
+									if (cla[e].contains(".") && !cla[e].contains("'") && !cla[e].contains("\"") && !cla[e].trim().replace(",", "").replace(";", "").matches("[+\\-]?[0-9]*[.]?[0-9]*")) {
+											String[] ov = cla[e].split("[.]");
+											cla[e] = "";
+											for (int j = 0; j < ov.length; j++) {
+													String v = ov[j].trim().replace(",", "").replace(";", "");
+													
+													//References to variables of objects or global variables.
+													boolean isVar = true;
+													if (j == 0)
+															if (v.equals("global")) {
+																	ov[j] = ov[j].replace(v, "global");
+																	isVar = false;
+															}
+															else if (Arrays.binarySearch(objNames, v) > 0) {
+																	ov[j] = ov[j].replace(v, v + ".id[0]");
+																	isVar = false;
+															}
+
+													//References to instances referred to by variables.
+													if (isVar && isValidVarName(v)) {
+															String beg = "";
+															if (j == 0)
+																beg = obj + ".id[i]";
+															
+															//Alarms
+															if (v.matches("alarm[0-9]"))
+																	ov[j] = beg + ov[j].replace(v, "[\"alarm\"][" + v.substring(5) + "]");
+															else //Others
+																	ov[j] = beg + ov[j].replace(v, "[\"" + v + "\"]");
+													}
+													cla[e] += ov[j];
+											}
+											cl[i] += cla[e];
+											continue;
+									}
 
 									boolean found = false;
 									for (int o=0;o<gmc.length;o++) {
@@ -1376,20 +1752,32 @@ public class ghpframe extends JFrame implements ActionListener {
 					//Separate the code into different parts and convert them.
 					
 					//The different characters that separate code pieces.
-					String regex = "[\\s+-/*\\[{;<>=!]";
+					String regex = "[\\s+\\-/*\\[{;<>=!]";
 					
 					//This part allows two functions to be used in the same line of
 					//code without one being inside an argument of the other.
 					boolean cont = false;
 					int pCount = 1;
+					String strType2 = "";
 					for (int in = pap + 1; in < cl[i].lastIndexOf(')'); in++)
-						if (cl[i].charAt(in) == '(')
-							pCount++;
-						else if (cl[i].charAt(in) == ')')
-							if (--pCount == 0) {
-								cont = true;
-								break;
-							}
+						if (strType2.length() == 0) {
+								if (cl[i].charAt(in) == '"')
+									strType2 = "\"";
+								else if (cl[i].charAt(in) == '\'')
+									strType2 = "'";
+								else if (cl[i].charAt(in) == '(')
+									pCount++;
+								else if (cl[i].charAt(in) == ')')
+									if (--pCount == 0) {
+										cont = true;
+										break;
+									}
+						} else if (("" + cl[i].charAt(in)).equals(strType2))
+							strType2 = "";
+					
+					String rem = cl[i].substring(cl[i].lastIndexOf(')') + 1).trim();
+					if (!cont && !rem.equals("") && !rem.equals(";"))
+						cont = true;
 					
 					Matcher m = Pattern.compile(regex).matcher(cl[i]);
 					if (m.find() && (m.start() < pap || cont)) {
@@ -1515,7 +1903,7 @@ public class ghpframe extends JFrame implements ActionListener {
 								String[] oarg = new String[17];
 								
 								//Put the arguments in the array.
-								if (nc.indexOf("(") > -1) {
+								if (nc.indexOf("(") > -1 || nc.indexOf("'") > -1 || nc.indexOf("\"") > -1) {
 										String as = nc.substring(nc.indexOf("(")+1, nc.lastIndexOf(")"));
 										if (as.indexOf(")") > -1) {
 												int curArg = 0;
@@ -1725,22 +2113,69 @@ public class ghpframe extends JFrame implements ActionListener {
 
 	public boolean processEvent(GmObject curobj, String objname, byte evt, FileOutputStream vars) {
 			String line = "";
-			if (curobj.mainEvents.get(evt).events.size() > 0) {
-					Iterator<org.lateralgm.resources.sub.Event> ev = curobj.mainEvents.get(evt).events.iterator();
+			boolean hasStep = false;
+			boolean hasDraw = false;
+			curMain = evt;
+			ArrayList<org.lateralgm.resources.sub.Event> events = new ArrayList<org.lateralgm.resources.sub.Event>();
+			ArrayList<GmObject> objs = new ArrayList<GmObject>();
+			GmObject qobj = curobj;
+			while (qobj != null) {
+					for (org.lateralgm.resources.sub.Event e : qobj.mainEvents.get(evt).events) {
+							boolean found = false;
+							for (org.lateralgm.resources.sub.Event e2 : events)
+									if (e.toString().equals(e2.toString())) {
+											found = true;
+											break;
+									}
+
+							if (!found) {
+									events.add(e);
+									objs.add(qobj);
+							}
+					}
+					
+					ResourceReference ref = qobj.get(PGmObject.PARENT);
+					if (ref == null)
+							qobj = null;
+					else
+							qobj = (GmObject) ref.get();
+			}
+			
+			if (events.size() > 0) {
+					Iterator<org.lateralgm.resources.sub.Event> ev = events.iterator();
+					int evInd = 0;
 					while (ev.hasNext()) {
+							boolean ia = false;
 							org.lateralgm.resources.sub.Event ev_cur = ev.next();
+							curEvt = ev_cur.toString();
 							Iterator<org.lateralgm.resources.sub.Action> ev_actions = ev_cur.actions.iterator();
-							if (ev_cur.toString().equals("Global Left Pressed"))
-									line += objname+".MousePress = function() {\n	";
-							else if (ev_cur.toString().equals("Normal Step"))
+							if (ev_cur.toString().equals("Normal Step")) {
 									line += objname+".Step = function() {\n	";
-							else if (ev_cur.toString().equals("Draw"))
+									hasStep = true;
+							}
+							else if (ev_cur.toString().equals("Draw")) {
 									line += objname+".Draw = function(i) {\n";
+									hasDraw = true;
+							}
+							else if (ev_cur.toString().equals("Animation End")) {
+									line += objname+".AnimationEnd = function(i) {\n";
+									hasDraw = true;
+							}
+							else if (evt == MainEvent.EV_ALARM) {
+									if (!ia)
+										line += objname + ".Alarm = function(i, num) {\n\t";
+									ia = true;
+							}
 							else
-									line += objname+"."+ev_cur.toString().replace(" ", "")+" = function() {\n	";
+									line += objname+"."+ev_cur.toString().replace(" ", "")+" = function() {\n\t";
 							
-							if (!ev_cur.toString().equals("Create") && !ev_cur.toString().equals("Draw"))
+							if (evt == MainEvent.EV_ALARM)
+									line += "if (num == " + ev_cur.toString().replaceAll("[^\\d.]", "") + ") {\n\t\t";
+							else if (!ev_cur.toString().equals("Create") && !ev_cur.toString().equals("Draw") && !ev_cur.toString().equals("Animation End"))
 									line += "for (var i = 0; i < " + objname + ".id.length; i++) {\n\t\t";
+							
+							if (ev_cur.toString().matches("(?:Left|Right|Middle) (?:Button|Pressed|Released)"))
+								line += "if (!checkPoint(mouseX, mouseY, " + objname + ".id[i]))\n\t\t\tcontinue;\n\t\t";
 							
 							while (ev_actions.hasNext()) {
 									org.lateralgm.resources.sub.Action action = ev_actions.next();
@@ -1748,16 +2183,47 @@ public class ghpframe extends JFrame implements ActionListener {
 									while (eab.hasNext()) {
 											Argument arg = eab.next();
 											if ((arg.kind == Argument.ARG_STRING)&&(!Character.isDigit(arg.getVal().charAt(0)))) {
+													child = objs.get(evInd);
 													line += "\t" + gmltoghp(arg.getVal(), objname, "\t").trim() + "\n";
+													child = null;
 											}
-											else {
-													line += "	//Sorry no DnD support yet\n";
+											else
+													line += "\t//Sorry no DnD support yet\n";
+									}
+							}
+							
+							if (ev_cur.toString().equals("Normal Step")) {
+									if (curobj.mainEvents.get(MainEvent.EV_ALARM).events.size() > 0) {
+											line += "\t\tfor (var j = 0; j < " + objname + ".id[i][\"alarm\"].length; j++) {\n\t\t\t";
+											line += objname + ".id[i][\"alarm\"][j] = Math.max(-1, " + objname + ".id[i][\"alarm\"][j] - 1);\n\t\t\t";
+											line += "if (" + objname + ".id[i][\"alarm\"][j] == 0)\n\t\t\t\t";
+											line += objname + ".Alarm(i, j);\n\t\t";
+											line += "}\n\t\t";
+									}
+									
+									if (curobj.mainEvents.get(MainEvent.EV_OTHER).events.size() > 0) {
+											boolean hasAnim = false;
+											for (org.lateralgm.resources.sub.Event e : curobj.mainEvents.get(MainEvent.EV_OTHER).events) {
+													if (e.toString().equals("Animation End")) {
+															hasAnim = true;
+															break;
+													}
+											}
+											
+											if (hasAnim) {
+													line += "\n\t\tif (%obj%[\"sprite\"] >= 0 && %obj%[\"imgIndex\"] + %obj%[\"imgSpeed\"] >= resource[0][%obj%[\"sprite\"]].numb) {\n\t\t\t".replace("%obj%", objname + ".id[i]");
+													line += objname + ".id[i][\"imgIndex\"] = 0;\n\t\t\t";
+													line += objname + ".AnimationEnd(i);\n\t\t";
+													line += "}";
 											}
 									}
 							}
-							if (!ev_cur.toString().equals("Draw"))
-								line += "\t}";
-						line += "\n}\n\n";
+							
+							if (!ev_cur.toString().equals("Draw") && !ev_cur.toString().equals("Animation End"))
+									line += "\t}\n";
+							if (evt != MainEvent.EV_ALARM || !ev.hasNext())
+									line += "}\n\n";
+							evInd++;
 					}
 					try {
 							for (int e=0;e<line.length();e++) {
@@ -1770,10 +2236,48 @@ public class ghpframe extends JFrame implements ActionListener {
 					}
 					return true;
 			}
-			else if (evt == MainEvent.EV_DRAW) {
-					line += objname+".Draw = function(i)\n{\n	";
+
+			if (!hasDraw && evt == MainEvent.EV_DRAW) {
+					line += objname+".Draw = function(i) {\n	";
 					line += "drawSelf("+objname+".id[i]);";
 					line += "\n}\n\n";
+					try {
+							for (int e=0;e<line.length();e++) {
+								byte buf = (byte) line.toCharArray()[e];
+								vars.write(buf);
+							}
+					}
+					catch (IOException e) {
+							System.out.println("Could not write object event.");
+					}
+					return true;
+			}
+			else if (!hasStep && evt == MainEvent.EV_STEP) {
+					line += objname+".Step = function() {\n	";
+					line += "for (var i = 0; i < " + objname + ".id.length; i++) {\n\t\t";
+					line += "for (var j = 0; j < " + objname + ".id[i][\"alarm\"].length; j++) {\n\t\t\t";
+					line += objname + ".id[i][\"alarm\"][j] = Math.max(-1, " + objname + ".id[i][\"alarm\"][j] - 1);\n\t\t\t";
+					line += "if (" + objname + ".id[i][\"alarm\"][j] == 0)\n\t\t\t\t";
+					line += objname + ".Alarm(i, j);\n\t\t";
+					line += "}\n";
+					
+					boolean hasAnim = false;
+					for (org.lateralgm.resources.sub.Event e : curobj.mainEvents.get(MainEvent.EV_OTHER).events) {
+							if (e.toString().equals("Animation End")) {
+									hasAnim = true;
+									break;
+							}
+					}
+					
+					if (hasAnim) {
+							line += "\n\t\tif (%obj%[\"sprite\"] >= 0 && %obj%[\"imgIndex\"] + %obj%[\"imgSpeed\"] >= resource[0][%obj%[\"sprite\"]].numb) {\n\t\t\t\t".replace("%obj%", objname + ".id[i]");
+							line += objname + ".id[i][\"imgIndex\"] = 0;\n\t\t\t\t";
+							line += objname + ".AnimationEnd(i);\n\t\t\t";
+							line += "}";
+					}
+					line += "\t}\n";
+					line += "}\n\n";
+					
 					try {
 							for (int e=0;e<line.length();e++) {
 								byte buf = (byte) line.toCharArray()[e];

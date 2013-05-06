@@ -257,7 +257,7 @@ instanceActivateRegion(%q%,%w%,%e%,%r%,%t%)
 // section 3.7
 
 fps
-cfps
+tfps
 currentTime
 currentYear
 currentMonth
@@ -267,7 +267,7 @@ currentHour
 currentMinute
 currentSecond
 sleep(%q%)
-%obj%["alarm%q%"]
+%obj%["alarm"][%q%]
 timelineIndex
 timelinePosition
 timelineSpeed
@@ -1088,7 +1088,7 @@ spriteGetYoffset(%q%)
 spriteGetBboxLeft(%q%)
 spriteGetBboxRight(%q%)
 spriteGetBboxTop(%q%)
-spritegetBboxBottom(%q%)
+spriteGetBboxBottom(%q%)
 
 spriteSave(%q%,%w%,%e%)
 spriteSaveStrip(%q%,%w%)

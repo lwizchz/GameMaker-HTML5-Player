@@ -9,14 +9,15 @@
 function gameStart() {
 	canvas.focus();
 
-	for (var i = 0; i < rooms.length; i++)
-		rooms[i].Create();
+	for (var i = 0; i < resource[8].length; i++)
+		resource[8][i].Create();
 
 	eventInstCrCode();
 	eventCreate();
 	eventGameStart();
 	eventRoomCrCode();
-	eventRoomStart(room);
+	roomOpen(room);
+	eventRoomStart();
 	eventDraw();
 }
 
@@ -29,12 +30,12 @@ function mainStep() {
 	cfps += 1;
 	eventStepBegin();
 	eventAlarm();
-	eventKeyboard();
-	eventMouse();
-	eventKeyboardPress();
-	eventMousePress();
-	eventKeyboardRelease();
-	eventMouseRelease();
+	//eventKeyboard();
+	//eventMouse();
+	//eventKeyboardPress();
+	//eventMousePress();
+	//eventKeyboardRelease();
+	//eventMouseRelease();
 	eventStep();
 	eventPathEnd();
 	eventOutsideRoom();
@@ -43,8 +44,7 @@ function mainStep() {
 	eventStepEnd();
 	eventAnimationEnd();
 	eventCleanup();
-	fnd = new Date();
-	fnd = fnd.getSeconds();
+	fnd = new Date().getSeconds();
 	setTimeout(mainStep, 1000 / fps);
 }
 

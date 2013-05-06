@@ -15,8 +15,8 @@ function eventGameEnd() {
 	eventRoomEnd();
 }
 
-function eventRoomStart(i) {
-	roomOpen(i);
+function eventRoomStart() {
+	objRoomStart();
 }
 
 function eventRoomChange() {
@@ -25,18 +25,10 @@ function eventRoomChange() {
 	eventCreate();
 	eventRoomCrCode();
 	eventRoomStart();
-	//eventDraw();
 }
 
 function eventRoomEnd() {
-	for (var i = 0; i < rooms[room].inst.length; i++) {
-		if (rooms[room].inst[i][0].id.length > 0)
-			rooms[room].inst[i][0].id.length = instanceDestroy();
-
-		delete rooms[room].inst[i];
-	}
-	glin.length = null;
-	delete glin;
+	objRoomEnd();
 }
 
 function eventInstCrCode() {
@@ -54,59 +46,61 @@ function eventCreate() {
 function eventDraw() {
 	clearDraw();
 	requestAnimFrame();
-	//objDraw();
 	var foregrounds = new Array();
-	for (var b = 0; b < rooms[room].backgrounds.length; b++) {
-		if (rooms[room].backgrounds[b] == undefined || rooms[room].backgrounds[b] == null)
+	for (var b = 0; b < resource[8][room].backgrounds.length; b++) {
+		if (resource[8][room].backgrounds[b] == undefined || resource[8][room].backgrounds[b] == null)
 			continue;
 		
-		if (rooms[room].backgrounds[b].fore) {
-			foregrounds.push(rooms[room].backgrounds[b]);
+		if (resource[8][room].backgrounds[b].fore) {
+			foregrounds.push(resource[8][room].backgrounds[b]);
 			continue;
 		}
 		
-		if (rooms[room].backgrounds[b].vis) {
-			var w = rooms[room].backgrounds[b].bkg.width;
-			var h = rooms[room].backgrounds[b].bkg.height;
+		if (resource[8][room].backgrounds[b].vis) {
+			var w = resource[8][room].backgrounds[b].bkg.width;
+			var h = resource[8][room].backgrounds[b].bkg.height;
 			
-			if (rooms[room].backgrounds[b].stretch) {
-				w = rooms[room].width;
-				h = rooms[room].height;
+			if (resource[8][room].backgrounds[b].stretch) {
+				w = resource[8][room].width;
+				h = resource[8][room].height;
 			}
 			
 			var x, y, endX, endY;
-			if (rooms[room].backgrounds[b].tileH) {
-				x = rooms[room].backgrounds[b].x % w;
+			if (resource[8][room].backgrounds[b].tileH) {
+				x = resource[8][room].backgrounds[b].x % w;
 				if (x > 0) x -= w;
 				endX = canvas.width;
 			}
 			else {
-				x = rooms[room].backgrounds[b].x;
+				x = resource[8][room].backgrounds[b].x;
 				endX = x + w;
 			}
 			
-			if (rooms[room].backgrounds[b].tileV) {
-				y = rooms[room].backgrounds[b].y % h;
+			if (resource[8][room].backgrounds[b].tileV) {
+				y = resource[8][room].backgrounds[b].y % h;
 				if (y > 0) y -= h;
 				endY = canvas.height;
 			}
 			else {
-				y = rooms[room].backgrounds[b].y;
+				y = resource[8][room].backgrounds[b].y;
 				endY = y + h;
 			}
 			
 			for (var xx = x; xx < endX; xx += w)
 				for (var yy = y; yy < endY; yy += h)
-					context.drawImage(rooms[room].backgrounds[b].bkg, xx, yy, w, h);
+					context.drawImage(resource[8][room].backgrounds[b].bkg, xx, yy, w, h);
 		}
 		
-		rooms[room].backgrounds[b].x += rooms[room].backgrounds[b].hsp;
-		rooms[room].backgrounds[b].y += rooms[room].backgrounds[b].vsp;
+		resource[8][room].backgrounds[b].x += resource[8][room].backgrounds[b].hsp;
+		resource[8][room].backgrounds[b].y += resource[8][room].backgrounds[b].vsp;
 	}
 	
 	var drawList = glin.concat(systems).concat(tiles);
 	drawList.sort(sortDepth);
-	for (var g = 0; g < drawList.length; g++)
+	for (var g = 0; g < drawList.length; g++) {
+		if (drawList[g] == null)
+			break;
+		
 		if (drawList[g] instanceof ParticleSystem) {
 			if (drawList[g].autoDraw)
 				partSystemDrawit(drawList[g]);
@@ -114,7 +108,8 @@ function eventDraw() {
 			if (drawList[g].visible)
 				drawBackgroundPartExt(drawList[g].bkg, drawList[g].left, drawList[g].top, drawList[g].width, drawList[g].height, drawList[g].x, drawList[g].y, drawList[g].xscale, drawList[g].yscale, drawList[g].blend, drawList[g].alpha);
 		} else if (drawList[g]["visible"])
-		drawList[g]["objectIndex"].Draw(drawList[g]["objectIndex"].id.indexOf(drawList[g]));
+			drawList[g]["objectIndex"].Draw(drawList[g]["objectIndex"].id.indexOf(drawList[g]));
+	}
 
 	for (var b = 0; b < foregrounds.length; b++) {
 		if (foregrounds[b].vis) {
@@ -122,8 +117,8 @@ function eventDraw() {
 			var h = foregrounds[b].bkg.height;
 			
 			if (foregrounds[b].stretch) {
-				w = rooms[room].width;
-				h = rooms[room].height;
+				w = resource[8][room].width;
+				h = resource[8][room].height;
 			}
 			
 			var x, y, endX, endY;
@@ -157,25 +152,30 @@ function eventDraw() {
 	}
 	
 	drawLinks();
-	drawCursor();
+	
+	if (cursorSprite >= 0)
+		drawSprite(cursorSprite, 0, mouseX, mouseY);
 }
 
 function eventStepBegin() {
-
+	objBeginStep();
 }
 
 function eventStep() {
 	for (var i = 0; i < glin.length; i++) {
+		if (glin[i] == null)
+			continue;
+
 		if ((glin[i]["gravity"] !== undefined) && (glin[i]["gravity_direction"] !== undefined))
 			motionAdd(glin[i]["glin"], glin[i]["gravity_direction"], glin[i]["gravity"]);
 
 		if ((isDefined(glin[i]["speed"])) && (isDefined(glin[i]["direction"])))
 			rayPoint(glin[i]["glin"], glin[i]["direction"], glin[i]["speed"]);
 
-		if (glin[i]["sprite"] == null)
+		if (resource[0][glin[i]["sprite"]] == undefined || resource[0][glin[i]["sprite"]] == null)
 			glin[i]["imgIndex"] = 0;
 		else {
-			var n = glin[i]["sprite"].numb;
+			var n = resource[0][glin[i]["sprite"]].numb;
 			glin[i]["imgIndex"] = (glin[i]["imgIndex"] + glin[i]["imgSpeed"]) % n;
 			while (glin[i]["imgIndex"] < 0)
 				glin[i]["imgIndex"] += n;
@@ -190,10 +190,12 @@ function eventStep() {
 				partSystemUpdate(systems[g]);
 
 	rkey = new Array();
+	mReleased = new Array(false, false, false);
+	mPressed = new Array(false, false, false);
 }
 
 function eventStepEnd() {
-
+	objEndStep();
 }
 
 function eventAlarm() {
@@ -323,9 +325,19 @@ function eventMouse(e) {
 	if (document.activeElement != canvas)
 		return;
 
-	if (e != undefined) {
-		//
-	}
+	if (e != undefined)
+		switch (e.button) {
+			case 0: objLeftButton();
+				objGlobalLeftButton();
+				break;
+				
+			case 1: objMiddleButton();
+				objGlobalMiddleButton();
+				break;
+				
+			case 2: objRightButton();
+				objGlobalRightButton();
+		}
 }
 
 function eventMousePress(e) {
@@ -333,14 +345,27 @@ function eventMousePress(e) {
 		return;
 
 	if (e != undefined)
-		objMouseP();
+		mButton[e.button] = true;
+		mPressed[e.button] = true;
+		switch (e.button) {
+			case 0: objLeftPressed();
+				objGlobalLeftPressed();
+				break;
+				
+			case 1: objMiddlePressed();
+				objGlobalMiddlePressed();
+				break;
+				
+			case 2: objRightPressed();
+				objGlobalRightPressed();
+		}
 }
 
 function eventMouseRelease(e) {
 	if (document.activeElement != canvas)
 		return;
 
-	if (e != undefined)
+	if (e != undefined) {
 	//Do links
 		if (links.length > 0)
 			for (var i = 0; i < links.length; i++)
@@ -349,6 +374,22 @@ function eventMouseRelease(e) {
 						links[i][0](links[i][1]);
 					else
 						eval(links[i][0]);
+						
+		mButton[e.button] = false;
+		mReleased[e.button] = true;
+		switch (e.button) {
+			case 0: objLeftReleased();
+				objGlobalLeftReleased();
+				break;
+				
+			case 1: objMiddleReleased();
+				objGlobalMiddleReleased();
+				break;
+				
+			case 2: objRightReleased();
+				objGlobalRightReleased();
+		}
+	}
 }
 
 function eventMouseMove(e) {
@@ -360,6 +401,9 @@ function eventMouseMove(e) {
 
 function eventCleanup() {
 	for (var i = 0; i < glin.length; i++) {
+		if (glin[i] == null)
+			continue;
+
 		/*if ((glin[i]["xprevious"] !== undefined)&&(glin[i]["yprevious"] !== undefined))
 		{
 			glin[i]["direction"] = pointDirection(glin[i]["x"], glin[i]["y"], glin[i]["xprevious"], glin[i]["yprevious"]);
